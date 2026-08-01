@@ -124,8 +124,8 @@
           <input value="{{ taskText }}" onInput="{{ onTaskInput }}" placeholder="What are you working on?" style="width:100%;box-sizing:border-box;border:0;border-bottom:2px solid {{ bandRule }};background:transparent;border-radius:0;padding:7px 0;font:600 16px/1.3 'Archivo',sans-serif;color:{{ bandFg }};outline:none">
           <div style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-top:16px">Billing this time to</div>
           <div style="display:flex;gap:8px;margin-top:8px">
-            <button onClick="{{ cycleProject }}" style="display:flex;align-items:center;gap:8px;padding:7px 11px;border:2px solid {{ bandRule }};background:transparent;color:{{ bandFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase">
-              <span style="width:8px;height:8px;background:{{ chipDotColor }};flex:none"></span>{{ projName }}<span style="opacity:.65">▾</span>
+            <button onClick="{{ cycleProject }}" style="display:flex;align-items:center;gap:8px;min-width:0;padding:7px 11px;border:2px solid {{ bandRule }};background:transparent;color:{{ bandFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase">
+              <span style="width:8px;height:8px;background:{{ chipDotColor }};flex:none"></span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ projName }}</span><span style="opacity:.65;flex:none">▾</span>
             </button>
             <button onClick="{{ toggleBillable }}" style="padding:7px 11px;border:2px solid {{ bandRule }};background:{{ billBg }};color:{{ billFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em">{{ billLabel }}</button>
           </div>
@@ -161,6 +161,26 @@
           </sc-for>
         </div>
 
+        <sc-if value="{{ showSpark }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;border-top:2px solid var(--t-ink);padding:12px 16px 10px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+              <span style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted)">This week</span>
+              <span style="font:700 11.5px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ sparkTotal }}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:42px">
+              <sc-for list="{{ spark }}" as="d" hint-placeholder-count="7">
+                <button onClick="{{ d.pick }}" aria-label="Open this day" style="height:100%;display:flex;flex-direction:column;justify-content:flex-end;border:0;background:transparent;cursor:pointer;padding:0">
+                  <span style="display:block;width:100%;height:{{ d.h }};background:{{ d.color }}"></span>
+                </button>
+              </sc-for>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;border-top:2px solid var(--t-ink);margin-top:6px;padding-top:6px">
+              <sc-for list="{{ spark }}" as="d" hint-placeholder-count="7">
+                <span style="text-align:center;font:{{ d.labelW }} 9.5px/1 'Archivo',sans-serif;color:{{ d.labelFg }}">{{ d.label }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
         <div style="display:flex;gap:0;border-top:2px solid var(--t-ink)">
           <button class="btn" onClick="{{ toggleTimer }}" style="flex:1;justify-content:flex-start;border-radius:0;border:0;background:{{ bigBtnBg }};color:{{ bigBtnFg }};font:800 15px/1 'Archivo',sans-serif;letter-spacing:.08em;padding:20px 16px">{{ bigBtnLabel }}</button>
           <button class="btn btn-secondary" onClick="{{ openAdd }}" style="width:120px;justify-content:flex-start;border-radius:0;border:0;border-left:2px solid var(--t-ink);font:700 13px/1 'Archivo',sans-serif;letter-spacing:.06em;padding:20px 16px">+ ADD</button>
@@ -1118,7 +1138,8 @@
           <div style="font:800 12px/1 'Archivo',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--tempo-accent)">Tempo</div>
           <div style="height:2px;background:var(--t-ink);margin:14px 0 18px"></div>
           <h2 style="font:800 32px/1.02 'Archivo',sans-serif;letter-spacing:-.025em;margin:0 0 12px">Track hours. Fix the gaps. Get paid.</h2>
-          <p style="font:400 14px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin:0">Everything stays on this device — no account, no seats. Start with a sample week to poke around, or set up your first project now.</p>
+          <p style="font:400 14px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin:0 0 12px">Tracking is free forever. No account, no surveillance, works offline — your hours never leave this device.</p>
+          <p style="font:400 14px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin:0">Start with a sample week to poke around, or set up your first project now.</p>
         </div>
         <div style="display:flex;flex-direction:column;border-top:2px solid var(--t-ink)">
           <button onClick="{{ startFresh }}" style="padding:19px 20px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 15px/1 'Archivo',sans-serif;letter-spacing:.06em">SET UP MY FIRST PROJECT</button>
@@ -1155,9 +1176,9 @@
 
     <!-- TAB BAR -->
     <div style="display:grid;grid-template-columns:repeat(5,1fr);border-top:2px solid var(--t-ink);background:var(--t-bg)">
-      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
-        <button onClick="{{ t.go }}" style="border:0;border-top:4px solid {{ t.bar }};border-right:1px solid var(--t-rule2);background:{{ t.bg }};color:{{ t.fg }};padding:{{ t.pad }};cursor:pointer;font:{{ t.font }};letter-spacing:.1em;text-transform:uppercase;display:flex;flex-direction:{{ t.dir }};align-items:center;gap:{{ t.gap }}">
-          <span style="display:{{ t.dotDisplay }};width:{{ t.dotW }};height:{{ t.dotH }};box-sizing:border-box;background:{{ t.dotBg }};border:{{ t.dotBorderW }} solid {{ t.dotBorder }}"></span>
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+        <button onClick="{{ t.go }}" aria-label="{{ t.label }}" style="border:0;border-top:3px solid {{ t.bar }};background:transparent;color:{{ t.fg }};padding:8px 0 7px;cursor:pointer;font:{{ t.font }};letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;gap:5px">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" style="display:block;color:{{ t.iconColor }}"><path d="{{ t.iconPath }}"></path></svg>
           <span>{{ t.label }}</span>
         </button>
       </sc-for>
@@ -1635,10 +1656,12 @@ class Component extends DCLogic {
     // week strip
     const wsD = this.weekStart();
     const week = [];
+    const weekRaw = [];
     for (let i = 0; i < 7; i++) {
       const dd = new Date(wsD); dd.setDate(wsD.getDate() + i);
       const off = Math.round((dd - dayStart(0)) / 86400000);
       const m = this.dayEntries(off).reduce((a, e) => a + this.mins(e), 0);
+      weekRaw.push({ m, off, label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()] });
       const active = off === s.dayOff;
       week.push({
         label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()], hours: m ? fmtHM(m) : '—',
@@ -1651,6 +1674,19 @@ class Component extends DCLogic {
         pick: () => { if (off <= 0) this.setState({ dayOff: off }); }
       });
     }
+
+    // Track-screen spark strip — the week at a glance above the footer
+    const weekMinsTotal = weekRaw.reduce((a, d) => a + d.m, 0);
+    const sparkMaxM = Math.max.apply(null, weekRaw.map(d => d.m).concat([1]));
+    const spark = weekRaw.map(d => ({
+      label: d.label,
+      value: d.m ? fmtHM(d.m) : '',
+      h: d.m ? Math.max(10, Math.round((d.m / sparkMaxM) * 100)) + '%' : '3px',
+      color: d.off === 0 ? 'var(--tempo-accent)' : (d.m ? 'var(--t-ink)' : 'var(--t-track)'),
+      labelFg: d.off === 0 ? 'var(--tempo-accent-deep)' : 'var(--t-muted)',
+      labelW: d.off === 0 ? '800' : '600',
+      pick: () => { if (d.off <= 0) this.setState({ tab: 'day', dayOff: d.off, pane: null }); }
+    }));
 
     // day rows
     const list = this.dayEntries(s.dayOff);
@@ -1947,47 +1983,25 @@ class Component extends DCLogic {
     }).filter(Boolean);
 
     const tabDefs = [['track', 'Track'], ['day', 'Day'], ['projects', 'Projects'], ['reports', 'Reports'], ['settings', 'Settings']];
-    const navStyle = this.props.navStyle || 'label';
+    // Geometric single-path icons, Modernist style: squared strokes, no rounding.
+    const TAB_ICONS = {
+      track: 'M9 2.5h6M12 2.5v3M12 21a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15zM12 13.5V9.5',
+      day: 'M4 4.5h16M4 9.5h16M4 14.5h16M4 19.5h9',
+      projects: 'M4 4h6.5v6.5H4zM13.5 4H20v6.5h-6.5zM4 13.5h6.5V20H4zM13.5 13.5H20V20h-6.5z',
+      reports: 'M5 20v-6M10 20V4M15 20v-9M20 20V8',
+      settings: 'M4 8h9M17 8h3M15 5.5v5M4 16h3M11 16h9M9 13.5v5'
+    };
     const tabs = tabDefs.map(([k, label]) => {
       const on = s.tab === k;
-      const t = { label, go: () => this.setState({ tab: k, pane: null }), pad: '11px 0 15px', dir: 'column', gap: '6px', dotDisplay: 'none', dotW: '9px', dotH: '9px', dotBorderW: '2px', dotBg: 'transparent', dotBorder: 'transparent' };
-      if (navStyle === 'rule') {
-        t.bg = on ? 'var(--t-bg)' : 'transparent';
-        t.fg = on ? 'var(--t-ink)' : 'var(--t-muted)';
-        t.bar = on ? 'var(--tempo-accent)' : 'transparent';
-      } else if (navStyle === 'marker') {
-        t.bg = 'transparent';
-        t.fg = on ? 'var(--t-ink)' : 'var(--t-muted)';
-        t.bar = 'transparent';
-        t.pad = '10px 0 14px';
-        t.dotDisplay = 'block';
-        t.dotBg = on ? 'var(--tempo-accent)' : 'transparent';
-        t.dotBorder = on ? 'var(--tempo-accent)' : 'var(--t-rule)';
-      } else if (navStyle === 'underline') {
-        t.bg = 'transparent';
-        t.fg = on ? 'var(--tempo-accent-deep)' : 'var(--t-muted)';
-        t.bar = on ? 'var(--tempo-accent)' : 'transparent';
-        t.pad = '11px 0 15px';
-      } else if (navStyle === 'block') {
-        t.bg = on ? 'var(--tempo-accent)' : 'transparent';
-        t.fg = on ? '#ffffff' : 'var(--t-muted)';
-        t.bar = on ? 'var(--t-ink)' : 'transparent';
-      } else {
-        t.bg = 'transparent';
-        t.fg = on ? 'var(--t-ink)' : 'var(--t-muted)';
-        t.bar = 'transparent';
-        t.pad = '13px 0 11px';
-        t.dir = 'column-reverse';
-        t.gap = '7px';
-        t.dotDisplay = 'block';
-        t.dotW = '20px';
-        t.dotH = '3px';
-        t.dotBorderW = '0px';
-        t.dotBg = on ? 'var(--t-ink)' : 'transparent';
-        t.dotBorder = 'transparent';
-      }
-      t.font = on ? "800 10.5px/1 'Archivo',sans-serif" : "600 10.5px/1 'Archivo',sans-serif";
-      return t;
+      return {
+        label,
+        go: () => this.setState({ tab: k, pane: null }),
+        bar: on ? 'var(--tempo-accent)' : 'transparent',
+        fg: on ? 'var(--t-ink)' : 'var(--t-muted)',
+        iconColor: on ? 'var(--tempo-accent)' : 'var(--t-muted)',
+        iconPath: TAB_ICONS[k],
+        font: (on ? '800' : '600') + " 9.5px/1 'Archivo',sans-serif"
+      };
     });
 
     const f = s.form;
@@ -2057,6 +2071,9 @@ class Component extends DCLogic {
       resetSample: () => this.setState({ entries: [], projects: [], timer: null }, () => { this.seed(); this.toast('Sample day reloaded'); }),
       clearAll: () => { const snap = this.snapshot(); this.setState({ entries: [], projects: [], timer: null, lastProj: null, task: '' }); this.toast('Everything erased', snap); },
       tabs,
+      spark,
+      showSpark: weekMinsTotal > 0,
+      sparkTotal: fmtHM(weekMinsTotal),
       dateLabel: new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }),
       todaySummary: 'Today ' + fmtHM(tmins) + (showMoney && tmoney ? '  ·  $' + Math.round(tmoney) : ''),
       timerStateLabel: s.timer ? 'Running' : 'Stopped',
