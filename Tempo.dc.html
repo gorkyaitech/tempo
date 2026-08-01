@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#e6e4e4" media="(prefers-color-scheme: light)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Tempo">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icons/icon-192.png" type="image/png">
@@ -64,13 +64,22 @@
   /* DS buttons follow the app theme (the DS tokens are light-only) */
   .btn{color:var(--t-ink)}
   .btn-secondary{border-color:var(--t-rule)}
-  .btn-primary{color:#fff}
+  .btn-primary{background:var(--tempo-accent);color:#fff}
+  /* DS inputs: app-theme colors, no color-mix (unsupported on older iOS) */
+  .input{background:var(--t-field);color:var(--t-ink);border:1px solid var(--t-rule);caret-color:var(--tempo-accent)}
+  .input:hover{border-color:var(--t-rule)}
+  .input:focus-visible{border-color:var(--tempo-accent)}
   /* App shell — full-viewport native-app presentation */
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   html,body{height:100%;overscroll-behavior:none}
   #dc-root,#dc-root>.sc-host{height:100%}
-  .app-shell{height:100dvh;display:flex;justify-content:center;align-items:stretch;background:var(--t-page);overflow:hidden}
-  .app-frame{width:100%;max-width:430px;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--t-bg);flex:none;
-    padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  .app-shell{height:100vh;height:100dvh;display:flex;justify-content:center;align-items:stretch;background:var(--t-page);overflow:hidden}
+  .app-frame{width:100%;max-width:430px;height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--t-bg);flex:none;box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  /* Full-screen overlays (sheets, invoice, search…) sit above the frame's
+     padding box — give them their own safe-area padding so action rows
+     clear the notch and the home indicator. */
+  .app-frame>div[style*="inset"]{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
   @media (min-width:521px){
     .app-frame{border-left:2px solid var(--t-ink);border-right:2px solid var(--t-ink);box-shadow:0 12px 32px rgba(45,43,43,.22)}
   }
@@ -80,6 +89,10 @@
     user-select:none;-webkit-user-select:none}
   input,textarea{user-select:text;-webkit-user-select:text}
   button{touch-action:manipulation}
+  /* iOS zooms the viewport when a focused input is under 16px — never allow that */
+  @media (pointer:coarse){
+    input,textarea{font-size:16px !important}
+  }
 </style>
 </helmet>
 <template id="__bundler_thumbnail" data-bg-color="#ec3013">
