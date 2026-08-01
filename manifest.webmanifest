@@ -1,0 +1,17 @@
+{
+  "name": "Tempo — time tracker",
+  "short_name": "Tempo",
+  "description": "Track hours, fix the gaps in your day, get paid. Everything stays on your device.",
+  "id": "./Tempo.dc.html",
+  "start_url": "./Tempo.dc.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#151413",
+  "theme_color": "#151413",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
