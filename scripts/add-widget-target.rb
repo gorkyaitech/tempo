@@ -28,6 +28,7 @@ wgroup.new_file('Info.plist')
 
 wt.build_configurations.each do |c|
   bs = c.build_settings
+  bs['PRODUCT_NAME'] = 'TempoWidgets'
   bs['PRODUCT_BUNDLE_IDENTIFIER'] = 'com.gorkyaitech.tempo.TempoWidgets'
   bs['INFOPLIST_FILE'] = 'TempoWidgets/Info.plist'
   bs['GENERATE_INFOPLIST_FILE'] = 'YES'
