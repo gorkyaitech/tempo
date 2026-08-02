@@ -1133,6 +1133,11 @@
                 Restore from a backup file
                 <input type="file" accept="application/json" onChange="{{ restoreJson }}" style="display:none">
               </label>
+              <label style="display:block;width:100%;padding:13px 16px;border-top:1px solid var(--t-rule);cursor:pointer;font:600 13.5px/1 'Archivo',sans-serif;box-sizing:border-box">
+                Import entries from CSV
+                <span style="display:block;font:400 11px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:3px">Toggl, Clockify, Harvest or any export with dates &amp; durations</span>
+                <input type="file" accept=".csv,text/csv" onChange="{{ importCsv }}" style="display:none">
+              </label>
               <button onClick="{{ resetSample }}" style="width:100%;padding:13px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:600 13.5px/1 'Archivo',sans-serif">Reload the sample week</button>
               <button onClick="{{ clearAll }}" style="width:100%;padding:13px 16px;border:0;border-top:1px solid var(--t-rule);border-bottom:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:700 13.5px/1 'Archivo',sans-serif;color:var(--tempo-accent-deep)">Erase all entries and projects</button>
             </div>
@@ -1188,6 +1193,34 @@
             <span style="width:86px;display:flex;align-items:center;justify-content:center;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">{{ issuedStatus }}</span>
           </div>
           <button onClick="{{ unmarkIssued }}" style="width:100%;padding:13px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em;color:var(--tempo-accent-deep)">REOPEN — MAKE THESE HOURS BILLABLE AGAIN</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- CSV IMPORT PREVIEW -->
+    <sc-if value="{{ importOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:16;background:var(--t-bg);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
+          <span style="min-width:0">
+            <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent-deep)">Import preview</span>
+            <span style="display:block;font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ importTitle }}</span>
+          </span>
+          <button onClick="{{ cancelImport }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CANCEL</button>
+        </div>
+        <div style="flex:1;overflow-y:auto">
+          <div style="padding:13px 16px;border-bottom:2px solid var(--t-ink);font:700 12.5px/1.5 'Archivo',sans-serif">{{ importSummary }}</div>
+          <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);padding:14px 16px 8px">Preview — first entries</div>
+          <sc-for list="{{ importSamples }}" as="im" hint-placeholder-count="5">
+            <div style="padding:11px 16px;border-top:1px solid var(--t-rule)">
+              <div style="font:600 13px/1.3 'Archivo',sans-serif">{{ im.desc }}</div>
+              <div style="font:400 11px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:3px">{{ im.meta }}</div>
+            </div>
+          </sc-for>
+          <div style="padding:14px 16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Nothing has been written yet. Importing adds these entries (and any new projects) to your data — you can undo right after.</div>
+        </div>
+        <div style="display:flex;border-top:2px solid var(--t-ink);flex:none">
+          <button onClick="{{ doImport }}" style="flex:1;padding:15px 16px;border:0;border-right:2px solid var(--t-ink);background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 13px/1 'Archivo',sans-serif;letter-spacing:.06em">IMPORT</button>
+          <button onClick="{{ cancelImport }}" style="width:110px;padding:15px 16px;border:0;background:transparent;cursor:pointer;text-align:left;font:700 12px/1 'Archivo',sans-serif;letter-spacing:.06em;color:var(--t-muted)">CANCEL</button>
         </div>
       </div>
     </sc-if>
@@ -1491,6 +1524,44 @@ function fmtT(m) {
 }
 function fmtClock(ts) { const d = new Date(ts); return fmtT(d.getHours() * 60 + d.getMinutes()); }
 function fmtShort(ts) { const d = new Date(ts); const m = d.getHours() * 60 + d.getMinutes(); const h = Math.floor(m / 60); return (h % 12 || 12) + ':' + String(m % 60).padStart(2, '0') + (h < 12 ? 'a' : 'p'); }
+
+// RFC-4180-ish CSV parser: quoted fields, escaped quotes, newlines in quotes.
+function parseCSV(text) {
+  const rows = []; let row = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
+      else field += c;
+    } else if (c === '"') inQ = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(field); field = '';
+      if (row.length > 1 || row[0] !== '') rows.push(row);
+      row = [];
+    } else field += c;
+  }
+  row.push(field);
+  if (row.length > 1 || row[0] !== '') rows.push(row);
+  return rows;
+}
+// "1:02:30" | "1:02" | "2.5" | "2,5" → minutes
+function parseDurMin(v) {
+  v = String(v || '').trim(); if (!v) return 0;
+  if (v.includes(':')) { const p = v.split(':').map(Number); return (p[0] || 0) * 60 + (p[1] || 0) + (p[2] || 0) / 60; }
+  const f = parseFloat(v.replace(',', '.')); return isNaN(f) ? 0 : f * 60;
+}
+// date + optional time strings → ms timestamp (ISO first, then locale parse)
+function parseWhen(dateStr, timeStr) {
+  dateStr = String(dateStr || '').trim(); timeStr = String(timeStr || '').trim();
+  if (!dateStr && !timeStr) return null;
+  if (!dateStr && timeStr) { const t = Date.parse(timeStr); return isNaN(t) ? null : t; }
+  const iso = /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+  let t = Date.parse(iso && timeStr ? dateStr + 'T' + timeStr : (dateStr + (timeStr ? ' ' + timeStr : '')));
+  if (isNaN(t)) t = Date.parse(dateStr);
+  return isNaN(t) ? null : t;
+}
 function toMins(str) {
   str = (str || '').trim().toLowerCase();
   const m = str.match(/^(\d{1,2}):?(\d{2})?\s*(am?|pm?)?\.?$/);
@@ -1739,6 +1810,66 @@ class Component extends DCLogic {
   openSheet(kind, patch) {
     const base = { desc: '', time: '', start: '', end: '', dateMs: dayStart(this.state.dayOff).getTime(), billable: this.state.settings.defaultBillable, parallel: false, projId: (this.currentProj() || {}).id, editId: null };
     this.setState({ sheet: kind, projPickerOpen: false, projQuery: '', form: Object.assign(base, patch || {}) });
+  }
+
+  // CSV import: auto-map headers from Toggl/Clockify/Harvest/generic exports,
+  // build a preview (nothing written until the user confirms).
+  buildImport(text, fileName) {
+    const rows = parseCSV(text);
+    if (rows.length < 2) { this.toast('Couldn’t read that CSV — no data rows found'); return; }
+    const hdr = rows[0].map(h => String(h).trim().toLowerCase());
+    const idx = names => { for (const n of names) { const i = hdr.indexOf(n); if (i > -1) return i; } return -1; };
+    const iDesc = idx(['description', 'notes', 'note', 'entry', 'task description']);
+    const iProj = idx(['project', 'project name']);
+    const iClient = idx(['client', 'client name', 'company']);
+    const iBill = idx(['billable', 'billable?']);
+    const iSD = idx(['start date', 'start_date', 'date']);
+    const iST = idx(['start time', 'start_time', 'start']);
+    const iED = idx(['end date', 'stop date', 'end_date']);
+    const iET = idx(['end time', 'stop time', 'end_time', 'end', 'stop']);
+    const iDur = idx(['duration', 'duration (h)', 'duration (hh:mm:ss)', 'duration (decimal)', 'hours', 'time (decimal)', 'time (h)']);
+    if (iSD === -1 && iST === -1) { this.toast('No date column found — is this a time export?'); return; }
+    const existKeys = new Set(this.state.entries.map(e => e.start + '|' + e.end));
+    const seen = new Set();
+    const list = []; let skippedDup = 0, skippedBad = 0;
+    const dayCursor = {}; // for date-only exports (Harvest): stack from 9:00
+    for (let r = 1; r < rows.length && list.length < 2000; r++) {
+      const row = rows[r]; if (row.length < 2) continue;
+      const val = i => i > -1 ? String(row[i] || '').trim() : '';
+      const durMin = parseDurMin(val(iDur));
+      let start = parseWhen(val(iSD), val(iST));
+      let end = parseWhen(val(iED) || val(iSD), val(iET));
+      if (start != null && (end == null || end <= start) && durMin > 0) end = start + durMin * MS;
+      if (start == null && val(iSD) && durMin > 0) {
+        // date-only rows: synthesize sequential times from 9:00 am
+        const d0 = parseWhen(val(iSD), '');
+        if (d0 != null) {
+          const key = val(iSD);
+          const cur = dayCursor[key] || (d0 + 9 * 3600000);
+          start = cur; end = cur + durMin * MS; dayCursor[key] = end;
+        }
+      }
+      if (start == null || end == null || end <= start || (end - start) > 24 * 3600000) { skippedBad++; continue; }
+      const k = start + '|' + end;
+      if (existKeys.has(k) || seen.has(k)) { skippedDup++; continue; }
+      seen.add(k);
+      list.push({
+        desc: val(iDesc) || '(imported)',
+        projName: val(iProj), clientName: val(iClient),
+        billable: iBill > -1 ? /^(yes|true|1|billable)$/i.test(val(iBill)) : true,
+        start, end
+      });
+    }
+    if (!list.length) { this.toast('Nothing importable — ' + skippedDup + ' duplicates, ' + skippedBad + ' unreadable rows'); return; }
+    // which projects would be created
+    const have = new Set(this.state.projects.map(p => (p.name + '|' + (p.client || '')).toLowerCase()));
+    const newProjects = [];
+    list.forEach(e => {
+      if (!e.projName) return;
+      const key = (e.projName + '|' + (e.clientName || '')).toLowerCase();
+      if (!have.has(key)) { have.add(key); newProjects.push({ name: e.projName, client: e.clientName || '' }); }
+    });
+    this.setState({ importPrev: { list, newProjects, skippedDup, skippedBad, fileName: fileName || 'import.csv' } });
   }
 
   renderVals() {
@@ -2801,6 +2932,46 @@ class Component extends DCLogic {
       reconstructGo: () => {
         if (!reconstruct) return;
         this.openSheet('entry', { start: fmtClock(reconstruct.startTs), end: fmtClock(Date.now()), dateMs: dayStart(0).getTime() });
+      },
+
+      // CSV import
+      importCsv: e => {
+        const f = e.target.files && e.target.files[0];
+        e.target.value = '';
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = () => this.buildImport(String(reader.result || ''), f.name);
+        reader.readAsText(f);
+      },
+      importOpen: !!s.importPrev,
+      importTitle: s.importPrev ? s.importPrev.fileName : '',
+      importSummary: s.importPrev
+        ? s.importPrev.list.length + ' entries ready'
+          + (s.importPrev.newProjects.length ? ' · ' + s.importPrev.newProjects.length + ' new project' + (s.importPrev.newProjects.length > 1 ? 's' : '') : '')
+          + (s.importPrev.skippedDup ? ' · ' + s.importPrev.skippedDup + ' duplicates skipped' : '')
+          + (s.importPrev.skippedBad ? ' · ' + s.importPrev.skippedBad + ' unreadable rows skipped' : '')
+        : '',
+      importSamples: s.importPrev ? s.importPrev.list.slice(0, 5).map(e => ({
+        desc: e.desc,
+        meta: (e.projName || 'No project') + ' · ' + new Date(e.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+          + ' · ' + fmtClock(e.start) + ' – ' + fmtClock(e.end) + ' · ' + fmtHM((e.end - e.start) / MS)
+      })) : [],
+      cancelImport: () => this.setState({ importPrev: null }),
+      doImport: () => {
+        const ip = s.importPrev; if (!ip) return;
+        const snap = this.snapshot();
+        const projects = s.projects.slice();
+        ip.newProjects.forEach(np => {
+          projects.push({ id: uid(), name: np.name, client: np.client, color: SWATCHES[projects.length % SWATCHES.length], rate: '', est: '', archived: false });
+        });
+        const findProj = (name, client) => projects.find(p =>
+          p.name.toLowerCase() === String(name).toLowerCase() && (p.client || '').toLowerCase() === String(client || '').toLowerCase());
+        const entries = s.entries.concat(ip.list.map(e => {
+          const p = e.projName ? findProj(e.projName, e.clientName) : null;
+          return { id: uid(), desc: e.desc, projId: p ? p.id : (this.currentProj() || {}).id, start: e.start, end: e.end, billable: e.billable, tag: '', note: '' };
+        }));
+        this.setState({ projects, entries, importPrev: null });
+        this.toast('Imported ' + ip.list.length + ' entries' + (ip.newProjects.length ? ' · ' + ip.newProjects.length + ' new projects' : ''), snap);
       },
 
       backupJson: () => {
