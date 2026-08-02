@@ -52,16 +52,22 @@ end
 bf = embed.add_file_reference(wt.product_reference)
 bf.settings = { 'ATTRIBUTES' => ['RemoveHeadersOnCopy'] }
 
-# --- signing: team + automatic style must live IN the project for
-# cloud-managed signing to engage (CLI overrides are ignored by the
-# provisioning planner) ---
+# --- signing: manual, with API-provisioned profiles (cloud-managed
+# signing is unreliable on CI Xcode; profiles are created via the ASC
+# API and installed by the workflow) ---
 TEAM = '645MRT8CT2'
+PROFILES = { 'App' => 'Tempo AppStore', 'TempoWidgets' => 'TempoWidgets AppStore' }
 project.root_object.attributes['TargetAttributes'] ||= {}
 project.targets.each do |t|
   project.root_object.attributes['TargetAttributes'][t.uuid] = { 'DevelopmentTeam' => TEAM }
   t.build_configurations.each do |c|
     c.build_settings['DEVELOPMENT_TEAM'] = TEAM
-    c.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
+    if PROFILES.key?(t.name)
+      c.build_settings['CODE_SIGN_STYLE'] = 'Manual'
+      c.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = PROFILES[t.name]
+      c.build_settings['CODE_SIGN_IDENTITY'] = 'Apple Distribution'
+      c.build_settings['CODE_SIGN_IDENTITY[sdk=iphoneos*]'] = 'Apple Distribution'
+    end
   end
 end
 
