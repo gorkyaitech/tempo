@@ -179,7 +179,7 @@ jobs:
           <plist version="1.0">
           <dict>
             <key>method</key><string>app-store-connect</string>
-            <key>destination</key><string>upload</string>
+            <key>destination</key><string>export</string>
             <key>teamID</key><string>TEAM_ID_PLACEHOLDER</string>
             <key>signingStyle</key><string>manual</string>
             <key>provisioningProfiles</key>
@@ -194,8 +194,17 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath build/Tempo.xcarchive \
             -exportOptionsPlist exportOptions.plist \
-            -exportPath build/export \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath $HOME/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
-            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+            -exportPath build/export
+          ls -la build/export
+
+      - name: Upload to TestFlight (fastlane)
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          jq -n --arg kid "$ASC_KEY_ID" --arg iss "$ASC_ISSUER_ID" \
+            --arg key "$(cat $HOME/private_keys/AuthKey_$ASC_KEY_ID.p8)" \
+            '{key_id:$kid, issuer_id:$iss, key:$key, in_house:false}' > asc_key.json
+          IPA=$(ls build/export/*.ipa | head -1)
+          echo "uploading $IPA"
+          fastlane pilot upload --ipa "$IPA" --api_key_path asc_key.json --skip_waiting_for_build_processing true
