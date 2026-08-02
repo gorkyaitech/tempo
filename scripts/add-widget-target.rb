@@ -52,5 +52,18 @@ end
 bf = embed.add_file_reference(wt.product_reference)
 bf.settings = { 'ATTRIBUTES' => ['RemoveHeadersOnCopy'] }
 
+# --- signing: team + automatic style must live IN the project for
+# cloud-managed signing to engage (CLI overrides are ignored by the
+# provisioning planner) ---
+TEAM = '645MRT8CT2'
+project.root_object.attributes['TargetAttributes'] ||= {}
+project.targets.each do |t|
+  project.root_object.attributes['TargetAttributes'][t.uuid] = { 'DevelopmentTeam' => TEAM }
+  t.build_configurations.each do |c|
+    c.build_settings['DEVELOPMENT_TEAM'] = TEAM
+    c.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
+  end
+end
+
 project.save
 puts 'Xcode project: TempoNative plugin + TempoWidgets extension injected'
