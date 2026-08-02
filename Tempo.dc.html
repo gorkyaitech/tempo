@@ -1429,7 +1429,19 @@
           <sc-if value="{{ isEntrySheet }}" hint-placeholder-val="{{ true }}">
             <div>
               <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">What did you do?</label>
-              <input class="input" value="{{ fDesc }}" onInput="{{ onDesc }}" placeholder="e.g. Logo revisions" style="width:100%;box-sizing:border-box;margin-bottom:14px">
+              <input class="input" value="{{ fDesc }}" onInput="{{ onDesc }}" placeholder="e.g. Logo revisions" style="width:100%;box-sizing:border-box">
+              <sc-if value="{{ showDescHelper }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ toggleDescSuggest }}" style="display:block;margin:6px 0 0;padding:5px 0;border:0;background:transparent;cursor:pointer;text-align:left;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--tempo-accent-deep)">✍ CLIENT-SAFE WORDING ▾</button>
+                <sc-if value="{{ descSuggestOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="border:2px solid var(--t-rule);background:var(--t-bg);margin-top:4px">
+                    <sc-for list="{{ descSuggestions }}" as="ds" hint-placeholder-count="4">
+                      <button onClick="{{ ds.pick }}" style="display:block;width:100%;box-sizing:border-box;padding:10px 12px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font:600 12.5px/1.35 'Archivo',sans-serif;color:var(--t-ink)">{{ ds.label }}</button>
+                    </sc-for>
+                    <div style="padding:8px 12px;font:400 10.5px/1.4 'Archivo',sans-serif;color:var(--t-muted)">Tap to use — your rough text moves to the private note. Everything stays editable.</div>
+                  </div>
+                </sc-if>
+              </sc-if>
+              <div style="height:14px"></div>
 
               <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">Project</label>
               <div style="margin-bottom:14px;position:relative;z-index:5">
@@ -1611,6 +1623,40 @@ function fmtT(m) {
 }
 function fmtClock(ts) { const d = new Date(ts); return fmtT(d.getHours() * 60 + d.getMinutes()); }
 function fmtShort(ts) { const d = new Date(ts); const m = d.getHours() * 60 + d.getMinutes(); const h = Math.floor(m / 60); return (h % 12 || 12) + ':' + String(m % 60).padStart(2, '0') + (h < 12 ? 'a' : 'p'); }
+
+// Client-safe wording suggestions — pure templates, no AI, no network.
+// Keyword rules fire on the rough text; work-type templates fill in behind.
+function clientSuggestions(rough, tag, projName) {
+  const out = [];
+  const r = String(rough || '').toLowerCase();
+  const kw = [
+    [/call|phone|spoke|talked/, ['Client call — scope, priorities and next steps', 'Coordination call with project stakeholders']],
+    [/email|correspond|inbox|repl/, ['Prepared and responded to project correspondence']],
+    [/meet|meeting|sync|standup/, ['Project meeting — decisions and follow-ups documented']],
+    [/fix|bug|issue|debug|broke/, ['Investigated and resolved reported issues', 'Diagnosed, fixed and verified reported defects']],
+    [/site|visit|inspect/, ['Conducted on-site visit — observations documented', 'On-site inspection and photo documentation']],
+    [/draw|plan|cad|blueprint/, ['Updated drawings following review comments']],
+    [/review|feedback|comment/, ['Incorporated review feedback — revision round completed']],
+    [/revis|rework|redo|round/, ['Implemented revisions per client feedback']],
+    [/research|read|investigat|explor/, ['Research and analysis — findings summarized']],
+    [/write|wrote|draft|copy|doc/, ['Drafted and edited project documentation']],
+    [/design|layout|mockup|logo|wireframe|ui/, ['Design development — concepts refined for review', 'Design revisions and asset preparation']],
+    [/build|code|develop|implement|feature/, ['Development work — implemented and tested changes']],
+    [/test|qa|verif/, ['Testing and quality verification']],
+    [/setup|config|install|deploy/, ['Environment setup and configuration']]
+  ];
+  kw.forEach(rule => { if (rule[0].test(r)) rule[1].forEach(x => out.push(x)); });
+  const tagT = {
+    Design: ['Design development and refinements', 'Design revisions per client feedback'],
+    Build: ['Development and implementation work'],
+    Calls: ['Client communication — calls and follow-ups'],
+    Admin: ['Project administration and coordination'],
+    Research: ['Research and analysis supporting project decisions']
+  };
+  (tagT[tag] || []).forEach(x => out.push(x));
+  if (projName) out.push(projName + ' — project work and coordination');
+  return Array.from(new Set(out)).slice(0, 6);
+}
 
 // RFC-4180-ish CSV parser: quoted fields, escaped quotes, newlines in quotes.
 function parseCSV(text) {
@@ -1896,7 +1942,7 @@ class Component extends DCLogic {
 
   openSheet(kind, patch) {
     const base = { desc: '', time: '', start: '', end: '', dateMs: dayStart(this.state.dayOff).getTime(), billable: this.state.settings.defaultBillable, parallel: false, projId: (this.currentProj() || {}).id, editId: null };
-    this.setState({ sheet: kind, projPickerOpen: false, projQuery: '', form: Object.assign(base, patch || {}) });
+    this.setState({ sheet: kind, projPickerOpen: false, projQuery: '', descSuggest: false, form: Object.assign(base, patch || {}) });
   }
 
   // CSV import: auto-map headers from Toggl/Clockify/Harvest/generic exports,
@@ -2629,6 +2675,18 @@ class Component extends DCLogic {
       closeSheet: () => this.setState({ sheet: null }),
       fDesc: f.desc, fTime: f.time, fStart: f.start, fEnd: f.end,
       onDesc: e => this.setForm({ desc: e.target.value }),
+      // Client-safe wording helper (billing mode only, templates not AI)
+      showDescHelper: billing,
+      descSuggestOpen: !!s.descSuggest,
+      toggleDescSuggest: () => this.setState({ descSuggest: !s.descSuggest }),
+      descSuggestions: (s.descSuggest ? clientSuggestions(f.desc, f.tag, (this.proj(f.projId) || {}).name) : []).map(t => ({
+        label: t,
+        pick: () => {
+          const patch = { desc: t };
+          if (f.desc && f.desc !== t && !f.note) patch.note = f.desc;
+          this.setState({ form: Object.assign({}, this.state.form, patch), descSuggest: false });
+        }
+      })),
       onTime: e => this.setForm({ time: e.target.value }),
       onStart: e => this.setForm({ start: e.target.value }),
       onEnd: e => this.setForm({ end: e.target.value }),
