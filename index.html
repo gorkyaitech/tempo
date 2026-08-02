@@ -1,12 +1,179 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tempo</title>
-<meta http-equiv="refresh" content="0; url=./Tempo.dc.html">
+<title>Tempo — The time tracker that finds the hours you forgot</title>
+<meta name="description" content="Stop losing billable hours. Tempo tracks your day, finds the gaps, and turns them into clean timesheets and invoices. Free forever, no account, works offline — your hours never leave your device.">
+<link rel="icon" href="./icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&display=swap">
+<style>
+  :root{
+    --accent:#ec3013;--accent-deep:#ae1800;--accent-wash:#fff2ef;
+    --page:#f3f2f2;--bar:#eae9e9;--ink:#201e1d;--muted:#605d5d;
+    --rule:rgba(32,30,29,.4);--rule2:rgba(32,30,29,.18)
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --accent:#ff563c;--accent-deep:#ff9783;--accent-wash:#2d1512;
+      --page:#151413;--bar:#1d1b1a;--ink:#f1eeec;--muted:#b0a9a6;
+      --rule:rgba(241,238,236,.32);--rule2:rgba(241,238,236,.14)
+    }
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--page);color:var(--ink);font:400 16px/1.55 'Archivo',system-ui,sans-serif}
+  a{color:var(--accent-deep)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  .kick{font:800 11px/1 'Archivo',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+  .rule{height:2px;background:var(--ink);border:0;margin:0}
+  .btn{display:inline-block;padding:15px 22px;font:800 14px/1 'Archivo',sans-serif;letter-spacing:.06em;text-decoration:none;text-align:left;border:2px solid var(--ink)}
+  .btn-red{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn-ink{color:var(--ink)}
+  .btn:active{transform:scale(.985)}
+  header{border-bottom:2px solid var(--ink)}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+  .brand{font:800 15px/1 'Archivo',sans-serif;letter-spacing:.22em;color:var(--accent);text-decoration:none}
+  .nav a.open{font:700 12px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--ink);text-decoration:none;border:2px solid var(--ink);padding:9px 13px}
+  .hero{padding:64px 0 56px}
+  .hero h1{font:800 clamp(34px,6vw,58px)/1.02 'Archivo',sans-serif;letter-spacing:-.02em;margin:18px 0 18px;max-width:15ch}
+  .hero p{font-size:18px;color:var(--muted);max-width:52ch;margin:0 0 28px}
+  .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .strip{display:flex;gap:0;flex-wrap:wrap;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);background:var(--bar)}
+  .strip span{flex:1 1 160px;padding:13px 16px;font:700 11px/1.4 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--rule2)}
+  section{padding:56px 0}
+  h2{font:800 clamp(24px,4vw,34px)/1.1 'Archivo',sans-serif;letter-spacing:-.02em;margin:14px 0 12px}
+  .lead{color:var(--muted);max-width:60ch}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0;border:2px solid var(--ink);margin-top:28px}
+  .step{padding:22px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .step .n{font:800 26px/1 'Archivo',sans-serif;color:var(--accent)}
+  .step h3{font:800 17px/1.2 'Archivo',sans-serif;margin:10px 0 8px}
+  .step p{font-size:14px;color:var(--muted);margin:0}
+  .ledger{border:2px solid var(--ink);margin-top:28px;background:var(--bar);max-width:560px}
+  .row{display:flex;border-bottom:1px solid var(--rule);font-size:14px}
+  .row .t{width:70px;padding:12px 10px 12px 0;text-align:right;color:var(--muted);border-right:1px solid var(--rule);font-variant-numeric:tabular-nums;font-size:12px}
+  .row .c{flex:1;padding:12px 14px;font-weight:700}
+  .row .d{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums}
+  .row.gap .c{color:var(--accent-deep);background-image:repeating-linear-gradient(-45deg,transparent,transparent 9px,var(--rule2) 9px,var(--rule2) 10px)}
+  .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-top:28px}
+  .plan{border:2px solid var(--ink);padding:24px}
+  .plan.pro{border-color:var(--accent)}
+  .plan h3{font:800 20px/1 'Archivo',sans-serif;margin:0 0 4px}
+  .plan .price{font:800 30px/1 'Archivo',sans-serif;margin:12px 0 16px}
+  .plan ul{margin:0;padding:0;list-style:none}
+  .plan li{padding:8px 0;border-top:1px solid var(--rule2);font-size:14px}
+  .plan li::before{content:"— ";color:var(--accent);font-weight:800}
+  .field{border:2px solid var(--accent);background:var(--accent-wash);padding:28px;margin-top:8px}
+  .field h2{margin-top:8px}
+  footer{border-top:2px solid var(--ink);padding:26px 0;font-size:13px;color:var(--muted)}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+</style>
 </head>
 <body>
-<p style="font-family:system-ui,sans-serif">Opening Tempo… <a href="./Tempo.dc.html">continue</a></p>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="./">TEMPO</a>
+    <a class="open" href="./Tempo.dc.html">OPEN THE APP →</a>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <span class="kick">Free time tracker for freelancers</span>
+  <h1>The time tracker that finds the hours you forgot.</h1>
+  <p>Stop losing billable hours. Tempo tracks your day, spots the gaps you didn't record, and turns them into clean timesheets and invoices — in about 30 seconds a day.</p>
+  <div class="cta">
+    <a class="btn btn-red" href="./Tempo.dc.html">START TRACKING — FREE</a>
+    <a class="btn btn-ink" href="#install">INSTALL ON YOUR PHONE</a>
+  </div>
+</div>
+
+<div class="strip">
+  <span>Free forever</span>
+  <span>No account</span>
+  <span>Works offline</span>
+  <span>No surveillance</span>
+  <span>Your data stays on your device</span>
+</div>
+
+<section>
+  <div class="wrap">
+    <span class="kick">Why Tempo</span>
+    <h2>Forgot to start the timer? That's the whole point.</h2>
+    <p class="lead">Freelancers lose 10–20% of billable income to untracked work — the call you forgot to log, the afternoon that vanished, the Friday spent reconstructing the week from memory. Tempo's day ledger shows every gap and lets you repair it with one tap.</p>
+    <div class="ledger" aria-label="Example day ledger">
+      <div class="row"><span class="t">9:04a</span><span class="c">Homepage hero redesign <span class="d">2:33</span></span></div>
+      <div class="row gap"><span class="t">12:47p</span><span class="c">43-min gap — tap to fill</span></div>
+      <div class="row"><span class="t">1:30p</span><span class="c">Client feedback call <span class="d">1:02</span></span></div>
+      <div class="row gap"><span class="t">2:32p</span><span class="c">+ add what came next</span></div>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><h3>Track</h3><p>One tap to start. Restart anything you've done before from the Recent list. Works with no setup and no internet.</p></div>
+      <div class="step"><span class="n">2</span><h3>Recover</h3><p>Off the clock for two hours? Tempo notices and offers to reconstruct it — prefilled with the exact window, ready to confirm or edit.</p></div>
+      <div class="step"><span class="n">3</span><h3>Get paid</h3><p>Scope a range, see what's unbilled, and turn it into a numbered invoice with tax and payment terms. Print it, save as PDF, mark it paid.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="border-top:2px solid var(--ink);background:var(--bar)">
+  <div class="wrap">
+    <span class="kick">Pricing</span>
+    <h2>Tracking is free. Forever. Pay only for getting paid.</h2>
+    <div class="plans">
+      <div class="plan">
+        <h3>Free</h3>
+        <div class="price">$0</div>
+        <ul>
+          <li>One-tap timer &amp; manual entries</li>
+          <li>Day ledger with gap repair</li>
+          <li>Week view &amp; reports</li>
+          <li>CSV &amp; print exports — always</li>
+          <li>Offline, on-device, no account</li>
+        </ul>
+      </div>
+      <div class="plan pro">
+        <h3>Pro</h3>
+        <div class="price">Simple, honest pricing<span style="display:block;font:400 13px/1.4 'Archivo',sans-serif;color:var(--muted);margin-top:6px">No surprise renewals. No per-seat games. Your data is never held hostage.</span></div>
+        <ul>
+          <li>Invoices — numbering, tax, terms, status</li>
+          <li>Unbilled-work detection</li>
+          <li>One bill per project &amp; client rules</li>
+          <li>Paid / overdue tracking</li>
+          <li>Full history</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="field">
+      <span class="kick">Coming to Pro</span>
+      <h2>Automatic site visits &amp; mileage</h2>
+      <p class="lead">Arrive at a client site, leave — Tempo proposes the visit, the travel time and the miles. No timers, no employer surveillance, everything on your device. Want it?</p>
+      <a class="btn btn-red" href="mailto:gorkytecture@gmail.com?subject=Tempo%20Field%20waitlist&body=Notify%20me%20when%20automatic%20site%20visits%20%26%20mileage%20launch%20in%20Tempo%20Pro.">JOIN THE WAITLIST</a>
+    </div>
+  </div>
+</section>
+
+<section id="install" style="border-top:2px solid var(--ink)">
+  <div class="wrap">
+    <span class="kick">Install</span>
+    <h2>It's an app. No app store needed.</h2>
+    <p class="lead"><strong>iPhone:</strong> open <a href="./Tempo.dc.html">the app</a> in Safari → Share → <strong>Add to Home Screen</strong>. <strong>Android:</strong> open it in Chrome → <strong>Install app</strong>. It launches full-screen, works offline, and your hours live only on your phone.</p>
+    <div class="cta" style="margin-top:8px"><a class="btn btn-red" href="./Tempo.dc.html">OPEN TEMPO</a></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Tempo. Your hours never leave your device.</span>
+    <span><a href="./Tempo.dc.html">Open the app</a> · <a href="mailto:gorkytecture@gmail.com?subject=Tempo%20feedback">Feedback</a></span>
+  </div>
+</footer>
+
 </body>
 </html>

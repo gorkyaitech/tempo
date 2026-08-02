@@ -441,6 +441,15 @@
             </div>
           </div>
 
+          <sc-if value="{{ showFieldDoor }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:16px;border:2px solid var(--t-ink);padding:14px;position:relative">
+              <button onClick="{{ fieldDismiss }}" aria-label="Dismiss" style="position:absolute;top:8px;right:8px;border:0;background:transparent;cursor:pointer;font:700 12px/1 'Archivo',sans-serif;color:var(--t-faint);padding:4px 6px">✕</button>
+              <div style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent)">Coming to Pro</div>
+              <div style="font:800 15px/1.25 'Archivo',sans-serif;margin:8px 0 6px">Automatic site visits &amp; mileage</div>
+              <div style="font:400 12px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin-bottom:12px">Arrive at a client site, leave — Tempo proposes the visit, travel time and miles. No timers, no surveillance, fully on your device.</div>
+              <button onClick="{{ fieldNotify }}" style="padding:11px 14px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">NOTIFY ME WHEN IT LAUNCHES</button>
+            </div>
+          </sc-if>
           <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);padding:16px 16px 10px">By project — tap for detail</div>
           <sc-for list="{{ reportRows }}" as="r" hint-placeholder-count="3">
             <button onClick="{{ r.open }}" style="width:100%;padding:12px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
@@ -2639,6 +2648,15 @@ class Component extends DCLogic {
       onGoalHours: e => this.setSetting({ goalHours: parseFloat(e.target.value) || 0 }),
       onGoalIncome: e => this.setSetting({ goalIncome: parseFloat(e.target.value) || 0 }),
 
+      // Field-tier fake door (validation: measures interest in location/mileage)
+      showFieldDoor: !set.fieldDoorDismissed,
+      fieldNotify: () => {
+        this.setSetting({ fieldDoorInterest: true, fieldDoorDismissed: true });
+        location.href = 'mailto:gorkytecture@gmail.com?subject=' + encodeURIComponent('Tempo Field waitlist')
+          + '&body=' + encodeURIComponent('Notify me when automatic site visits & mileage launch in Tempo Pro.');
+        this.toast('Thanks — we’ll let you know when it launches');
+      },
+      fieldDismiss: () => this.setSetting({ fieldDoorDismissed: true }),
       longRun: !!(s.timer && (s.now - s.timer.start) > 4 * 3600000),
       longRunText: s.timer ? 'Running for ' + fmtHM((s.now - s.timer.start) / MS) + ' — still working, or did you forget to stop?' : '',
       idleNudge: !s.timer && today.length === 0 && !reconstruct,
