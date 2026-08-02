@@ -185,21 +185,19 @@ jobs:
           zip -qry App.ipa Payload
           ls -la
 
-      - name: Upload to TestFlight (fastlane)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tempo-signed-ipa
+          path: build/export/App.ipa
+          retention-days: 14
+
+      - name: Upload to TestFlight (ASC API)
         env:
           ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          ASC_KEY_B64: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_B64 }}
+          ASC_APP_ID: '6797151467'
+          BUNDLE_SHORT: '1.0'
+          BUNDLE_VERSION: ${{ github.run_number }}
         run: |
-          # NTP is blocked on hosted runners; set clock from an HTTPS Date header
-          echo "runner clock before: $(date -u)"
-          HDR=$(curl -sI https://www.apple.com/ | tr -d '\r' | awk 'tolower($1)=="date:"{$1="";print substr($0,2);exit}')
-          echo "apple says:          $HDR"
-          SET=$(date -ju -f '%a, %d %b %Y %H:%M:%S %Z' "$HDR" '+%m%d%H%M%y.%S') && sudo date -u "$SET" || true
-          echo "runner clock after:  $(date -u)"
-          CLEAN_B64=$(printf '%s' "$ASC_KEY_B64" | tr -d '\r\n ')
-          jq -n --arg kid "$ASC_KEY_ID" --arg iss "$ASC_ISSUER_ID" --arg key "$CLEAN_B64" \
-            '{key_id:$kid, issuer_id:$iss, key:$key, is_key_content_base64:true, in_house:false}' > asc_key.json
-          IPA=$(ls build/export/*.ipa | head -1)
-          echo "uploading $IPA"
-          fastlane pilot upload --ipa "$IPA" --api_key_path asc_key.json --skip_waiting_for_build_processing true --verbose
+          export ASC_KEY_FILE=$HOME/private_keys/AuthKey_$ASC_KEY_ID.p8
+          node scripts/upload-build.mjs build/export/App.ipa
