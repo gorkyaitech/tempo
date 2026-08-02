@@ -189,10 +189,11 @@ jobs:
         env:
           ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_B64: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_B64 }}
         run: |
-          jq -n --arg kid "$ASC_KEY_ID" --arg iss "$ASC_ISSUER_ID" \
-            --arg key "$(cat $HOME/private_keys/AuthKey_$ASC_KEY_ID.p8)" \
-            '{key_id:$kid, issuer_id:$iss, key:$key, in_house:false}' > asc_key.json
+          CLEAN_B64=$(printf '%s' "$ASC_KEY_B64" | tr -d '\r\n ')
+          jq -n --arg kid "$ASC_KEY_ID" --arg iss "$ASC_ISSUER_ID" --arg key "$CLEAN_B64" \
+            '{key_id:$kid, issuer_id:$iss, key:$key, is_key_content_base64:true, in_house:false}' > asc_key.json
           IPA=$(ls build/export/*.ipa | head -1)
           echo "uploading $IPA"
-          fastlane pilot upload --ipa "$IPA" --api_key_path asc_key.json --skip_waiting_for_build_processing true
+          fastlane pilot upload --ipa "$IPA" --api_key_path asc_key.json --skip_waiting_for_build_processing true --verbose
