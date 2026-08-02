@@ -191,7 +191,12 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           ASC_KEY_B64: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_B64 }}
         run: |
-          sudo sntp -sS time.apple.com || true
+          # NTP is blocked on hosted runners; set clock from an HTTPS Date header
+          echo "runner clock before: $(date -u)"
+          HDR=$(curl -sI https://www.apple.com/ | tr -d '\r' | awk 'tolower($1)=="date:"{$1="";print substr($0,2);exit}')
+          echo "apple says:          $HDR"
+          SET=$(date -ju -f '%a, %d %b %Y %H:%M:%S %Z' "$HDR" '+%m%d%H%M%y.%S') && sudo date -u "$SET" || true
+          echo "runner clock after:  $(date -u)"
           CLEAN_B64=$(printf '%s' "$ASC_KEY_B64" | tr -d '\r\n ')
           jq -n --arg kid "$ASC_KEY_ID" --arg iss "$ASC_ISSUER_ID" --arg key "$CLEAN_B64" \
             '{key_id:$kid, issuer_id:$iss, key:$key, is_key_content_base64:true, in_house:false}' > asc_key.json
