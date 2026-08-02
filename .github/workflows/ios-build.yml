@@ -149,15 +149,18 @@ jobs:
         run: |
           printf '%s' "$P12_B64" | tr -d '\r\n ' | base64 --decode > dist.p12
           security create-keychain -p ci-tmp ci.keychain
+          security list-keychains -d user -s ci.keychain login.keychain
           security default-keychain -s ci.keychain
           security unlock-keychain -p ci-tmp ci.keychain
           security set-keychain-settings -lut 21600 ci.keychain
           security import dist.p12 -k ci.keychain -P "$P12_PASS" -T /usr/bin/codesign -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple: -s -k ci-tmp ci.keychain > /dev/null
-          security find-identity -v -p codesigning ci.keychain
-          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          printf '%s' "$PROF_APP" | tr -d '\r\n ' | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/tempo-app.mobileprovision"
-          printf '%s' "$PROF_WIDGET" | tr -d '\r\n ' | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/tempo-widgets.mobileprovision"
+          security find-identity -v -p codesigning
+          for d in "$HOME/Library/MobileDevice/Provisioning Profiles" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"; do
+            mkdir -p "$d"
+            printf '%s' "$PROF_APP" | tr -d '\r\n ' | base64 --decode > "$d/tempo-app.mobileprovision"
+            printf '%s' "$PROF_WIDGET" | tr -d '\r\n ' | base64 --decode > "$d/tempo-widgets.mobileprovision"
+          done
 
       - name: Archive (manual signing)
         run: >
