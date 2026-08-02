@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Billable Hours Calculator — Hours × Rate by Client | Tempo</title>
+<meta name="description" content="Calculate billable hours and invoice totals: enter hours (decimal or h:mm) and hourly rate per client or task. Free, no sign-up, printable, runs entirely in your browser.">
+<link rel="icon" href="../icons/icon-192.png" type="image/png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="tools.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="../">TEMPO</a>
+    <a class="open" href="../Tempo.dc.html">OPEN THE APP →</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="crumbs"><a href="../">Tempo</a> › <a href="./">Free tools</a> › Billable hours calculator</div>
+  <h1>Billable Hours Calculator</h1>
+  <p class="lead">Add a line per client, project or task: hours worked (decimal like <em>2.5</em> or clock format like <em>2:30</em>) times your hourly rate. Get line totals and the invoice total. Free, private, printable.</p>
+
+  <div class="tool">
+    <table aria-label="Billable hours lines">
+      <thead><tr><th>Client / task</th><th style="width:120px">Hours</th><th style="width:120px">Rate $/h</th><th style="text-align:right;width:110px">Amount</th><th class="no-print" style="width:40px"></th></tr></thead>
+      <tbody id="lines"></tbody>
+    </table>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn no-print" id="add">+ ADD LINE</button>
+      <button class="btn no-print" onclick="window.print()">PRINT</button>
+    </div>
+    <div class="totals">
+      <div><div class="l">Total hours</div><div class="v" id="t-h">0.00</div></div>
+      <div><div class="l">Total billable</div><div class="v money" id="t-amt">$0.00</div></div>
+      <div><div class="l">Average rate</div><div class="v" id="t-avg">—</div></div>
+    </div>
+  </div>
+
+  <div class="cta-box">
+    <span class="kick">Where did those hours come from?</span>
+    <h2>Track them as they happen — and recover the ones you forgot.</h2>
+    <p class="lead" style="margin-bottom:16px">Tempo is a free time tracker with a day ledger that shows every untracked gap, so nothing billable slips away. Invoicing built in when you need it.</p>
+    <a class="btn btn-red" href="../Tempo.dc.html">TRY TEMPO FREE →</a>
+  </div>
+
+  <h2>How billable hours are calculated</h2>
+  <p><strong>Billable amount = hours worked × hourly rate.</strong> The catch is the hours: studies of freelancers consistently find 10–20% of billable income is lost to untracked work — the quick call, the revision round, the afternoon nobody logged. Calculating is the easy half; <em>capturing</em> is where the money leaks.</p>
+
+  <h3>Decimal vs clock format</h3>
+  <p>This calculator accepts both: <em>1.75</em> and <em>1:45</em> are the same hour and three-quarters. Invoices usually show decimal hours; timesheets often use h:mm.</p>
+
+  <h3>Common rounding rules</h3>
+  <p>Many professionals bill in 6-minute (0.1h) or 15-minute (0.25h) increments, always rounding up to the next increment per task. Whatever rule you use, state it on the invoice and apply it consistently.</p>
+
+  <div class="faq">
+    <h2>FAQ</h2>
+    <h3>Is this calculator really free?</h3>
+    <p>Yes. No account, no upload — the math runs in your browser and your lines are saved only on this device.</p>
+    <h3>How do I bill different rates for one client?</h3>
+    <p>Add one line per rate — e.g., "Acme — design" at $95 and "Acme — meetings" at $60. The total combines them.</p>
+    <h3>What about tax?</h3>
+    <p>This tool shows pre-tax totals. Tempo's built-in invoicing can apply your tax rate and payment terms automatically.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Tempo — <a href="../">the time tracker that finds the hours you forgot</a>.</span>
+    <span><a href="./">All free tools</a> · <a href="time-card-calculator.html">Time card calculator</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var KEY='tempo.tools.billable';
+  var body=document.getElementById('lines');
+  var saved=[];
+  try{ saved=JSON.parse(localStorage.getItem(KEY))||[] }catch(e){}
+  if(!saved.length) saved=[{d:'',h:'',r:''},{d:'',h:'',r:''},{d:'',h:'',r:''}];
+  function parseH(v){
+    v=String(v||'').trim(); if(!v) return 0;
+    if(v.indexOf(':')>-1){ var p=v.split(':'); return (parseFloat(p[0])||0)+((parseFloat(p[1])||0)/60); }
+    return parseFloat(v)||0;
+  }
+  function row(l){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td><input class="d" placeholder="e.g. Acme — homepage" value="'+(l.d||'')+'"></td>'+
+      '<td><input class="h" inputmode="decimal" placeholder="2:30 or 2.5" value="'+(l.h||'')+'"></td>'+
+      '<td><input class="r" inputmode="decimal" placeholder="85" value="'+(l.r||'')+'"></td>'+
+      '<td style="text-align:right;font-weight:800;font-variant-numeric:tabular-nums" class="amt">—</td>'+
+      '<td class="no-print"><button class="btn x" style="padding:8px 10px" aria-label="Remove line">✕</button></td>';
+    tr.querySelectorAll('input').forEach(function(el){ el.addEventListener('input',recalc); });
+    tr.querySelector('.x').addEventListener('click',function(){ tr.remove(); recalc(); });
+    body.appendChild(tr);
+  }
+  saved.forEach(row);
+  document.getElementById('add').addEventListener('click',function(){ row({}); recalc(); });
+  function recalc(){
+    var th=0,ta=0,data=[];
+    [...body.querySelectorAll('tr')].forEach(function(tr){
+      var h=parseH(tr.querySelector('.h').value);
+      var r=parseFloat(tr.querySelector('.r').value)||0;
+      var amt=h*r; th+=h; ta+=amt;
+      tr.querySelector('.amt').textContent=(h&&r)?('$'+amt.toFixed(2)):'—';
+      data.push({d:tr.querySelector('.d').value,h:tr.querySelector('.h').value,r:tr.querySelector('.r').value});
+    });
+    document.getElementById('t-h').textContent=th.toFixed(2);
+    document.getElementById('t-amt').textContent='$'+ta.toFixed(2);
+    document.getElementById('t-avg').textContent=th?('$'+(ta/th).toFixed(2)+'/h'):'—';
+    try{ localStorage.setItem(KEY,JSON.stringify(data)) }catch(e){}
+  }
+  recalc();
+})();
+</script>
+</body>
+</html>

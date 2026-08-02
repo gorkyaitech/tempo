@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decimal Hours Converter — Hours:Minutes ↔ Decimal | Tempo</title>
+<meta name="description" content="Convert hours and minutes to decimal hours and back, instantly. Full minutes-to-decimal chart included. Free, no sign-up, runs in your browser.">
+<link rel="icon" href="../icons/icon-192.png" type="image/png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="tools.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="../">TEMPO</a>
+    <a class="open" href="../Tempo.dc.html">OPEN THE APP →</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="crumbs"><a href="../">Tempo</a> › <a href="./">Free tools</a> › Decimal hours converter</div>
+  <h1>Decimal Hours Converter</h1>
+  <p class="lead">Timesheets say 7:45, payroll wants 7.75. Convert both directions instantly.</p>
+
+  <div class="tool">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px">
+      <div>
+        <h3 style="margin-top:0">Hours : minutes → decimal</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="hh" inputmode="numeric" placeholder="7" aria-label="Hours" style="width:90px">
+          <strong>:</strong>
+          <input id="mm" inputmode="numeric" placeholder="45" aria-label="Minutes" style="width:90px">
+        </div>
+        <div class="totals" style="margin-top:12px"><div><div class="l">Decimal hours</div><div class="v" id="to-dec">—</div></div></div>
+      </div>
+      <div>
+        <h3 style="margin-top:0">Decimal → hours : minutes</h3>
+        <input id="dec" inputmode="decimal" placeholder="7.75" aria-label="Decimal hours" style="width:190px">
+        <div class="totals" style="margin-top:12px"><div><div class="l">Hours : minutes</div><div class="v" id="to-hm">—</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Minutes to decimal hours chart</h2>
+  <div class="chart"><table id="chart"><thead><tr><th>Min</th><th>Decimal</th><th>Min</th><th>Decimal</th><th>Min</th><th>Decimal</th></tr></thead><tbody></tbody></table></div>
+
+  <div class="cta-box">
+    <span class="kick">Skip the conversion entirely</span>
+    <h2>Tempo shows both formats automatically.</h2>
+    <p class="lead" style="margin-bottom:16px">Track with one tap, see totals as h:mm and export decimals for payroll. Free forever — no account, offline, on your device.</p>
+    <a class="btn btn-red" href="../Tempo.dc.html">TRY TEMPO FREE →</a>
+  </div>
+
+  <div class="faq">
+    <h2>FAQ</h2>
+    <h3>What's the formula?</h3>
+    <p><strong>Decimal hours = hours + minutes ÷ 60.</strong> So 7:45 = 7 + 45/60 = 7.75. Going back: multiply the fraction by 60 — 0.75 × 60 = 45 minutes.</p>
+    <h3>Why do payroll systems use decimal hours?</h3>
+    <p>Pay = hours × rate is straightforward multiplication when hours are decimal. 7.75 h × $20 = $155, no minute arithmetic required.</p>
+    <h3>How do I round?</h3>
+    <p>Two decimal places is standard for payroll. Common billing increments: 0.1 h (6 minutes) and 0.25 h (15 minutes).</p>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Tempo — <a href="../">the time tracker that finds the hours you forgot</a>.</span>
+    <span><a href="./">All free tools</a> · <a href="time-card-calculator.html">Time card calculator</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var hh=document.getElementById('hh'),mm=document.getElementById('mm'),dec=document.getElementById('dec');
+  function toDec(){
+    var h=parseFloat(hh.value)||0,m=parseFloat(mm.value)||0;
+    document.getElementById('to-dec').textContent=(hh.value||mm.value)?(h+m/60).toFixed(2):'—';
+  }
+  function toHM(){
+    var d=parseFloat(dec.value);
+    if(isNaN(d)){ document.getElementById('to-hm').textContent='—'; return; }
+    var h=Math.floor(d),m=Math.round((d-h)*60);
+    if(m===60){h++;m=0;}
+    document.getElementById('to-hm').textContent=h+':'+String(m).padStart(2,'0');
+  }
+  hh.addEventListener('input',toDec); mm.addEventListener('input',toDec); dec.addEventListener('input',toHM);
+  var tb=document.querySelector('#chart tbody');
+  for(var r=0;r<20;r++){
+    var tr=document.createElement('tr'),cells='';
+    for(var c=0;c<3;c++){ var m=r+1+c*20; cells+='<td>'+m+'</td><td>'+(m/60).toFixed(2)+'</td>'; }
+    tr.innerHTML=cells; tb.appendChild(tr);
+  }
+})();
+</script>
+</body>
+</html>

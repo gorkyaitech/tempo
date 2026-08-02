@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Time Card Calculator — Weekly Work Hours & Pay | Tempo</title>
+<meta name="description" content="Free time card calculator: enter clock-in, clock-out and break times for each day to get weekly hours in hh:mm and decimal, plus gross pay. No sign-up, works offline, printable.">
+<link rel="icon" href="../icons/icon-192.png" type="image/png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="tools.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="../">TEMPO</a>
+    <a class="open" href="../Tempo.dc.html">OPEN THE APP →</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="crumbs"><a href="../">Tempo</a> › <a href="./">Free tools</a> › Time card calculator</div>
+  <h1>Time Card Calculator</h1>
+  <p class="lead">Enter your clock-in, clock-out and break time for each day. Get your weekly total in hours &amp; minutes and in decimal hours — plus gross pay if you enter a rate. Free, no account, nothing leaves your browser.</p>
+
+  <div class="tool">
+    <table aria-label="Weekly time card">
+      <thead><tr><th>Day</th><th>Clock in</th><th>Clock out</th><th>Break (min)</th><th style="text-align:right">Hours</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center">
+      <label style="font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Hourly rate&nbsp;$</label>
+      <input id="rate" inputmode="decimal" placeholder="optional" style="width:120px">
+      <button class="btn no-print" id="clear">CLEAR</button>
+      <button class="btn no-print" onclick="window.print()">PRINT</button>
+    </div>
+    <div class="totals">
+      <div><div class="l">Total hours</div><div class="v" id="t-hm">0:00</div></div>
+      <div><div class="l">Decimal</div><div class="v" id="t-dec">0.00</div></div>
+      <div><div class="l">Gross pay</div><div class="v money" id="t-pay">—</div></div>
+    </div>
+  </div>
+
+  <div class="cta-box">
+    <span class="kick">Stop calculating by hand</span>
+    <h2>Tempo tracks this automatically — free.</h2>
+    <p class="lead" style="margin-bottom:16px">One-tap timer, a day ledger that shows the gaps you forgot to record, weekly totals and CSV export. No account, works offline, your hours stay on your device.</p>
+    <a class="btn btn-red" href="../Tempo.dc.html">TRY TEMPO FREE →</a>
+  </div>
+
+  <h2>How to use this time card calculator</h2>
+  <p>For each day you worked, pick the time you clocked in and the time you clocked out, then enter any unpaid break in minutes. The calculator subtracts breaks, handles overnight shifts (clock-out earlier than clock-in rolls to the next day), and totals the week two ways: <strong>hours:minutes</strong> for timesheets and <strong>decimal hours</strong> for payroll. Enter your hourly rate to see gross pay before taxes.</p>
+
+  <h2>Minutes to decimal hours</h2>
+  <p>Payroll systems use decimal hours. The rule: divide minutes by 60. Quick reference:</p>
+  <div class="chart"><table>
+    <thead><tr><th>Minutes</th><th>Decimal</th><th>Minutes</th><th>Decimal</th></tr></thead>
+    <tbody>
+      <tr><td>5</td><td>0.08</td><td>35</td><td>0.58</td></tr>
+      <tr><td>10</td><td>0.17</td><td>40</td><td>0.67</td></tr>
+      <tr><td>15</td><td>0.25</td><td>45</td><td>0.75</td></tr>
+      <tr><td>20</td><td>0.33</td><td>50</td><td>0.83</td></tr>
+      <tr><td>25</td><td>0.42</td><td>55</td><td>0.92</td></tr>
+      <tr><td>30</td><td>0.50</td><td>60</td><td>1.00</td></tr>
+    </tbody>
+  </table></div>
+  <p>Need the full conversion? Use our <a href="decimal-hours-converter.html">decimal hours converter</a>.</p>
+
+  <div class="faq">
+    <h2>FAQ</h2>
+    <h3>Does this time card calculator store my data?</h3>
+    <p>Everything runs in your browser. Nothing is uploaded, and your entries persist only on this device until you clear them.</p>
+    <h3>How are overnight shifts handled?</h3>
+    <p>If your clock-out time is earlier than your clock-in time, the calculator assumes the shift crossed midnight and adds 24 hours.</p>
+    <h3>Are breaks paid or unpaid?</h3>
+    <p>The break column is subtracted from your hours — use it for unpaid breaks. If your breaks are paid, leave it at 0.</p>
+    <h3>Can I print this as a timesheet?</h3>
+    <p>Yes — the Print button produces a clean, paper-friendly time card you can submit or file.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Tempo — <a href="../">the time tracker that finds the hours you forgot</a>.</span>
+    <span><a href="./">All free tools</a> · <a href="billable-hours-calculator.html">Billable hours calculator</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var rows=document.getElementById('rows');
+  DAYS.forEach(function(d,i){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td style="font-weight:700">'+d+'</td>'+
+      '<td><input type="time" data-k="in'+i+'"></td>'+
+      '<td><input type="time" data-k="out'+i+'"></td>'+
+      '<td><input inputmode="numeric" placeholder="0" data-k="br'+i+'" style="width:76px"></td>'+
+      '<td style="text-align:right;font-weight:800;font-variant-numeric:tabular-nums" id="d'+i+'">—</td>';
+    rows.appendChild(tr);
+  });
+  var KEY='tempo.tools.timecard';
+  var state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY))||{} }catch(e){}
+  document.querySelectorAll('[data-k]').forEach(function(el){
+    if(state[el.getAttribute('data-k')]) el.value=state[el.getAttribute('data-k')];
+    el.addEventListener('input',recalc);
+  });
+  var rate=document.getElementById('rate');
+  if(state.rate) rate.value=state.rate;
+  rate.addEventListener('input',recalc);
+  document.getElementById('clear').addEventListener('click',function(){
+    localStorage.removeItem(KEY);
+    document.querySelectorAll('[data-k]').forEach(function(el){el.value=''});
+    rate.value=''; recalc();
+  });
+  function mins(t){ if(!t) return null; var p=t.split(':'); return (+p[0])*60+(+p[1]); }
+  function fmt(m){ return Math.floor(m/60)+':'+String(Math.round(m%60)).padStart(2,'0'); }
+  function recalc(){
+    var total=0;
+    for(var i=0;i<7;i++){
+      var a=mins((document.querySelector('[data-k="in'+i+'"]')||{}).value);
+      var b=mins((document.querySelector('[data-k="out'+i+'"]')||{}).value);
+      var br=parseFloat((document.querySelector('[data-k="br'+i+'"]')||{}).value)||0;
+      var cell=document.getElementById('d'+i);
+      if(a==null||b==null){ cell.textContent='—'; continue; }
+      var m=b-a; if(m<0) m+=1440; m-=br; if(m<0) m=0;
+      total+=m; cell.textContent=fmt(m);
+    }
+    document.getElementById('t-hm').textContent=fmt(total);
+    document.getElementById('t-dec').textContent=(total/60).toFixed(2);
+    var r=parseFloat(rate.value);
+    document.getElementById('t-pay').textContent=r?('$'+(total/60*r).toFixed(2)):'—';
+    var s={rate:rate.value};
+    document.querySelectorAll('[data-k]').forEach(function(el){ if(el.value) s[el.getAttribute('data-k')]=el.value; });
+    try{ localStorage.setItem(KEY,JSON.stringify(s)) }catch(e){}
+  }
+  recalc();
+})();
+</script>
+</body>
+</html>
