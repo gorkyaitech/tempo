@@ -123,7 +123,7 @@ jobs:
           ASC_KEY_B64: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_B64 }}
         run: |
           mkdir -p ~/private_keys
-          printf '%s' "$ASC_KEY_B64" | base64 --decode > ~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+          printf '%s' "$ASC_KEY_B64" | tr -d '\r\n ' | base64 --decode > ~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
           head -1 ~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
 
       - name: Archive (cloud-managed signing)
