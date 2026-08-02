@@ -188,6 +188,13 @@
               <span style="display:block;font:800 11px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--tempo-accent-deep);margin-top:8px">FILL IT IN →</span>
             </button>
           </sc-if>
+          <sc-if value="{{ showRecoveryBand }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ openRecovery }}" style="display:flex;align-items:center;gap:10px;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:2px solid var(--t-ink);background:var(--t-bar);padding:12px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+              <span style="width:8px;height:8px;background:var(--tempo-accent);flex:none"></span>
+              <span style="flex:1;font:700 12.5px/1.3 'Archivo',sans-serif">{{ recoveryBandText }}</span>
+              <span style="font:800 11px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--tempo-accent-deep);flex:none">REVIEW →</span>
+            </button>
+          </sc-if>
           <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:14px 16px 8px">Recent — tap to restart</div>
           <sc-if value="{{ noRecent }}" hint-placeholder-val="{{ false }}">
             <div style="margin:0 16px 14px;border:2px dashed var(--t-rule);padding:16px">
@@ -1181,6 +1188,39 @@
             <span style="width:86px;display:flex;align-items:center;justify-content:center;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">{{ issuedStatus }}</span>
           </div>
           <button onClick="{{ unmarkIssued }}" style="width:100%;padding:13px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em;color:var(--tempo-accent-deep)">REOPEN — MAKE THESE HOURS BILLABLE AGAIN</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- RECOVERY INBOX -->
+    <sc-if value="{{ recoveryOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:14;background:var(--t-bg);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
+          <span>
+            <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent-deep)">Recovery</span>
+            <span style="display:block;font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em;margin-top:6px">Worth a look</span>
+          </span>
+          <button onClick="{{ closeRecovery }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CLOSE</button>
+        </div>
+        <div style="flex:1;overflow-y:auto">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--t-rule);font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Suggestions, not accusations — confirm what's real, ignore what isn't. Ignored items stay ignored.</div>
+          <sc-for list="{{ recoveryItems }}" as="ri" hint-placeholder-count="4">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--t-rule)">
+              <div style="font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--tempo-accent)">{{ ri.kind }}</div>
+              <div style="font:700 14px/1.3 'Archivo',sans-serif;margin-top:7px">{{ ri.title }}</div>
+              <div style="font:400 11.5px/1.45 'Archivo',sans-serif;color:var(--t-muted);margin-top:4px">{{ ri.sub }}</div>
+              <div style="display:flex;gap:8px;margin-top:11px">
+                <button onClick="{{ ri.go }}" style="padding:10px 13px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ ri.cta }}</button>
+                <button onClick="{{ ri.ignore }}" style="padding:10px 13px;border:2px solid var(--t-rule);background:transparent;color:var(--t-muted);cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.06em">IGNORE</button>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ recoveryEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:16px;border:2px dashed var(--t-rule);padding:20px 16px">
+              <div style="font:800 15px/1.2 'Archivo',sans-serif;margin-bottom:8px">All clear</div>
+              <div style="font:400 12.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Nothing needs review — your week is gap-free, named and billed. Nice.</div>
+            </div>
+          </sc-if>
         </div>
       </div>
     </sc-if>
@@ -2647,6 +2687,102 @@ class Component extends DCLogic {
       goalIncome: String(set.goalIncome || ''),
       onGoalHours: e => this.setSetting({ goalHours: parseFloat(e.target.value) || 0 }),
       onGoalIncome: e => this.setSetting({ goalIncome: parseFloat(e.target.value) || 0 }),
+
+      // Recovery Inbox v1 — scan the last 7 days for repairable items.
+      // The live trailing-gap banner (reconstruct) owns "right now"; the
+      // inbox owns history and hygiene. Dismissals persist in settings.
+      ...(() => {
+        const rItems = [];
+        const rdis = new Set(set.recoveryDismissed || []);
+        const pushItem = (id, kind, title, sub, cta, go) => {
+          if (rdis.has(id)) return;
+          rItems.push({
+            id, kind, title, sub, cta, go,
+            ignore: () => this.setSetting({ recoveryDismissed: (this.state.settings.recoveryDismissed || []).concat([id]).slice(-200) })
+          });
+        };
+        const anyLast7 = s.entries.some(e => e.start >= dayStart(-6).getTime());
+        for (let off = 0; off >= -6; off--) {
+          const es = this.dayEntries(off).slice().sort((a, b) => a.start - b.start);
+          const dd = dayStart(off);
+          const dLabel = off === 0 ? 'Today' : off === -1 ? 'Yesterday'
+            : dd.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+          // a) gaps between entries (45m–6h) — likely forgotten work
+          for (let i = 1; i < es.length; i++) {
+            const gapMs = es[i].start - es[i - 1].end;
+            if (gapMs >= 45 * MS && gapMs <= 6 * 3600000) {
+              const a = es[i - 1].end, b = es[i].start;
+              pushItem('gap:' + off + ':' + Math.round(a / MS), 'Possible forgotten work',
+                fmtHM(gapMs / MS) + ' gap — ' + dLabel, fmtClock(a) + ' – ' + fmtClock(b), 'ADD ENTRY',
+                () => { this.setState({ recovery: false }); this.openSheet('entry', { start: fmtClock(a), end: fmtClock(b), dateMs: dd.getTime() }); });
+            }
+          }
+          // b) empty weekday while the week has activity
+          if (off < 0 && es.length === 0 && anyLast7 && dd.getDay() >= 1 && dd.getDay() <= 5) {
+            pushItem('miss:' + dd.getTime(), 'Nothing tracked',
+              dLabel + ' — a workday with no entries', 'Log it while you still remember.', 'LOG THAT DAY',
+              () => { this.setState({ recovery: false }); this.openSheet('entry', { dateMs: dd.getTime() }); });
+          }
+          es.forEach(e => {
+            const editGo = () => {
+              this.setState({ recovery: false });
+              this.openSheet('entry', {
+                desc: e.desc === '(no description)' ? '' : e.desc,
+                start: fmtClock(e.start), end: fmtClock(e.end),
+                projId: e.projId, billable: e.billable, parallel: !!e.parallel,
+                tag: e.tag || '', note: e.note || '', editId: e.id, dateMs: dd.getTime()
+              });
+            };
+            // c) missing description
+            if (!e.desc || e.desc === '(no description)') {
+              pushItem('desc:' + e.id, 'Missing description',
+                'Unnamed ' + fmtHM(this.mins(e)) + ' entry — ' + dLabel,
+                fmtClock(e.start) + ' – ' + fmtClock(e.end) + ' · clients can’t bill “(no description)”', 'NAME IT', editGo);
+            }
+            // d) unusually long single session
+            if (this.mins(e) >= 420) {
+              pushItem('long:' + e.id, 'Unusually long session',
+                fmtHM(this.mins(e)) + ' in one entry — ' + dLabel,
+                'Forgot to stop, or split across tasks?', 'REVIEW', editGo);
+            }
+          });
+          // e) overlapping entries not marked parallel
+          for (let i = 1; i < es.length; i++) {
+            if (es[i].start < es[i - 1].end && !es[i].parallel && !es[i - 1].parallel) {
+              const editOv = es[i];
+              pushItem('ov:' + editOv.id, 'Overlapping entries',
+                'Two entries overlap — ' + dLabel, fmtClock(editOv.start) + ' starts before the previous one ends', 'REVIEW',
+                () => { this.setState({ recovery: false }); this.openSheet('entry', { desc: editOv.desc === '(no description)' ? '' : editOv.desc, start: fmtClock(editOv.start), end: fmtClock(editOv.end), projId: editOv.projId, billable: editOv.billable, parallel: !!editOv.parallel, tag: editOv.tag || '', note: editOv.note || '', editId: editOv.id, dateMs: dd.getTime() }); });
+            }
+          }
+        }
+        // f) long-running timer
+        if (s.timer && (s.now - s.timer.start) > 4 * 3600000) {
+          pushItem('timer:' + s.timer.start, 'Timer running long',
+            'Running for ' + fmtHM((s.now - s.timer.start) / MS), 'Still working, or did you forget to stop?', 'GO TO TIMER',
+            () => this.setState({ recovery: false, tab: 'track' }));
+        }
+        // g) unbilled work older than 3 days
+        const unb = s.entries.filter(e => e.billable && !e.invoiced && this.money(e) > 0 && e.end < Date.now() - 3 * 86400000);
+        if (unb.length) {
+          const um = unb.reduce((a, e) => a + this.mins(e), 0);
+          const uMoney = unb.reduce((a, e) => a + this.money(e), 0);
+          pushItem('unbilled:' + unb.length, 'Unbilled work',
+            fmtHM(um) + ' billable, not on any invoice' + (showMoney ? ' — $' + Math.round(uMoney) : ''),
+            'Older than 3 days. Bill it before it goes stale.', 'OPEN REPORTS',
+            () => this.setState({ recovery: false, tab: 'reports', pane: null }));
+        }
+        const items = rItems.slice(0, 12);
+        return {
+          recoveryItems: items,
+          showRecoveryBand: items.length > 0,
+          recoveryBandText: items.length === 1 ? '1 thing worth a look' : items.length + ' things worth a look',
+          recoveryOpen: !!s.recovery,
+          recoveryEmpty: items.length === 0,
+          openRecovery: () => this.setState({ recovery: true }),
+          closeRecovery: () => this.setState({ recovery: false })
+        };
+      })(),
 
       // Field-tier fake door (validation: measures interest in location/mileage)
       showFieldDoor: !set.fieldDoorDismissed,
