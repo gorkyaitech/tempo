@@ -291,11 +291,11 @@ Clockify's growth is the category proof: 1.2M+ organic visits/mo, ~65k informati
 
 **Implication:** head terms ("time tracker", "timesheet app") are owned by incumbents with massive authority. The entry is (a) long-tail recovery cluster no one owns, (b) free tools, (c) profession niches.
 
-### Cluster priority
-1. **Recovery cluster (own this):** "forgot to stop timer", "forgot to track my hours", "recover billable hours", "reconstruct workday timesheet", "fix timesheet missing hours", "unbilled hours". Low competition, exact-intent match to the wedge, currently served by nobody as a product promise **[I — verify volumes in validation phase]**.
-2. **Free tools:** time-card calculator, billable-hours calculator, decimal↔hh:mm converters, invoice generator, timesheet templates (PDF/CSV/Excel), mileage-reimbursement calculator. Each links to the matching app feature; no account required; single CTA.
-3. **Profession niches:** "time tracker for architects / inspectors / consultants / contractors" — low volume individually, high intent, compounding.
-4. **Comparison pages (honest):** "Clockify alternative for freelancers", "Toggl alternative without accounts", "Harvest alternative with free plan" (Harvest killed its free plan **[F]** — see §3), "best time tracker for forgotten hours".
+### Cluster priority — REVISED after the Appendix B demand check
+1. **Free tools + templates (lead acquisition):** time-card calculator, billable-hours calculator, decimal↔hh:mm converters, invoice generator, timesheet templates. Proven category volume (Clockify's converters alone pull 30k+/mo); "timesheet app" shows steady year-round Trends interest while recovery phrases flatline (Appendix B).
+2. **Comparison/alternatives pages (lead conversion of switchers):** "Harvest alternative", "Clockify free plan alternative", "MileIQ alternative" — demand proven by the existing cottage industry of such pages (§4.4) and by the 2025–26 pricing shocks.
+3. **Recovery cluster (differentiation + long-tail support, NOT the traffic bet):** exact phrases ("forgot to stop timer", "recover billable hours") are individually sub-threshold (Appendix B), but the intent expresses as many question-form long tails ("employee forgot to clock in", "how to reconstruct hours", "does Toggl report idle time") that competitors capture only via help docs. Write the definitive guides; expect modest traffic with high message-match, and use recovery as the *conversion message* on pages acquired via #1/#2.
+4. **Profession niches:** "time tracker for architects / inspectors / consultants" — low volume, high intent, compounding.
 
 ### 12-month cadence
 Months 1–3: 6 free tools + 8 recovery-cluster guides + 3 comparison pages. Months 4–6: profession pages ×8, templates library. Months 7–12: expand clusters that show impressions; refresh; internal linking. Measure: impressions → clicks → signups per cluster.
@@ -350,7 +350,7 @@ Current ASO practice favors long-tail, specific phrasing over head terms ([AppTw
 
 ## 16. Validation roadmap (before heavy build)
 
-1. **Search-demand check** (week 1, ~$0): Keyword Planner/Ahrefs volumes for the recovery cluster ("forgot to stop timer", "recover billable hours", …) — the SEO thesis rests on non-zero demand here. *Kill signal: cluster < ~1k combined US monthly searches → wedge must be marketed, not searched.*
+1. **Search-demand check — DONE Aug 1 2026, verdict AMBER (see Appendix B).** Exact recovery phrases are sub-threshold on Google Trends (each likely <100 US searches/mo; combined exact-phrase cluster probably under the 1k kill line), while "timesheet app" shows steady interest. However, the intent is real and expresses as long-tail question queries and vendor-acknowledged pain ("#1 complaint: forgot to start; #2: forgot to stop" — Clockify's own community). **Consequence applied: recovery stays the product wedge and conversion message; acquisition leads with free tools + alternatives pages (§13 revised). Not a kill — a channel reprioritization.** Re-verify with Google Keyword Planner (free with an Ads account) before spending on content at scale.
 2. **Landing-page test** (weeks 1–3): two variants — recovery-first vs simple-tracker-first headline; measure email opt-in. The live PWA doubles as the demo.
 3. **Fake-door the Field tier** (in-app): "Track site visits & mileage automatically — coming to Pro. Notify me." Click-rate decides whether native location work is ever justified.
 4. **Concierge reconstruction test** (weeks 2–6, n≈10): freelancers send calendar + rough notes weekly; manually produce their timesheet; measure hours recovered + would-they-pay. Direct test of assumption #1.
@@ -375,6 +375,22 @@ Current ASO practice favors long-tail, specific phrasing over head terms ([AppTw
 - **First marketing message:** "The time tracker that finds the hours you forgot."
 - **Postpone:** teams, location/mileage (until fake-door proves it), AI descriptions (templates first), watch apps, integrations.
 - **Evidence that would make this a bad investment:** near-zero recovery-cluster search volume + <1% landing conversion + concierge users shrugging at recovered hours — together they'd mean the pain is real but not *purchase-driving*, and the product should fall back to being a beautiful simple tracker competing on trust/price alone (a much weaker business).
+
+---
+
+## Appendix B — Recovery-cluster keyword demand check (run August 1, 2026)
+
+**Method:** Free no-login tools only. Volume-checker tools requiring accounts (PikaSEO → 401, SE Ranking → gated) were not used. Primary instrument: Google Trends (US, 12 months, web search) relative comparisons; secondary: SERP supply probes via web search; anchor volumes from published SEO teardowns (§13).
+
+**Findings:**
+1. **Trends, recovery terms vs anchor:** "forgot to stop timer", "billable hours calculator", "unbilled hours" all flatline near zero against "timesheet app", which shows steady year-round interest **[F — observed directly]**.
+2. **Trends, recovery terms head-to-head:** "forgot to stop timer" vs "forgot to track hours" vs "recover billable hours" vs "missing hours timesheet" → **"not enough data to show"** — all four are below Trends' display threshold, implying roughly <100 US searches/mo each for the exact phrases **[I]**.
+3. **The intent is real but expressed long-tail:** Clockify's own community states "the number one complaint is 'I forgot to start the timer', number two is 'I forgot to stop'" ([forum](https://forum.clockify.me/t/forgetting-to-start-stop-timer/33)); dedicated supply exists for question-form variants — "employee forgot to clock in" ([Shiftbase](https://www.shiftbase.com/blog/forgot-to-clock-in)), reconstruction guides ([Chronoid](https://www.chronoid.app/blog/how-to-track-billable-hours), [TimeBee](https://blog.timebee.app/how-to-track-hours-as-a-freelancer/)), and competitor-comparison long tails ("does Toggl Track report idle time" — [Clockk](https://clockk.com/alt/does-toggl-track-report-idle-time), an auto-tracking startup actively mining exactly this cluster) **[F]**.
+4. **Anchors for scale:** Clockify's free tools pull 30k+ visits/mo each at the top end (§13) — an order of magnitude above anything the exact recovery phrases can deliver **[F]**.
+
+**Verdict: AMBER — not the kill signal, but a channel correction.** Recovery is weak as a *head-term acquisition channel* and strong as a *differentiation/conversion message*. The revised §13 ordering (free tools + alternatives pages lead; recovery guides support) reflects this. The wedge itself is unaffected: users don't search "recover my hours" — they experience the pain in-product, which is where the Recovery Inbox and fake-door tests measure it.
+
+**Caveats:** Trends measures relative interest, not absolute volume; sub-threshold ≠ zero; long-tail aggregate volume is unmeasurable without Keyword Planner/Ahrefs. Re-run in Keyword Planner (free with a Google Ads account, no spend required) before committing to a content calendar.
 
 ---
 *Report compiled August 1, 2026. Evidence tiers: [F] confirmed fact · [R] review-supported pattern · [I] inference · [H] hypothesis. Sources inline throughout.*
