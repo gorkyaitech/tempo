@@ -41,20 +41,50 @@ writeFileSync(join(www, 'native-boot.js'), `(function () {
   }
   var C = window.Capacitor;
   var P = C && C.Plugins && C.Plugins.Preferences;
-  if (P) {
+  var TN = C && C.Plugins && C.Plugins.TempoNative;
+
+  // Derive what iOS surfaces need from a saved state blob:
+  // running timer -> Live Activity; today's total -> widgets.
+  function surfaceSync(v) {
+    if (!TN) return;
+    try {
+      var st = JSON.parse(v || '{}');
+      var t0 = new Date(); t0.setHours(0, 0, 0, 0);
+      var mins = 0;
+      (st.entries || []).forEach(function (e) {
+        if (e.start >= t0.getTime()) mins += Math.round((e.end - e.start) / 60000);
+      });
+      var running = !!(st.timer && st.timer.start);
+      if (running) mins += Math.round((Date.now() - st.timer.start) / 60000);
+      var proj = (st.projects || []).filter(function (p) { return p.id === st.lastProj; })[0];
+      TN.sync({
+        running: running,
+        startMs: running ? st.timer.start : 0,
+        desc: (st.task || '').trim() || 'Tracking',
+        project: proj ? proj.name : '',
+        todayHM: Math.floor(mins / 60) + ':' + ('0' + (mins % 60)).slice(-2)
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
+  if (P || TN) {
     var orig = localStorage.setItem.bind(localStorage);
     localStorage.setItem = function (k, v) {
       orig(k, v);
-      if (k === KEY) { try { P.set({ key: KEY, value: v }); } catch (e) {} }
+      if (k === KEY) {
+        if (P) { try { P.set({ key: KEY, value: v }); } catch (e) {} }
+        surfaceSync(v);
+      }
     };
-    if (!localStorage.getItem(KEY)) {
-      P.get({ key: KEY })
-        .then(function (r) { if (r && r.value) orig(KEY, r.value); })
-        .catch(function () {})
-        .then(inject);
-      return;
-    }
   }
+  if (P && !localStorage.getItem(KEY)) {
+    P.get({ key: KEY })
+      .then(function (r) { if (r && r.value) localStorage.setItem(KEY, r.value); })
+      .catch(function () {})
+      .then(function () { surfaceSync(localStorage.getItem(KEY)); inject(); });
+    return;
+  }
+  surfaceSync(localStorage.getItem(KEY));
   inject();
 })();
 `);

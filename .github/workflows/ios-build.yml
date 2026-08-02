@@ -12,6 +12,7 @@ on:
       - 'icons/**'
       - 'assets/**'
       - 'scripts/**'
+      - 'native/**'
       - 'package.json'
       - 'capacitor.config.json'
       - '.github/workflows/ios-build.yml'
@@ -41,6 +42,19 @@ jobs:
 
       - name: Sync web assets into iOS project
         run: npx cap sync ios
+
+      - name: Inject native Swift (plugin + Live Activity + widgets)
+        run: |
+          mkdir -p ios/App/App/TempoNative ios/App/TempoWidgets
+          cp native/ios/plugin/TempoNativePlugin.swift ios/App/App/TempoNative/
+          cp native/ios/plugin/TempoNativePlugin.m ios/App/App/TempoNative/
+          cp native/ios/shared/TempoAttributes.swift ios/App/App/TempoNative/
+          cp native/ios/widgets/TempoWidgets.swift ios/App/TempoWidgets/
+          cp native/ios/shared/TempoAttributes.swift ios/App/TempoWidgets/
+          cp native/ios/widgets/Info.plist ios/App/TempoWidgets/
+          plutil -replace NSSupportsLiveActivities -bool YES ios/App/App/Info.plist
+          gem list -i xcodeproj > /dev/null || sudo gem install xcodeproj -N
+          ruby scripts/add-widget-target.rb
 
       - name: Build (simulator, unsigned)
         run: >
