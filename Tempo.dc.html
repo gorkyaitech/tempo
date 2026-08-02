@@ -143,6 +143,13 @@
           <sc-if value="{{ idleNudge }}" hint-placeholder-val="{{ false }}">
             <div style="margin:14px 16px 0;border:2px dashed var(--t-rule);padding:11px 12px;font:500 12px/1.4 'Archivo',sans-serif;color:var(--t-muted)">Nothing tracked today yet. Start a timer, or log time you already did.</div>
           </sc-if>
+          <sc-if value="{{ showReconstruct }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ reconstructGo }}" style="display:block;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:2px solid var(--tempo-accent);background:var(--tempo-accent-wash);padding:12px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+              <span style="display:block;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--tempo-accent-deep)">Reconstruct your day</span>
+              <span style="display:block;font:500 12.5px/1.45 'Archivo',sans-serif;color:var(--t-ink);margin-top:6px">{{ reconstructText }}</span>
+              <span style="display:block;font:800 11px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--tempo-accent-deep);margin-top:8px">FILL IT IN →</span>
+            </button>
+          </sc-if>
           <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:14px 16px 8px">Recent — tap to restart</div>
           <sc-if value="{{ noRecent }}" hint-placeholder-val="{{ false }}">
             <div style="margin:0 16px 14px;border:2px dashed var(--t-rule);padding:16px">
@@ -194,6 +201,7 @@
         <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:2px solid var(--t-ink)">
           <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em">{{ dayTitle }}</span>
           <span style="display:flex;gap:8px">
+            <button class="btn btn-secondary" onClick="{{ toggleDayView }}" style="height:32px;padding:0 10px;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.08em">{{ dayViewToggleLabel }}</button>
             <button class="btn btn-secondary btn-icon" onClick="{{ openSearch }}" aria-label="Search all entries" title="Search" style="width:32px;height:32px;padding:0;justify-content:center">⌕</button>
             <button class="btn btn-secondary btn-icon" onClick="{{ dayPrev }}" aria-label="Previous day" title="Previous day" style="width:32px;height:32px;padding:0;justify-content:center">‹</button>
             <button class="btn btn-secondary btn-icon" onClick="{{ dayNext }}" aria-label="Next day" title="Next day" style="width:32px;height:32px;padding:0;justify-content:center">›</button>
@@ -210,6 +218,26 @@
           </sc-for>
         </div>
 
+        <sc-if value="{{ isWeekMode }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;overflow-y:auto;background:var(--t-bar)">
+            <sc-for list="{{ weekRows }}" as="wr" hint-placeholder-count="7">
+              <button onClick="{{ wr.pick }}" style="width:100%;display:block;text-align:left;border:0;border-bottom:1px solid var(--t-rule2);background:var(--t-bg);padding:13px 16px;cursor:pointer;opacity:{{ wr.dim }};font-family:'Archivo',sans-serif">
+                <span style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+                  <span style="font:800 13.5px/1 'Archivo',sans-serif;color:{{ wr.nameFg }}">{{ wr.name }}</span>
+                  <span style="display:flex;gap:14px;align-items:baseline">
+                    <span style="font:700 12px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ wr.money }}</span>
+                    <span style="font:800 13.5px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums">{{ wr.hours }}</span>
+                  </span>
+                </span>
+                <span style="display:block;height:5px;background:var(--t-track);margin-top:9px">
+                  <span style="display:block;height:5px;width:{{ wr.barW }};background:{{ wr.barColor }}"></span>
+                </span>
+                <span style="display:block;font:400 10.5px/1 'Archivo',sans-serif;color:var(--t-muted);margin-top:6px">{{ wr.sub }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isDayMode }}" hint-placeholder-val="{{ true }}">
         <div style="flex:1;overflow-y:auto;background:var(--t-bar)">
           <sc-for list="{{ dayRows }}" as="row" hint-placeholder-count="4">
             <div style="display:flex;border-bottom:1px solid var(--t-rule2)">
@@ -243,6 +271,7 @@
             </div>
           </sc-for>
         </div>
+        </sc-if>
         <div style="display:flex;justify-content:space-between;padding:14px 16px;border-top:2px solid var(--t-ink);font:500 12px/1 'Archivo',sans-serif;color:var(--t-muted)">
           <span>Tracked <strong style="font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ dayTracked }}</strong></span>
           <span>Billable <strong style="font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ dayBillable }}</strong></span>
@@ -1391,7 +1420,7 @@ function durTxt(m) {
 
 class Component extends DCLogic {
   state = {
-    tab: 'track', dayOff: 0, projects: [], entries: [], timer: null, lastProj: null,
+    tab: 'track', dayOff: 0, dayView: 'day', projects: [], entries: [], timer: null, lastProj: null,
     task: '', billable: true, now: Date.now(), sheet: null, toast: '',
     report: { start: null, end: null, preset: 'week' },
     cal: { field: null, month: null },
@@ -1567,8 +1596,8 @@ class Component extends DCLogic {
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   }
   dayEntries(off) { return this.state.entries.filter(e => this.sameDay(e.start, off)).sort((a, b) => a.start - b.start); }
-  weekStart() {
-    const d = dayStart(0);
+  weekStart(anchorOff) {
+    const d = dayStart(anchorOff || 0);
     d.setDate(d.getDate() - ((d.getDay() - this.state.settings.weekStartDay + 7) % 7));
     return d;
   }
@@ -1631,6 +1660,30 @@ class Component extends DCLogic {
     const showMoney = set.showEarnings;
     const today = this.dayEntries(0);
     let tmins = today.reduce((a, e) => a + this.mins(e), 0);
+
+    // "Reconstruct your day" — a big untracked stretch ends right now and
+    // no timer is running: offer to fill it in one tap.
+    let reconstruct = null;
+    if (!s.timer) {
+      const nowTs = Date.now();
+      const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+      if (today.length) {
+        const lastEnd = Math.max.apply(null, today.map(e => e.end));
+        const gapMin = (nowTs - lastEnd) / MS;
+        if (gapMin >= 75 && nowMin <= 23 * 60) {
+          reconstruct = {
+            startTs: lastEnd,
+            text: 'Off the clock since ' + fmtClock(lastEnd) + ' — ' + fmtHM(gapMin) + ' untracked. Still working on something?'
+          };
+        }
+      } else if (nowMin >= 10 * 60 + 30 && nowMin <= 23 * 60) {
+        const nineAm = dayStart(0).getTime() + 9 * 3600000;
+        reconstruct = {
+          startTs: nineAm,
+          text: 'Nothing tracked today. Reconstruct your morning while it’s still fresh — from 9:00 am to now.'
+        };
+      }
+    }
     const tmoney = today.reduce((a, e) => a + this.money(e), 0);
     if (s.timer) tmins += (s.now - s.timer.start) / MS;
     const cp = this.currentProj();
@@ -1653,15 +1706,22 @@ class Component extends DCLogic {
       }
     });
 
-    // week strip
-    const wsD = this.weekStart();
+    // week strip — anchored on the browsed day, so paging weeks moves it
+    const wsD = this.weekStart(s.dayOff);
     const week = [];
     const weekRaw = [];
     for (let i = 0; i < 7; i++) {
       const dd = new Date(wsD); dd.setDate(wsD.getDate() + i);
       const off = Math.round((dd - dayStart(0)) / 86400000);
-      const m = this.dayEntries(off).reduce((a, e) => a + this.mins(e), 0);
-      weekRaw.push({ m, off, label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()] });
+      const des = this.dayEntries(off);
+      const m = des.reduce((a, e) => a + this.mins(e), 0);
+      weekRaw.push({
+        m, off, label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()],
+        bm: des.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0),
+        money: des.reduce((a, e) => a + this.money(e), 0),
+        name: dd.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' }),
+        count: des.length
+      });
       const active = off === s.dayOff;
       week.push({
         label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()], hours: m ? fmtHM(m) : '—',
@@ -1675,18 +1735,51 @@ class Component extends DCLogic {
       });
     }
 
-    // Track-screen spark strip — the week at a glance above the footer
-    const weekMinsTotal = weekRaw.reduce((a, d) => a + d.m, 0);
-    const sparkMaxM = Math.max.apply(null, weekRaw.map(d => d.m).concat([1]));
-    const spark = weekRaw.map(d => ({
+    // Track-screen spark strip — always the CURRENT week, regardless of
+    // which day/week the Day screen is browsing
+    const sparkRaw = [];
+    {
+      const wsT = this.weekStart(0);
+      for (let i = 0; i < 7; i++) {
+        const dd = new Date(wsT); dd.setDate(wsT.getDate() + i);
+        const off = Math.round((dd - dayStart(0)) / 86400000);
+        const m = this.dayEntries(off).reduce((a, e) => a + this.mins(e), 0);
+        sparkRaw.push({ m, off, label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()] });
+      }
+    }
+    const weekMinsTotal = sparkRaw.reduce((a, d) => a + d.m, 0);
+    const sparkMaxM = Math.max.apply(null, sparkRaw.map(d => d.m).concat([1]));
+    const spark = sparkRaw.map(d => ({
       label: d.label,
       value: d.m ? fmtHM(d.m) : '',
       h: d.m ? Math.max(10, Math.round((d.m / sparkMaxM) * 100)) + '%' : '3px',
       color: d.off === 0 ? 'var(--tempo-accent)' : (d.m ? 'var(--t-ink)' : 'var(--t-track)'),
       labelFg: d.off === 0 ? 'var(--tempo-accent-deep)' : 'var(--t-muted)',
       labelW: d.off === 0 ? '800' : '600',
-      pick: () => { if (d.off <= 0) this.setState({ tab: 'day', dayOff: d.off, pane: null }); }
+      pick: () => { if (d.off <= 0) this.setState({ tab: 'day', dayOff: d.off, pane: null, dayView: 'day' }); }
     }));
+
+    // Week view — one ledger row per day of the current week
+    const weekMode = s.dayView === 'week';
+    const wkMaxM = Math.max.apply(null, weekRaw.map(d => d.m).concat([1]));
+    const showMoneyWk = this.state.settings.showEarnings;
+    const weekRows = weekRaw.map(d => ({
+      name: d.name,
+      hours: d.m ? fmtHM(d.m) : '—',
+      money: d.m && showMoneyWk && d.money ? '$' + Math.round(d.money) : '',
+      sub: d.off > 0 ? '' : (d.count ? d.count + (d.count === 1 ? ' entry' : ' entries') : (d.off === 0 ? 'nothing yet today' : 'nothing tracked')),
+      barW: d.m ? Math.max(3, Math.round((d.m / wkMaxM) * 100)) + '%' : '0%',
+      barColor: d.off === 0 ? 'var(--tempo-accent)' : 'var(--t-ink)',
+      nameFg: d.off === 0 ? 'var(--tempo-accent-deep)' : 'var(--t-ink)',
+      dim: d.off > 0 ? '.45' : (d.m ? '1' : '.75'),
+      pick: () => { if (d.off <= 0) this.setState({ dayOff: d.off, dayView: 'day' }); }
+    }));
+    const wkMins = weekRaw.reduce((a, d) => a + d.m, 0);
+    const wkBillM = weekRaw.reduce((a, d) => a + d.bm, 0);
+    const wkMoney = weekRaw.reduce((a, d) => a + d.money, 0);
+    const weekEndD = new Date(wsD); weekEndD.setDate(wsD.getDate() + 6);
+    const weekRangeTitle = wsD.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+      + ' – ' + weekEndD.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
     // day rows
     const list = this.dayEntries(s.dayOff);
@@ -2124,12 +2217,19 @@ class Component extends DCLogic {
       },
       openAdd: () => this.openSheet('entry', {}),
 
-      dayTitle: dTitle, week, dayRows,
-      dayPrev: () => this.setState({ dayOff: s.dayOff - 1 }),
-      dayNext: () => this.setState({ dayOff: Math.min(0, s.dayOff + 1) }),
-      dayTracked: fmtHM(dmins),
-      dayBillable: (dmins ? Math.round((dbill / dmins) * 100) : 0) + '%',
-      dayEarned: showMoney ? '$' + Math.round(dmoney) : '—',
+      dayTitle: weekMode ? weekRangeTitle : dTitle, week, dayRows,
+      isDayMode: !weekMode,
+      isWeekMode: weekMode,
+      weekRows,
+      dayViewToggleLabel: weekMode ? 'DAY' : 'WEEK',
+      toggleDayView: () => this.setState({ dayView: weekMode ? 'day' : 'week' }),
+      dayPrev: () => this.setState({ dayOff: s.dayOff - (weekMode ? 7 : 1) }),
+      dayNext: () => this.setState({ dayOff: Math.min(0, s.dayOff + (weekMode ? 7 : 1)) }),
+      dayTracked: weekMode ? fmtHM(wkMins) : fmtHM(dmins),
+      dayBillable: (weekMode
+        ? (wkMins ? Math.round((wkBillM / wkMins) * 100) : 0)
+        : (dmins ? Math.round((dbill / dmins) * 100) : 0)) + '%',
+      dayEarned: showMoney ? '$' + Math.round(weekMode ? wkMoney : dmoney) : '—',
 
       projectRows,
       openProject: () => this.setState({ sheet: 'project', proj: { name: '', client: '', color: SWATCHES[s.projects.length % SWATCHES.length], rate: '', est: '', archived: false, editId: null } }),
@@ -2503,7 +2603,13 @@ class Component extends DCLogic {
 
       longRun: !!(s.timer && (s.now - s.timer.start) > 4 * 3600000),
       longRunText: s.timer ? 'Running for ' + fmtHM((s.now - s.timer.start) / MS) + ' — still working, or did you forget to stop?' : '',
-      idleNudge: !s.timer && today.length === 0,
+      idleNudge: !s.timer && today.length === 0 && !reconstruct,
+      showReconstruct: !!reconstruct,
+      reconstructText: reconstruct ? reconstruct.text : '',
+      reconstructGo: () => {
+        if (!reconstruct) return;
+        this.openSheet('entry', { start: fmtClock(reconstruct.startTs), end: fmtClock(Date.now()), dateMs: dayStart(0).getTime() });
+      },
 
       backupJson: () => {
         const data = JSON.stringify({ projects: s.projects, entries: s.entries, settings: set }, null, 2);
