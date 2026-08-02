@@ -191,6 +191,7 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           ASC_KEY_B64: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_B64 }}
         run: |
+          sudo sntp -sS time.apple.com || true
           CLEAN_B64=$(printf '%s' "$ASC_KEY_B64" | tr -d '\r\n ')
           jq -n --arg kid "$ASC_KEY_ID" --arg iss "$ASC_ISSUER_ID" --arg key "$CLEAN_B64" \
             '{key_id:$kid, issuer_id:$iss, key:$key, is_key_content_base64:true, in_house:false}' > asc_key.json
