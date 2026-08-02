@@ -1,0 +1,65 @@
+name: iOS build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'Tempo.dc.html'
+      - 'support.js'
+      - 'vendor/**'
+      - '_ds/**'
+      - 'icons/**'
+      - 'assets/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'capacitor.config.json'
+      - '.github/workflows/ios-build.yml'
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Assemble web assets
+        run: node scripts/build-www.mjs
+
+      - name: Add iOS platform
+        run: npx cap add ios
+
+      - name: Generate icons & splash screens
+        run: npx capacitor-assets generate --ios
+
+      - name: Sync web assets into iOS project
+        run: npx cap sync ios
+
+      - name: Build (simulator, unsigned)
+        run: >
+          xcodebuild
+          -workspace ios/App/App.xcworkspace
+          -scheme App
+          -configuration Release
+          -sdk iphonesimulator
+          -derivedDataPath build
+          CODE_SIGNING_ALLOWED=NO
+          build
+
+      - name: Package simulator app
+        run: |
+          cd build/Build/Products/Release-iphonesimulator
+          zip -r Tempo-iOS-simulator.zip App.app
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tempo-iOS-simulator
+          path: build/Build/Products/Release-iphonesimulator/Tempo-iOS-simulator.zip
+          retention-days: 14

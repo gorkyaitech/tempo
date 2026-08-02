@@ -1,0 +1,19 @@
+{
+  "appId": "com.gorkyaitech.tempo",
+  "appName": "Tempo",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#151413"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 700,
+      "backgroundColor": "#ec3013",
+      "launchAutoHide": true
+    },
+    "StatusBar": {
+      "style": "DARK"
+    }
+  }
+}
