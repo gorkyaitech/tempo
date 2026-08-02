@@ -195,6 +195,15 @@
               <span style="font:800 11px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--tempo-accent-deep);flex:none">REVIEW →</span>
             </button>
           </sc-if>
+          <sc-if value="{{ showFinishBand }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ openFinish }}" style="display:flex;align-items:center;gap:10px;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:2px solid var(--t-ink);background:var(--t-ink);color:var(--t-onink);padding:12px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+              <span style="flex:1;font:800 12.5px/1.3 'Archivo',sans-serif;letter-spacing:.04em">Finish today — a 30-second review</span>
+              <span style="font:800 11px/1 'Archivo',sans-serif;letter-spacing:.08em;flex:none">CLOSE THE DAY →</span>
+            </button>
+          </sc-if>
+          <sc-if value="{{ showClosedBand }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ openFinish }}" style="display:block;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:2px dashed var(--t-rule);background:transparent;padding:11px 12px;cursor:pointer;text-align:left;font:600 12px/1.4 'Archivo',sans-serif;color:var(--t-muted)">{{ closedBandText }}</button>
+          </sc-if>
           <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:14px 16px 8px">Recent — tap to restart</div>
           <sc-if value="{{ noRecent }}" hint-placeholder-val="{{ false }}">
             <div style="margin:0 16px 14px;border:2px dashed var(--t-rule);padding:16px">
@@ -1194,6 +1203,46 @@
           </div>
           <button onClick="{{ unmarkIssued }}" style="width:100%;padding:13px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em;color:var(--tempo-accent-deep)">REOPEN — MAKE THESE HOURS BILLABLE AGAIN</button>
         </div>
+      </div>
+    </sc-if>
+
+    <!-- DAILY CLOSURE -->
+    <sc-if value="{{ finishOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:15;background:var(--t-bg);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
+          <span>
+            <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent-deep)">Finish today</span>
+            <span style="display:block;font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em;margin-top:6px">{{ finishDate }}</span>
+          </span>
+          <button onClick="{{ closeFinish }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CLOSE</button>
+        </div>
+        <div style="flex:1;overflow-y:auto">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:2px solid var(--t-ink)">
+            <div style="padding:14px 16px;border-right:1px solid var(--t-rule)"><div style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">Tracked</div><div style="font:800 22px/1 'Archivo',sans-serif;margin-top:6px;font-variant-numeric:tabular-nums">{{ finishTracked }}</div></div>
+            <div style="padding:14px 16px;border-right:1px solid var(--t-rule)"><div style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">Billable</div><div style="font:800 22px/1 'Archivo',sans-serif;margin-top:6px;font-variant-numeric:tabular-nums">{{ finishBillable }}</div></div>
+            <div style="padding:14px 16px"><div style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">Earned</div><div style="font:800 22px/1 'Archivo',sans-serif;margin-top:6px;font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ finishEarned }}</div></div>
+          </div>
+          <sc-if value="{{ finishClean }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:16px;border:2px dashed var(--t-rule);padding:18px 16px">
+              <div style="font:800 15px/1.2 'Archivo',sans-serif;margin-bottom:6px">Nothing to fix</div>
+              <div style="font:400 12.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Every hour is recorded and named. Close the day and walk away.</div>
+            </div>
+          </sc-if>
+          <sc-for list="{{ finishItems }}" as="fi" hint-placeholder-count="2">
+            <div style="padding:13px 16px;border-bottom:1px solid var(--t-rule)">
+              <div style="font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--tempo-accent)">{{ fi.kind }}</div>
+              <div style="font:700 13.5px/1.3 'Archivo',sans-serif;margin-top:6px">{{ fi.title }}</div>
+              <div style="font:400 11.5px/1.45 'Archivo',sans-serif;color:var(--t-muted);margin-top:3px">{{ fi.sub }}</div>
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button onClick="{{ fi.go }}" style="padding:9px 12px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ fi.cta }}</button>
+                <sc-if value="{{ fi.ignore }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ fi.ignore }}" style="padding:9px 12px;border:2px solid var(--t-rule);background:transparent;color:var(--t-muted);cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.06em">IGNORE</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <button onClick="{{ doCloseDay }}" style="flex:none;padding:17px 16px;border:0;border-top:2px solid var(--t-ink);background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 14px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ finishCloseLabel }}</button>
       </div>
     </sc-if>
 
@@ -2825,10 +2874,10 @@ class Component extends DCLogic {
       ...(() => {
         const rItems = [];
         const rdis = new Set(set.recoveryDismissed || []);
-        const pushItem = (id, kind, title, sub, cta, go) => {
+        const pushItem = (id, kind, title, sub, cta, go, isToday) => {
           if (rdis.has(id)) return;
           rItems.push({
-            id, kind, title, sub, cta, go,
+            id, kind, title, sub, cta, go, isToday: !!isToday,
             ignore: () => this.setSetting({ recoveryDismissed: (this.state.settings.recoveryDismissed || []).concat([id]).slice(-200) })
           });
         };
@@ -2845,7 +2894,7 @@ class Component extends DCLogic {
               const a = es[i - 1].end, b = es[i].start;
               pushItem('gap:' + off + ':' + Math.round(a / MS), 'Possible forgotten work',
                 fmtHM(gapMs / MS) + ' gap — ' + dLabel, fmtClock(a) + ' – ' + fmtClock(b), 'ADD ENTRY',
-                () => { this.setState({ recovery: false }); this.openSheet('entry', { start: fmtClock(a), end: fmtClock(b), dateMs: dd.getTime() }); });
+                () => { this.setState({ recovery: false, finish: false }); this.openSheet('entry', { start: fmtClock(a), end: fmtClock(b), dateMs: dd.getTime() }); }, off === 0);
             }
           }
           // b) empty weekday while the week has activity
@@ -2856,7 +2905,7 @@ class Component extends DCLogic {
           }
           es.forEach(e => {
             const editGo = () => {
-              this.setState({ recovery: false });
+              this.setState({ recovery: false, finish: false });
               this.openSheet('entry', {
                 desc: e.desc === '(no description)' ? '' : e.desc,
                 start: fmtClock(e.start), end: fmtClock(e.end),
@@ -2868,13 +2917,13 @@ class Component extends DCLogic {
             if (!e.desc || e.desc === '(no description)') {
               pushItem('desc:' + e.id, 'Missing description',
                 'Unnamed ' + fmtHM(this.mins(e)) + ' entry — ' + dLabel,
-                fmtClock(e.start) + ' – ' + fmtClock(e.end) + ' · clients can’t bill “(no description)”', 'NAME IT', editGo);
+                fmtClock(e.start) + ' – ' + fmtClock(e.end) + ' · clients can’t bill “(no description)”', 'NAME IT', editGo, off === 0);
             }
             // d) unusually long single session
             if (this.mins(e) >= 420) {
               pushItem('long:' + e.id, 'Unusually long session',
                 fmtHM(this.mins(e)) + ' in one entry — ' + dLabel,
-                'Forgot to stop, or split across tasks?', 'REVIEW', editGo);
+                'Forgot to stop, or split across tasks?', 'REVIEW', editGo, off === 0);
             }
           });
           // e) overlapping entries not marked parallel
@@ -2883,7 +2932,7 @@ class Component extends DCLogic {
               const editOv = es[i];
               pushItem('ov:' + editOv.id, 'Overlapping entries',
                 'Two entries overlap — ' + dLabel, fmtClock(editOv.start) + ' starts before the previous one ends', 'REVIEW',
-                () => { this.setState({ recovery: false }); this.openSheet('entry', { desc: editOv.desc === '(no description)' ? '' : editOv.desc, start: fmtClock(editOv.start), end: fmtClock(editOv.end), projId: editOv.projId, billable: editOv.billable, parallel: !!editOv.parallel, tag: editOv.tag || '', note: editOv.note || '', editId: editOv.id, dateMs: dd.getTime() }); });
+                () => { this.setState({ recovery: false, finish: false }); this.openSheet('entry', { desc: editOv.desc === '(no description)' ? '' : editOv.desc, start: fmtClock(editOv.start), end: fmtClock(editOv.end), projId: editOv.projId, billable: editOv.billable, parallel: !!editOv.parallel, tag: editOv.tag || '', note: editOv.note || '', editId: editOv.id, dateMs: dd.getTime() }); }, off === 0);
             }
           }
         }
@@ -2891,7 +2940,7 @@ class Component extends DCLogic {
         if (s.timer && (s.now - s.timer.start) > 4 * 3600000) {
           pushItem('timer:' + s.timer.start, 'Timer running long',
             'Running for ' + fmtHM((s.now - s.timer.start) / MS), 'Still working, or did you forget to stop?', 'GO TO TIMER',
-            () => this.setState({ recovery: false, tab: 'track' }));
+            () => this.setState({ recovery: false, finish: false, tab: 'track' }), true);
         }
         // g) unbilled work older than 3 days
         const unb = s.entries.filter(e => e.billable && !e.invoiced && this.money(e) > 0 && e.end < Date.now() - 3 * 86400000);
@@ -2904,6 +2953,28 @@ class Component extends DCLogic {
             () => this.setState({ recovery: false, tab: 'reports', pane: null }));
         }
         const items = rItems.slice(0, 12);
+
+        // Daily closure — the 30-second end-of-day ritual
+        const todayKey = dayStart(0).getTime();
+        const dayClosed = set.closedDay === todayKey;
+        const nowMin2 = new Date().getHours() * 60 + new Date().getMinutes();
+        const finishItems = [];
+        if (reconstruct) finishItems.push({
+          kind: 'Untracked until now', title: 'Reconstruct the end of your day', sub: reconstruct.text, cta: 'FILL IT IN',
+          go: () => { this.setState({ finish: false }); this.openSheet('entry', { start: fmtClock(reconstruct.startTs), end: fmtClock(Date.now()), dateMs: todayKey }); },
+          ignore: null
+        });
+        items.filter(i => i.isToday).forEach(i => finishItems.push(i));
+        const tbill = today.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0);
+        const doCloseDay = () => {
+          const yKey = dayStart(-1).getTime();
+          const streak = set.closedDay === yKey ? (set.closeStreak || 1) + 1 : 1;
+          this.setSetting({ closedDay: todayKey, closeStreak: streak });
+          this.setState({ finish: false });
+          this.toast('Day closed — ' + fmtHM(tmins)
+            + (showMoney && tmoney ? ' · $' + Math.round(tmoney) : '')
+            + (streak > 1 ? ' · ' + streak + ' days in a row' : ''));
+        };
         return {
           recoveryItems: items,
           showRecoveryBand: items.length > 0,
@@ -2911,7 +2982,24 @@ class Component extends DCLogic {
           recoveryOpen: !!s.recovery,
           recoveryEmpty: items.length === 0,
           openRecovery: () => this.setState({ recovery: true }),
-          closeRecovery: () => this.setState({ recovery: false })
+          closeRecovery: () => this.setState({ recovery: false }),
+
+          showFinishBand: !dayClosed && !s.timer && today.length > 0 && (nowMin2 >= 16 * 60 || tmins >= 360),
+          showClosedBand: dayClosed,
+          closedBandText: '✓ Day closed — ' + fmtHM(tmins) + ' tracked'
+            + (showMoney && tmoney ? ' · $' + Math.round(tmoney) : '')
+            + ((set.closeStreak || 0) > 1 ? ' · ' + set.closeStreak + '-day streak' : ''),
+          finishOpen: !!s.finish,
+          openFinish: () => this.setState({ finish: true }),
+          closeFinish: () => this.setState({ finish: false }),
+          finishDate: new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }),
+          finishTracked: fmtHM(tmins),
+          finishBillable: (tmins ? Math.round((tbill / tmins) * 100) : 0) + '%',
+          finishEarned: showMoney ? '$' + Math.round(tmoney) : '—',
+          finishItems,
+          finishClean: finishItems.length === 0,
+          finishCloseLabel: dayClosed ? 'DAY ALREADY CLOSED ✓' : 'CLOSE THE DAY ✓',
+          doCloseDay
         };
       })(),
 
