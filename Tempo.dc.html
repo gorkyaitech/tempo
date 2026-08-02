@@ -113,6 +113,27 @@
   @media (pointer:coarse){
     input,textarea{font-size:16px !important}
   }
+  /* Press feedback — every control responds to touch. Brightness works on
+     any background; direction flips per theme so it's visible on both. */
+  .app-frame button{transition:filter .12s ease,transform .12s ease}
+  .app-frame button:active:not(:disabled){filter:brightness(.85);transform:scale(.985)}
+  body[data-theme="dark"] .app-frame button:active:not(:disabled){filter:brightness(1.35)}
+  @media (prefers-color-scheme: dark){
+    body[data-theme="auto"] .app-frame button:active:not(:disabled){filter:brightness(1.35)}
+  }
+  /* List scrolling stays inside its pane */
+  .app-frame div[style*="overflow-y"]{overscroll-behavior:contain}
+  /* Motion — sheets slide up, overlays rise, scrims fade. sc-if remounts
+     fresh DOM on every open, so mount animations replay naturally. */
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes t-fade{from{opacity:0}to{opacity:1}}
+    @keyframes t-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    @keyframes t-sheet{from{transform:translateY(100%)}to{transform:none}}
+    .app-frame>div[style*="flex-end"]{animation:t-fade .16s ease-out}
+    .app-frame>div[style*="flex-end"]>*:last-child{animation:t-sheet .24s cubic-bezier(.2,.9,.3,1)}
+    .app-frame>div[style*="inset"]:not([style*="flex-end"]){animation:t-rise .16s ease-out}
+    .app-frame>div[style*="bottom: 74px"],.app-frame>div[style*="bottom:74px"]{animation:t-rise .15s ease-out}
+  }
 </style>
 </helmet>
 <template id="__bundler_thumbnail" data-bg-color="#ec3013">
@@ -376,7 +397,7 @@
         <div style="flex:1;overflow-y:auto">
           <div style="display:grid;grid-template-columns:1fr 1fr">
             <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="6">
-              <div style="padding:14px 16px;border-right:1px solid var(--t-rule);border-bottom:1px solid var(--t-rule)">
+              <div style="padding:16px;border-right:1px solid var(--t-rule);border-bottom:1px solid var(--t-rule)">
                 <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">{{ t.label }}</div>
                 <div style="font:800 22px/1 'Archivo',sans-serif;letter-spacing:-.03em;margin-top:6px;font-variant-numeric:tabular-nums;color:{{ t.color }}">{{ t.value }}</div>
               </div>
@@ -384,7 +405,7 @@
           </div>
 
           <sc-if value="{{ showGoals }}" hint-placeholder-val="{{ true }}">
-            <div style="padding:14px 16px;border-bottom:1px solid var(--t-rule)">
+            <div style="padding:16px;border-bottom:1px solid var(--t-rule)">
               <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:12px">Goals this cycle</div>
               <div style="display:flex;justify-content:space-between;font:600 11.5px/1 'Archivo',sans-serif;margin-bottom:5px"><span>Hours</span><span style="font-variant-numeric:tabular-nums">{{ goalHoursLabel }}</span></div>
               <div style="height:6px;background:var(--t-track);margin-bottom:12px"><div style="height:6px;width:{{ goalHoursPct }};background:var(--t-ink)"></div></div>
