@@ -77,3 +77,91 @@ jobs:
           name: Tempo-iOS-simulator
           path: build/Build/Products/Release-iphonesimulator/Tempo-iOS-simulator.zip
           retention-days: 14
+
+  testflight:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Assemble web assets
+        run: node scripts/build-www.mjs
+
+      - name: Add iOS platform
+        run: npx cap add ios
+
+      - name: Generate icons & splash screens
+        run: npx capacitor-assets generate --ios
+
+      - name: Sync web assets into iOS project
+        run: npx cap sync ios
+
+      - name: Inject native Swift (plugin + Live Activity + widgets)
+        run: |
+          mkdir -p ios/App/App/TempoNative ios/App/TempoWidgets
+          cp native/ios/plugin/TempoNativePlugin.swift ios/App/App/TempoNative/
+          cp native/ios/plugin/TempoNativePlugin.m ios/App/App/TempoNative/
+          cp native/ios/shared/TempoAttributes.swift ios/App/App/TempoNative/
+          cp native/ios/widgets/TempoWidgets.swift ios/App/TempoWidgets/
+          cp native/ios/shared/TempoAttributes.swift ios/App/TempoWidgets/
+          cp native/ios/widgets/Info.plist ios/App/TempoWidgets/
+          plutil -replace NSSupportsLiveActivities -bool YES ios/App/App/Info.plist
+          plutil -replace ITSAppUsesNonExemptEncryption -bool NO ios/App/App/Info.plist
+          gem list -i xcodeproj > /dev/null || sudo gem install xcodeproj -N
+          ruby scripts/add-widget-target.rb
+
+      - name: Write App Store Connect API key
+        env:
+          ASC_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/private_keys
+          printf '%s' "$ASC_KEY" > ~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+
+      - name: Archive (cloud-managed signing)
+        run: >
+          xcodebuild
+          -workspace ios/App/App.xcworkspace
+          -scheme App
+          -configuration Release
+          -destination 'generic/platform=iOS'
+          -archivePath build/Tempo.xcarchive
+          archive
+          -allowProvisioningUpdates
+          -authenticationKeyPath $HOME/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+          -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }}
+          CODE_SIGN_STYLE=Automatic
+          MARKETING_VERSION=1.0
+          CURRENT_PROJECT_VERSION=${{ github.run_number }}
+
+      - name: Export & upload to TestFlight
+        run: |
+          cat > exportOptions.plist <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>TEAM_ID_PLACEHOLDER</string>
+          </dict>
+          </plist>
+          EOF
+          sed -i '' "s/TEAM_ID_PLACEHOLDER/${{ secrets.APPLE_TEAM_ID }}/" exportOptions.plist
+          xcodebuild -exportArchive \
+            -archivePath build/Tempo.xcarchive \
+            -exportOptionsPlist exportOptions.plist \
+            -exportPath build/export \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath $HOME/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8 \
+            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_ID }} \
+            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
