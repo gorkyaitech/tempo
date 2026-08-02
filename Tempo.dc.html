@@ -83,8 +83,25 @@
      padding box — give them their own safe-area padding so action rows
      clear the notch and the home indicator. */
   .app-frame>div[style*="inset"]{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
+  /* Desktop: present the app inside a phone — bezel, camera island, home
+     indicator — centered on the page. Real phones (narrow screens) keep the
+     edge-to-edge native look. */
   @media (min-width:521px){
-    .app-frame{border-left:2px solid var(--t-ink);border-right:2px solid var(--t-ink);box-shadow:0 12px 32px rgba(45,43,43,.22)}
+    .app-shell{align-items:center;padding:28px 0}
+    .app-frame{
+      position:relative;
+      height:min(860px, calc(100dvh - 56px));
+      border:12px solid #0d0c0b;
+      border-radius:52px;
+      box-shadow:0 30px 80px rgba(0,0,0,.45);
+      padding-top:34px;padding-bottom:22px;
+    }
+    .app-frame::before{content:'';position:absolute;top:11px;left:50%;transform:translateX(-50%);
+      width:92px;height:24px;border-radius:12px;background:#0d0c0b;z-index:60;pointer-events:none}
+    .app-frame::after{content:'';position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
+      width:118px;height:5px;border-radius:3px;background:var(--t-ink);opacity:.85;z-index:60;pointer-events:none}
+    .app-shell::after{content:'TEMPO';position:fixed;top:26px;left:30px;
+      font:800 15px/1 'Archivo',sans-serif;letter-spacing:.22em;color:var(--tempo-accent)}
   }
   /* Native touch feel */
   body{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;
