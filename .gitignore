@@ -1,6 +1,6 @@
 node_modules/
-www/
-ios/
-android/
-build/
+/www/
+/ios/
+/android/
+/build/
 package-lock.json
