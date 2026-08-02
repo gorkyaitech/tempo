@@ -6,4 +6,8 @@
   <url><loc>https://gorkyaitech.github.io/tempo/tools/time-card-calculator.html</loc><priority>0.8</priority></url>
   <url><loc>https://gorkyaitech.github.io/tempo/tools/billable-hours-calculator.html</loc><priority>0.8</priority></url>
   <url><loc>https://gorkyaitech.github.io/tempo/tools/decimal-hours-converter.html</loc><priority>0.7</priority></url>
+  <url><loc>https://gorkyaitech.github.io/tempo/compare/</loc><priority>0.7</priority></url>
+  <url><loc>https://gorkyaitech.github.io/tempo/compare/harvest-alternative.html</loc><priority>0.8</priority></url>
+  <url><loc>https://gorkyaitech.github.io/tempo/compare/clockify-alternative.html</loc><priority>0.8</priority></url>
+  <url><loc>https://gorkyaitech.github.io/tempo/compare/toggl-alternative.html</loc><priority>0.8</priority></url>
 </urlset>
