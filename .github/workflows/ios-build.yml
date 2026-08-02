@@ -185,6 +185,7 @@ jobs:
             <key>destination</key><string>export</string>
             <key>teamID</key><string>TEAM_ID_PLACEHOLDER</string>
             <key>signingStyle</key><string>manual</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
             <key>provisioningProfiles</key>
             <dict>
               <key>com.gorkyaitech.tempo</key><string>Tempo AppStore</string>
