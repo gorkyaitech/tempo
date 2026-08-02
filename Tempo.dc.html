@@ -160,12 +160,14 @@
           </div>
           <div style="font:800 44px/0.92 'Archivo',sans-serif;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:13px 0 10px">{{ clock }}</div>
           <input value="{{ taskText }}" onInput="{{ onTaskInput }}" placeholder="What are you working on?" style="width:100%;box-sizing:border-box;border:0;border-bottom:2px solid {{ bandRule }};background:transparent;border-radius:0;padding:7px 0;font:600 16px/1.3 'Archivo',sans-serif;color:{{ bandFg }};outline:none">
-          <div style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-top:16px">Billing this time to</div>
+          <div style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-top:16px">{{ billingToLabel }}</div>
           <div style="display:flex;gap:8px;margin-top:8px">
             <button onClick="{{ cycleProject }}" style="display:flex;align-items:center;gap:8px;min-width:0;padding:7px 11px;border:2px solid {{ bandRule }};background:transparent;color:{{ bandFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase">
               <span style="width:8px;height:8px;background:{{ chipDotColor }};flex:none"></span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ projName }}</span><span style="opacity:.65;flex:none">▾</span>
             </button>
-            <button onClick="{{ toggleBillable }}" style="flex:none;white-space:nowrap;padding:7px 11px;border:2px solid {{ bandRule }};background:{{ billBg }};color:{{ billFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em">{{ billLabel }}</button>
+            <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ toggleBillable }}" style="flex:none;white-space:nowrap;padding:7px 11px;border:2px solid {{ bandRule }};background:{{ billBg }};color:{{ billFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em">{{ billLabel }}</button>
+            </sc-if>
           </div>
         </div>
 
@@ -425,8 +427,10 @@
               <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:12px">Goals this cycle</div>
               <div style="display:flex;justify-content:space-between;font:600 11.5px/1 'Archivo',sans-serif;margin-bottom:5px"><span>Hours</span><span style="font-variant-numeric:tabular-nums">{{ goalHoursLabel }}</span></div>
               <div style="height:6px;background:var(--t-track);margin-bottom:12px"><div style="height:6px;width:{{ goalHoursPct }};background:var(--t-ink)"></div></div>
-              <div style="display:flex;justify-content:space-between;font:600 11.5px/1 'Archivo',sans-serif;margin-bottom:5px"><span>Income</span><span style="font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ goalIncomeLabel }}</span></div>
-              <div style="height:6px;background:var(--t-track)"><div style="height:6px;width:{{ goalIncomePct }};background:var(--tempo-accent)"></div></div>
+              <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;justify-content:space-between;font:600 11.5px/1 'Archivo',sans-serif;margin-bottom:5px"><span>Income</span><span style="font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ goalIncomeLabel }}</span></div>
+                <div style="height:6px;background:var(--t-track)"><div style="height:6px;width:{{ goalIncomePct }};background:var(--tempo-accent)"></div></div>
+              </sc-if>
             </div>
           </sc-if>
 
@@ -487,7 +491,9 @@
         <div style="border-top:2px solid var(--t-ink);flex:none">
           <div style="display:flex">
             <button onClick="{{ openDoc }}" style="flex:1;padding:14px 16px;border:0;border-right:2px solid var(--t-ink);background:var(--t-ink);color:var(--t-bg);cursor:pointer;text-align:left;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.05em">TIME REPORT</button>
-            <button onClick="{{ openInvoice }}" style="flex:1;padding:14px 16px;border:0;border-right:2px solid var(--t-ink);background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.05em">{{ invoiceBtnLabel }}</button>
+            <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ openInvoice }}" style="flex:1;padding:14px 16px;border:0;border-right:2px solid var(--t-ink);background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.05em">{{ invoiceBtnLabel }}</button>
+            </sc-if>
             <button onClick="{{ toggleReportMore }}" aria-label="More export options" style="width:46px;padding:14px 0;border:0;background:transparent;cursor:pointer;font:700 13px/1 'Archivo',sans-serif;color:var(--t-muted)">{{ reportMoreCaret }}</button>
           </div>
           <sc-if value="{{ reportMoreOpen }}" hint-placeholder-val="{{ false }}">
@@ -666,7 +672,9 @@
           </sc-for>
         </div>
         <div style="display:flex;border-top:2px solid var(--t-ink)">
-          <button onClick="{{ openInvoice }}" style="flex:1;padding:14px 16px;border:0;border-right:2px solid var(--t-ink);background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 12.5px/1 'Archivo',sans-serif;letter-spacing:.06em">INVOICE THIS RANGE</button>
+          <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ openInvoice }}" style="flex:1;padding:14px 16px;border:0;border-right:2px solid var(--t-ink);background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 12.5px/1 'Archivo',sans-serif;letter-spacing:.06em">INVOICE THIS RANGE</button>
+          </sc-if>
           <button onClick="{{ emailReport }}" style="width:104px;padding:14px;border:0;background:transparent;cursor:pointer;text-align:left;font:700 12px/1 'Archivo',sans-serif;letter-spacing:.06em">EMAIL</button>
         </div>
       </div>
@@ -966,6 +974,13 @@
 
           <sc-if value="{{ paneTracking }}" hint-placeholder-val="{{ false }}">
             <div>
+              <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:16px 16px 10px">You use Tempo for</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--t-rule);border-bottom:1px solid var(--t-rule)">
+                <sc-for list="{{ modeOpts }}" as="mo" hint-placeholder-count="3">
+                  <button onClick="{{ mo.pick }}" style="padding:13px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ mo.bg }};color:{{ mo.fg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ mo.label }}</button>
+                </sc-for>
+              </div>
+              <div style="padding:12px 16px;border-bottom:2px solid var(--t-rule);font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Timesheet and Personal hide every dollar sign and all invoicing. Switching is safe — nothing is deleted.</div>
               <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="3">
                 <button onClick="{{ t.toggle }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:13px 16px;border:0;border-bottom:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
                   <span style="flex:1">
@@ -1124,10 +1139,12 @@
                   <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:7px">Hours per cycle</span>
                   <input class="input" value="{{ goalHours }}" onInput="{{ onGoalHours }}" inputmode="decimal" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:700 15.5px/1.1 'Archivo',sans-serif">
                 </label>
-                <label style="flex:1;padding:11px 14px;background:var(--t-field)">
-                  <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:7px">Income per cycle $</span>
-                  <input class="input" value="{{ goalIncome }}" onInput="{{ onGoalIncome }}" inputmode="decimal" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:700 15.5px/1.1 'Archivo',sans-serif">
-                </label>
+                <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
+                  <label style="flex:1;padding:11px 14px;background:var(--t-field)">
+                    <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:7px">Income per cycle $</span>
+                    <input class="input" value="{{ goalIncome }}" onInput="{{ onGoalIncome }}" inputmode="decimal" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:700 15.5px/1.1 'Archivo',sans-serif">
+                  </label>
+                </sc-if>
               </div>
               <div style="padding:16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Progress against these shows at the top of Reports. Set either to 0 to hide it.</div>
             </div>
@@ -1337,12 +1354,29 @@
           <div style="height:2px;background:var(--t-ink);margin:14px 0 18px"></div>
           <h2 style="font:800 26px/1.05 'Archivo',sans-serif;letter-spacing:-.02em;margin:0 0 12px">Track hours. Fix the gaps. Get paid.</h2>
           <p style="font:400 14px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin:0 0 12px">Tracking is free forever. No account, no surveillance, works offline — your hours never leave this device.</p>
-          <p style="font:400 14px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin:0">Start with a sample week to poke around, or set up your first project now.</p>
+          <sc-if value="{{ obStep1 }}" hint-placeholder-val="{{ true }}">
+            <p style="font:700 12px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-ink);margin:8px 0 0">How do you use your time?</p>
+          </sc-if>
+          <sc-if value="{{ obStep2 }}" hint-placeholder-val="{{ false }}">
+            <p style="font:400 14px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin:0">Start with a sample week to poke around, or set up your first project now.</p>
+          </sc-if>
         </div>
+        <sc-if value="{{ obStep1 }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;border-top:2px solid var(--t-ink)">
+            <sc-for list="{{ obModes }}" as="om" hint-placeholder-count="4">
+              <button onClick="{{ om.pick }}" style="padding:14px 20px;border:0;border-bottom:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+                <span style="display:block;font:800 14px/1.2 'Archivo',sans-serif">{{ om.label }}</span>
+                <span style="display:block;font:400 11.5px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:3px">{{ om.desc }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ obStep2 }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;flex-direction:column;border-top:2px solid var(--t-ink)">
           <button onClick="{{ startFresh }}" style="padding:16px 20px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 15px/1 'Archivo',sans-serif;letter-spacing:.06em">SET UP MY FIRST PROJECT</button>
           <button onClick="{{ startSample }}" style="padding:16px 20px;border:0;border-top:2px solid var(--t-ink);background:transparent;cursor:pointer;text-align:left;font:700 13px/1 'Archivo',sans-serif;letter-spacing:.06em">EXPLORE A SAMPLE WEEK FIRST</button>
         </div>
+        </sc-if>
       </div>
     </sc-if>
 
@@ -1478,7 +1512,9 @@
                 <button class="btn btn-secondary" onClick="{{ openCalEntry }}" style="font-size:12px;padding:7px 12px;display:flex;align-items:center;gap:8px">
                   <span style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Date</span>{{ entryDateLabel }} ▾
                 </button>
-                <button class="btn btn-secondary" onClick="{{ toggleFormBillable }}" style="font-size:12px;padding:7px 12px;background:{{ fBillBg }};color:{{ fBillFg }};border-color:{{ fBillFg }}">{{ fBillLabel }}</button>
+                <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
+                  <button class="btn btn-secondary" onClick="{{ toggleFormBillable }}" style="font-size:12px;padding:7px 12px;background:{{ fBillBg }};color:{{ fBillFg }};border-color:{{ fBillFg }}">{{ fBillLabel }}</button>
+                </sc-if>
               </div>
 
               <button class="btn btn-primary" onClick="{{ saveEntry }}" style="width:100%;justify-content:flex-start;margin-top:18px;font:800 14px/1 'Archivo',sans-serif;letter-spacing:.06em;padding:15px 16px;opacity:{{ saveOpacity }}">{{ saveLabel }}</button>
@@ -1505,8 +1541,10 @@
               </datalist>
               <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">Project name</label>
               <input class="input" value="{{ pName }}" onInput="{{ onPName }}" placeholder="e.g. Rack migration phase 2" style="width:100%;box-sizing:border-box;margin-bottom:14px">
-              <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">Your rate — $ per hour</label>
-              <input class="input" value="{{ pRate }}" onInput="{{ onPRate }}" inputmode="decimal" placeholder="85 · blank if unbilled" style="width:100%;box-sizing:border-box;margin-bottom:14px">
+              <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
+                <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">Your rate — $ per hour</label>
+                <input class="input" value="{{ pRate }}" onInput="{{ onPRate }}" inputmode="decimal" placeholder="85 · blank if unbilled" style="width:100%;box-sizing:border-box;margin-bottom:14px">
+              </sc-if>
               <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">Swatch</label>
               <div style="display:flex;gap:8px;margin-bottom:14px">
                 <sc-for list="{{ swatches }}" as="s" hint-placeholder-count="4">
@@ -1925,6 +1963,10 @@ class Component extends DCLogic {
     const s = this.state;
     const set = s.settings;
     const showMoney = set.showEarnings;
+    // Mode: 'billing' (default) | 'timesheet' | 'personal'.
+    // Non-billing modes hide every dollar sign and all invoicing UI.
+    const mode = set.mode || 'billing';
+    const billing = mode === 'billing';
     const today = this.dayEntries(0);
     let tmins = today.reduce((a, e) => a + this.mins(e), 0);
 
@@ -2236,13 +2278,21 @@ class Component extends DCLogic {
       h: Math.max(v ? 3 : 0, (v / maxV) * 100) + '%',
       color: i === bestI && v > 0 ? 'var(--tempo-accent)' : 'var(--t-ink)'
     }));
-    const tiles = [
+    const daysTracked = new Set(weekEntries.map(e => dayStart(Math.round((e.start - dayStart(0).getTime()) / 86400000)).getTime())).size;
+    const tiles = billing ? [
       { label: 'Tracked', value: fmtHM(wmins), color: 'var(--t-ink)' },
       { label: 'Earned', value: showMoney ? '$' + Math.round(wmoney) : '—', color: 'var(--tempo-accent-deep)' },
       { label: 'Billable', value: (wmins ? Math.round((wbill / wmins) * 100) : 0) + '%', color: 'var(--t-ink)' },
       { label: 'Unbilled', value: showMoney ? '$' + Math.round(weekEntries.filter(e => e.billable && !e.invoiced).reduce((a, e) => a + moneyOf(e), 0)) : '—', color: 'var(--tempo-accent-deep)' },
       { label: otPolicy === 'paid' ? 'Overtime (paid)' : 'Overtime', value: capMins ? fmtHM(otMins) : 'off', color: otMins ? 'var(--tempo-accent-deep)' : 'var(--t-muted)' },
       { label: 'Cycle ends', value: new Date(re).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }), color: 'var(--t-ink)' }
+    ] : [
+      { label: 'Tracked', value: fmtHM(wmins), color: 'var(--t-ink)' },
+      { label: 'Days tracked', value: String(daysTracked), color: 'var(--t-ink)' },
+      { label: 'Avg per day', value: daysTracked ? fmtHM(wmins / daysTracked) : '—', color: 'var(--t-ink)' },
+      { label: 'Entries', value: String(weekEntries.length), color: 'var(--t-ink)' },
+      { label: otPolicy === 'paid' ? 'Overtime (paid)' : 'Overtime', value: capMins ? fmtHM(otMins) : 'off', color: otMins ? 'var(--tempo-accent-deep)' : 'var(--t-muted)' },
+      { label: 'Week ends', value: new Date(re).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }), color: 'var(--t-ink)' }
     ];
     const buildLines = (src, group, detailed) => {
       const lines = [];
@@ -2390,15 +2440,15 @@ class Component extends DCLogic {
       paneData: s.pane === 'data',
       paneTitle: s.pane === 'pro' ? (set.pro ? 'Tempo Pro' : 'Upgrade') : s.pane === 'appearance' ? 'Appearance' : s.pane === 'tracking' ? 'Tracking' : s.pane === 'cycle' ? 'Billing cycle' : s.pane === 'invoicing' ? 'Invoicing' : s.pane === 'goals' ? 'Goals' : s.pane === 'data' ? 'Data' : 'Settings',
       closePane: () => this.setState({ pane: null }),
-      settingsMenu: [
-        ['pro', set.pro ? 'Tempo Pro — active' : 'Upgrade to Tempo Pro', set.pro ? 'Invoicing, payment tracking, full history' : 'See everything Pro unlocks'],
-        ['appearance', 'Appearance', (set.theme || 'auto') === 'auto' ? 'Follows your phone' : ((set.theme === 'dark') ? 'Always dark' : 'Always light')],
-        ['tracking', 'Tracking', 'Billable default, rounding, earnings visibility'],
-        ['cycle', 'Billing cycle', 'Currently ' + DAY_NAMES[set.weekStartDay] + ' – ' + DAY_NAMES[(set.weekStartDay + 6) % 7]],
-        ['invoicing', 'Invoicing', set.pro ? ((set.bizName || 'Set your name') + ' · ' + (set.taxRate || 0) + '% tax · ' + (set.terms || 0) + ' day terms') : 'Locked — part of Tempo Pro'],
-        ['goals', 'Goals', (set.goalHours || 0) + 'h and $' + (set.goalIncome || 0) + ' per cycle'],
-        ['data', 'Data', 'Backup, restore, CSV, erase']
-      ].map(m => ({ label: m[1], hint: m[2], open: () => this.setState({ pane: m[0] }) })),
+      settingsMenu: [].concat(
+        billing ? [['pro', set.pro ? 'Tempo Pro — active' : 'Upgrade to Tempo Pro', set.pro ? 'Invoicing, payment tracking, full history' : 'See everything Pro unlocks']] : [],
+        [['appearance', 'Appearance', (set.theme || 'auto') === 'auto' ? 'Follows your phone' : ((set.theme === 'dark') ? 'Always dark' : 'Always light')],
+        ['tracking', 'Tracking', billing ? 'Mode, billable default, rounding, earnings' : 'Mode, rounding, reminders'],
+        ['cycle', billing ? 'Billing cycle' : 'Week start', 'Currently ' + DAY_NAMES[set.weekStartDay] + ' – ' + DAY_NAMES[(set.weekStartDay + 6) % 7]]],
+        billing ? [['invoicing', 'Invoicing', set.pro ? ((set.bizName || 'Set your name') + ' · ' + (set.taxRate || 0) + '% tax · ' + (set.terms || 0) + ' day terms') : 'Locked — part of Tempo Pro']] : [],
+        [['goals', 'Goals', (set.goalHours || 0) + 'h' + (billing ? ' and $' + (set.goalIncome || 0) : '') + ' per cycle'],
+        ['data', 'Data', 'Backup, restore, CSV, erase']]
+      ).map(m => ({ label: m[1], hint: m[2], open: () => this.setState({ pane: m[0] }) })),
       isTrack: s.tab === 'track', isDay: s.tab === 'day', isProjects: s.tab === 'projects', isReports: s.tab === 'reports', isSettings: s.tab === 'settings',
       bandBg: s.timer ? 'var(--tempo-accent)' : 'var(--t-bg)',
       bandFg: s.timer ? '#ffffff' : 'var(--t-ink)',
@@ -2743,6 +2793,28 @@ class Component extends DCLogic {
       },
 
       showOnboarding: !s.onboarded,
+      obStep1: !s.obModeDone,
+      obStep2: !!s.obModeDone,
+      obModes: [
+        { m: 'billing', label: 'I bill clients', desc: 'Rates, invoices, money totals — the full kit' },
+        { m: 'timesheet', label: 'I submit timesheets', desc: 'Hours only — no money anywhere in the app' },
+        { m: 'billing', label: 'Both', desc: 'Billing features on; track everything' },
+        { m: 'personal', label: 'Just a personal record', desc: 'Simple hours for yourself, nothing else' }
+      ].map(o => ({
+        label: o.label, desc: o.desc,
+        pick: () => {
+          this.setSetting({ mode: o.m, showEarnings: o.m === 'billing', defaultBillable: o.m === 'billing' });
+          this.setState({ obModeDone: true });
+        }
+      })),
+      showBillingUI: billing,
+      billingToLabel: billing ? 'Billing this time to' : 'Working on',
+      modeOpts: [['billing', 'BILLING'], ['timesheet', 'TIMESHEET'], ['personal', 'PERSONAL']].map(o => ({
+        label: o[1],
+        bg: mode === o[0] ? 'var(--t-ink)' : 'transparent',
+        fg: mode === o[0] ? 'var(--t-bg)' : 'var(--t-muted)',
+        pick: () => this.setSetting({ mode: o[0], showEarnings: o[0] === 'billing', defaultBillable: o[0] === 'billing' })
+      })),
       startSample: () => this.setState({ entries: [], projects: [], onboarded: true }, () => { this.seed(); this.toast('Sample week loaded'); }),
       startFresh: () => this.setState({ onboarded: true, sheet: 'project', proj: { name: '', client: '', color: SWATCHES[0], rate: '', est: '', archived: false, editId: null } }),
 
@@ -2775,7 +2847,7 @@ class Component extends DCLogic {
       goalHoursLabel: set.goalHours ? fmtHM(wmins) + ' of ' + set.goalHours + 'h' : 'No hours goal',
       goalIncomePct: set.goalIncome ? Math.min(100, (wmoney / set.goalIncome) * 100) + '%' : '0%',
       goalIncomeLabel: set.goalIncome ? '$' + Math.round(wmoney) + ' of $' + set.goalIncome : 'No income goal',
-      showGoals: !!(set.goalHours || set.goalIncome),
+      showGoals: !!(set.goalHours || (billing && set.goalIncome)),
       workTypes: (set.tags && set.tags.length ? set.tags : TAGS).map(t => ({
         label: t,
         builtIn: TAGS.indexOf(t) !== -1,
@@ -2942,8 +3014,8 @@ class Component extends DCLogic {
             'Running for ' + fmtHM((s.now - s.timer.start) / MS), 'Still working, or did you forget to stop?', 'GO TO TIMER',
             () => this.setState({ recovery: false, finish: false, tab: 'track' }), true);
         }
-        // g) unbilled work older than 3 days
-        const unb = s.entries.filter(e => e.billable && !e.invoiced && this.money(e) > 0 && e.end < Date.now() - 3 * 86400000);
+        // g) unbilled work older than 3 days (billing mode only)
+        const unb = billing ? s.entries.filter(e => e.billable && !e.invoiced && this.money(e) > 0 && e.end < Date.now() - 3 * 86400000) : [];
         if (unb.length) {
           const um = unb.reduce((a, e) => a + this.mins(e), 0);
           const uMoney = unb.reduce((a, e) => a + this.money(e), 0);
