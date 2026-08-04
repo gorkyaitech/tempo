@@ -1482,15 +1482,16 @@
                 <div style="font:800 24px/1.15 'Archivo',sans-serif;letter-spacing:-.02em;margin:12px 0 10px;color:var(--t-ink)">Track for free. Pay for getting paid.</div>
                 <div style="font:500 13px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Everything you need to record today and the past stays free. Pro adds future planning, invoices, payment tracking and unlimited history.</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
-                  <div style="padding:11px;border:1px solid var(--t-rule2);border-radius:12px;background:var(--t-field)">
-                    <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;color:var(--t-muted)">FREE</span>
+                  <button onClick="{{ filterFreeFeatures }}" aria-pressed="{{ freeFilterPressed }}" style="padding:11px;border:1px solid {{ freeFilterBorder }};border-radius:12px;background:{{ freeFilterBg }};color:{{ freeFilterText }};cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+                    <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;color:{{ freeFilterLabelColor }}">FREE</span>
                     <span style="display:block;font:600 11px/1.4 'Archivo',sans-serif;margin-top:6px">Track today and the past, reports, CSV and backup</span>
-                  </div>
-                  <div style="padding:11px;border:1px solid var(--tempo-accent);border-radius:12px;background:var(--tempo-accent-wash)">
-                    <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;color:var(--tempo-accent-deep)">PRO</span>
+                  </button>
+                  <button onClick="{{ filterProFeatures }}" aria-pressed="{{ proFilterPressed }}" style="padding:11px;border:1px solid {{ proFilterBorder }};border-radius:12px;background:{{ proFilterBg }};color:var(--t-ink);cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+                    <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;color:{{ proFilterLabelColor }}">PRO</span>
                     <span style="display:block;font:600 11px/1.4 'Archivo',sans-serif;margin-top:6px">Plan ahead, invoice clients and track payment</span>
-                  </div>
+                  </button>
                 </div>
+                <div style="margin-top:8px;font:600 10.5px/1.35 'Archivo',sans-serif;color:var(--t-muted);text-align:center">{{ proFilterStatus }}</div>
                 <sc-if value="{{ proInactive }}" hint-placeholder-val="{{ true }}">
                   <button onClick="{{ unlockPro }}" style="width:100%;margin-top:12px;padding:14px 16px;border:0;border-radius:12px;background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:center;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.08em">UNLOCK PRO</button>
                 </sc-if>
@@ -2637,6 +2638,7 @@ class Component extends DCLogic {
     invoice: { open: false, group: 'project', skipInvoiced: true, detailed: true, split: null, idx: 0 },
     pane: null,
     proFeatureOpen: null,
+    proFeatureFilter: 'all',
     search: { open: false, q: '' },
     settings: { showEarnings: true, defaultBillable: true, keepAwake: false, rounding: 0, weekStartDay: 1, workStart: '09:00', workEnd: '17:00', theme: 'auto', invStatus: {}, breakMins: 0, breakPaid: true, goalHours: 30, goalIncome: 2500, contractHours: 0, overtime: 'off', bizName: '', taxRate: 0, terms: 14, invoiceNo: 1, logo: '', pro: false, invoiceChart: true },
     form: { desc: '', time: '', start: '', end: '', dateMs: null, billable: true, parallel: false, tag: '', note: '', projId: null, editId: null },
@@ -4453,6 +4455,28 @@ class Component extends DCLogic {
       proActive: !!set.pro,
       proInactive: !set.pro,
       downgradePro: () => { this.setSetting({ pro: false }); this.toast('Pro turned off'); },
+      freeFilterPressed: s.proFeatureFilter === 'free' ? 'true' : 'false',
+      proFilterPressed: s.proFeatureFilter === 'pro' ? 'true' : 'false',
+      freeFilterBorder: s.proFeatureFilter === 'free' ? 'var(--t-ink)' : 'var(--t-rule2)',
+      freeFilterBg: s.proFeatureFilter === 'free' ? 'var(--t-ink)' : 'var(--t-field)',
+      freeFilterText: s.proFeatureFilter === 'free' ? 'var(--t-onink)' : 'var(--t-ink)',
+      freeFilterLabelColor: s.proFeatureFilter === 'free' ? 'var(--t-onink)' : 'var(--t-muted)',
+      proFilterBorder: s.proFeatureFilter === 'pro' ? 'var(--tempo-accent)' : 'var(--t-rule2)',
+      proFilterBg: s.proFeatureFilter === 'pro' ? 'var(--tempo-accent-wash)' : 'var(--t-field)',
+      proFilterLabelColor: s.proFeatureFilter === 'pro' ? 'var(--tempo-accent-deep)' : 'var(--t-muted)',
+      filterFreeFeatures: () => this.setState({
+        proFeatureFilter: s.proFeatureFilter === 'free' ? 'all' : 'free',
+        proFeatureOpen: null
+      }),
+      filterProFeatures: () => this.setState({
+        proFeatureFilter: s.proFeatureFilter === 'pro' ? 'all' : 'pro',
+        proFeatureOpen: null
+      }),
+      proFilterStatus: s.proFeatureFilter === 'free'
+        ? 'Showing Free features · tap Free again to show all'
+        : s.proFeatureFilter === 'pro'
+          ? 'Showing Pro features · tap Pro again to show all'
+          : 'Tap Free or Pro to filter the feature list',
       proSample: (() => {
         const p = s.projects[0] || {}; const q = s.projects[1] || {};
         return {
@@ -4479,7 +4503,7 @@ class Component extends DCLogic {
         ['Day and week views', 'The timeline, week strip and daily totals on your own billing cycle.', false, 'day'],
         ['Reports and CSV', 'Scoped reports, printable time reports for an employer, CSV export.', false, 'report'],
         ['Your data', 'JSON backup and restore, all stored on this device.', false, 'backup']
-      ].map(f => {
+      ].filter(f => s.proFeatureFilter === 'free' ? f[2] === false : s.proFeatureFilter === 'pro' ? f[2] === true : true).map(f => {
         const open = s.proFeatureOpen === f[3];
         const coming = f[2] === 'coming';
         return {
