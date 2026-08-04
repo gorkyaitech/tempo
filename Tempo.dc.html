@@ -2047,6 +2047,48 @@
       </div>
     </sc-if>
 
+    <!-- OVERLAP RESOLVER -->
+    <sc-if value="{{ clashOpen }}" hint-placeholder-val="{{ false }}">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:18;background:var(--t-bg);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:1px solid var(--t-rule2);flex:none">
+          <span>
+            <span style="display:block;font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;color:var(--tempo-accent-deep)">TIME CONFLICT</span>
+            <span style="display:block;font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em;margin-top:5px">Resolve overlap</span>
+          </span>
+          <button onClick="{{ closeClash }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CLOSE</button>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--t-rule2);font:500 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">{{ clashHelp }}</div>
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:14px 16px max(20px,var(--tempo-safe-bottom));box-sizing:border-box">
+          <sc-for list="{{ clashItems }}" as="c" hint-placeholder-count="2">
+            <div style="margin-bottom:12px;padding:15px;border:1px solid var(--t-rule2);border-radius:18px;background:var(--t-field);box-shadow:0 8px 22px rgba(0,0,0,.07)">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.13em;color:var(--t-faint)">{{ c.position }}</span>
+                <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.08em;color:{{ c.kindColor }}">{{ c.kind }}</span>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;margin-top:12px">
+                <span style="width:9px;height:9px;border-radius:999px;background:{{ c.color }};flex:none;margin-top:4px"></span>
+                <span style="flex:1;min-width:0">
+                  <span style="display:block;font:800 14px/1.25 'Archivo',sans-serif">{{ c.title }}</span>
+                  <span style="display:block;margin-top:5px;font:500 11.5px/1.4 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums">{{ c.meta }}</span>
+                  <span style="display:block;margin-top:3px;font:500 11px/1.4 'Archivo',sans-serif;color:var(--t-muted)">{{ c.project }}</span>
+                </span>
+              </div>
+              <button onClick="{{ c.edit }}" style="width:100%;margin-top:13px;padding:11px 10px;border:1px solid var(--t-rule2);border-radius:11px;background:transparent;color:var(--t-ink);cursor:pointer;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.07em">EDIT TIME</button>
+              <sc-if value="{{ c.isPlan }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+                  <button onClick="{{ c.defer }}" style="padding:11px 8px;border:1px solid #4f9cff;border-radius:11px;background:transparent;color:#4f9cff;cursor:pointer;font:800 9.5px/1.15 'Archivo',sans-serif;letter-spacing:.05em">PLAN LATER</button>
+                  <button onClick="{{ c.logPast }}" style="padding:11px 8px;border:0;border-radius:11px;background:#007aff;color:#fff;cursor:pointer;font:800 9.5px/1.15 'Archivo',sans-serif;letter-spacing:.04em">DONE · CHOOSE PAST TIME</button>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ clashBothTracked }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ keepClashParallel }}" style="width:100%;padding:14px 12px;border:0;border-radius:13px;background:var(--t-ink);color:var(--t-onink);cursor:pointer;font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.07em">KEEP BOTH · THEY HAPPENED SIMULTANEOUSLY</button>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- PLAN INBOX -->
     <sc-if value="{{ planInboxOpen }}" hint-placeholder-val="{{ false }}">
       <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:16;background:var(--t-bg);display:flex;flex-direction:column">
@@ -2505,7 +2547,7 @@ function durTxt(m) {
 class Component extends DCLogic {
   state = {
     tab: 'track', dayOff: 0, dayView: 'day', projects: [], entries: [], timer: null, lastProj: null,
-    task: '', billable: true, now: Date.now(), sheet: null, toast: '',
+    task: '', billable: true, now: Date.now(), sheet: null, clash: null, toast: '',
     report: { start: null, end: null, preset: 'week' },
     cal: { field: null, month: null },
     scope: { type: 'all', value: null },
@@ -2650,6 +2692,7 @@ class Component extends DCLogic {
   }
   escape() {
     const s = this.state;
+    if (s.clash) return this.setState({ clash: null });
     if (s.planGap) return this.setState({ planGap: null });
     if (s.planInbox) return this.setState({ planInbox: false });
     if (s.cal.field) return this.setState({ cal: { field: null, month: null } });
@@ -2779,6 +2822,17 @@ class Component extends DCLogic {
   openSheet(kind, patch) {
     const base = { desc: '', time: '', start: '', end: '', dateMs: dayStart(this.state.dayOff).getTime(), billable: this.state.settings.defaultBillable, parallel: false, projId: (this.currentProj() || {}).id, editId: null };
     this.setState({ sheet: kind, projPickerOpen: false, projQuery: '', descSuggest: false, form: Object.assign(base, patch || {}) });
+  }
+
+  openEntryEditor(entry) {
+    if (!entry) return;
+    const d = new Date(entry.start); d.setHours(0, 0, 0, 0);
+    this.setState({ clash: null }, () => this.openSheet('entry', {
+      desc: entry.desc === '(no description)' ? '' : entry.desc,
+      start: fmtClock(entry.start), end: fmtClock(entry.end),
+      projId: entry.projId, billable: entry.billable, parallel: !!entry.parallel,
+      tag: entry.tag || '', note: entry.note || '', editId: entry.id, dateMs: d.getTime()
+    }));
   }
 
   openEntryOptions(entry) {
@@ -3106,14 +3160,16 @@ class Component extends DCLogic {
       } else {
         const p = this.proj(e.projId);
         const money = this.money(e);
-        const clashes = e.parallel ? [] : realList.filter(o => o.id !== e.id && !o.parallel && o.start < e.end && e.start < o.end);
+        const clashes = e.parallel || e.end <= e.start ? [] : realList.filter(o =>
+          o.id !== e.id && !o.parallel && o.end > o.start && o.start < e.end && e.start < o.end
+        );
 
         dayRows.push({
           isGap: false, isEntry: true, time: fmtShort(e.start), title: e.desc,
           planned: !!e.planned, rowClass: e.planned ? 'tempo-planned-row' : '',
           clash: clashes.length > 0, heightPx,
           clashWith: clashes.length ? (clashes.length > 1 ? clashes.length + ' ENTRIES' : clashes[0].desc.toUpperCase()) : '',
-          color: p ? p.color : '#7d7979', dur: fmtHM(durMins),
+          color: p ? p.color : '#7d7979', dur: durMins < 1 ? '<1m' : fmtHM(durMins),
           sub: (p ? this.projLabel(p) : '') + (e.tag ? ' · ' + e.tag : '') + (e.planned ? (e.billable ? ' · billable later' : ' · non-billable plan') : (money && showMoney ? ' · $' + money.toFixed(2) : e.billable ? '' : ' · non-billable')) + ' · ' + fmtClock(e.start) + ' – ' + fmtClock(e.end),
           note: e.note || '', hasNote: !!e.note,
           invoiced: !!e.invoiced, invoicedNo: e.invoiced || '',
@@ -3121,10 +3177,9 @@ class Component extends DCLogic {
           ptrDown: (ev) => { this._longHoldTimer = setTimeout(() => this.openEntryOptions(e), 500); },
           ptrUp: () => clearTimeout(this._longHoldTimer),
           ptrCancel: () => clearTimeout(this._longHoldTimer),
-          click: () => this.openSheet('entry', {
-            desc: e.desc, start: fmtClock(e.start), end: fmtClock(e.end),
-            projId: e.projId, billable: e.billable, parallel: !!e.parallel, tag: e.tag || '', note: e.note || '', editId: e.id, dateMs: dayStart(s.dayOff).getTime()
-          }),
+          click: () => clashes.length
+            ? this.setState({ clash: [e.id, clashes[0].id] })
+            : this.openEntryEditor(e),
           id: e.id
         });
       }
@@ -3484,7 +3539,7 @@ class Component extends DCLogic {
       const st = base + (parsed.startMin != null ? parsed.startMin : this.anchor()) * MS;
       const en = st + parsed.mins * MS;
       const candidateIsPlan = base > dayStart(0).getTime() || !!(f.editId && (s.entries.find(x => x.id === f.editId) || {}).planned);
-      return s.entries.filter(e => e.id !== f.editId && !e.parallel && (candidateIsPlan || !e.planned) && e.start < en && st < e.end);
+      return s.entries.filter(e => e.id !== f.editId && !e.parallel && e.end > e.start && (candidateIsPlan || !e.planned) && e.start < en && st < e.end);
     })();
     const dTitle = s.dayOff === 0 ? 'Today' : s.dayOff === -1 ? 'Yesterday'
       : dayStart(s.dayOff).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
@@ -3582,13 +3637,61 @@ class Component extends DCLogic {
       }
     };
 
+    const clashEntries = (s.clash || []).map(id => s.entries.find(e => e.id === id)).filter(Boolean);
+    const moveClashPlan = (entry, destination) => {
+      if (!entry || !entry.planned) return;
+      const next = s.entries.map(e => e.id === entry.id ? Object.assign({}, e, {
+        planState: 'backlog',
+        backlogReason: destination === 'gap' ? 'completed-later' : 'deferred',
+        displacedAt: Date.now(),
+        originalStart: e.originalStart || e.start,
+        originalEnd: e.originalEnd || e.end
+      }) : e);
+      this.setState({
+        entries: next,
+        clash: null,
+        planInbox: destination === 'inbox',
+        planGap: destination === 'gap' ? entry.id : null
+      });
+      this.toast(destination === 'gap' ? 'Choose when the planned work was actually done' : 'Plan saved in the inbox for later');
+    };
+    const clashItems = clashEntries.map((e, index) => {
+      const p = this.proj(e.projId);
+      return {
+        position: index === 0 ? 'SELECTED ITEM' : 'OVERLAPPING ITEM',
+        kind: e.planned ? 'PLANNED · NOT TRACKED' : 'TRACKED · ACTUAL WORK',
+        kindColor: e.planned ? '#4f9cff' : 'var(--tempo-accent-deep)',
+        color: p ? p.color : '#7d7979',
+        title: e.desc,
+        meta: new Date(e.start).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + fmtClock(e.start) + ' – ' + fmtClock(e.end),
+        project: p ? this.projLabel(p) : 'No project',
+        isPlan: !!e.planned,
+        edit: () => this.openEntryEditor(e),
+        defer: () => moveClashPlan(e, 'inbox'),
+        logPast: () => moveClashPlan(e, 'gap')
+      };
+    });
+    const clashBothTracked = clashEntries.length === 2 && clashEntries.every(e => !e.planned);
+
     return {
-      showDock: !(s.sheet || s.optionsOpen || s.trackPicker || s.scopeOpen || s.cal.field || s.planInbox || s.planGap ||
+      showDock: !(s.sheet || s.clash || s.optionsOpen || s.trackPicker || s.scopeOpen || s.cal.field || s.planInbox || s.planGap ||
         s.invoice.open || s.detail || s.preview || s.docPreview || s.issued || s.paywall ||
         s.search.open || s.recovery || s.finish || s.importPrev || s.recentPickerOpen || !s.onboarded),
       recentPickerOpen: !!s.recentPickerOpen,
       toggleRecentPicker: () => this.setState({ recentPickerOpen: !s.recentPickerOpen }),
       closeRecentPicker: () => this.setState({ recentPickerOpen: false }),
+      clashOpen: clashItems.length === 2,
+      clashItems,
+      clashBothTracked,
+      clashHelp: clashEntries.some(e => e.planned)
+        ? 'Tracked work owns the time that actually happened. The plan is never billed until you place it at a real completed time.'
+        : 'Both items are tracked. Adjust one time, or keep both only if they truly happened simultaneously.',
+      closeClash: () => this.setState({ clash: null }),
+      keepClashParallel: () => {
+        const ids = new Set(clashEntries.map(e => e.id));
+        this.setState({ entries: s.entries.map(e => ids.has(e.id) ? Object.assign({}, e, { parallel: true }) : e), clash: null });
+        this.toast('Both entries kept as simultaneous work');
+      },
       hasRecent: recent.length > 0,
       paneOpen: !!s.pane,
       paneMenu: !s.pane,
