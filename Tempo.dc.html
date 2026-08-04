@@ -2063,7 +2063,12 @@
             <div style="margin-bottom:12px;padding:15px;border:1px solid var(--t-rule2);border-radius:18px;background:var(--t-field);box-shadow:0 8px 22px rgba(0,0,0,.07)">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
                 <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.13em;color:var(--t-faint)">{{ c.position }}</span>
-                <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.08em;color:{{ c.kindColor }}">{{ c.kind }}</span>
+                <span style="display:flex;align-items:center;gap:8px">
+                  <sc-if value="{{ c.canSelect }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ c.select }}" style="padding:6px 8px;border:1px solid var(--t-rule2);border-radius:8px;background:transparent;color:var(--t-muted);cursor:pointer;font:800 8px/1 'Archivo',sans-serif;letter-spacing:.08em">MAKE SELECTED</button>
+                  </sc-if>
+                  <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.08em;color:{{ c.kindColor }}">{{ c.kind }}</span>
+                </span>
               </div>
               <div style="display:flex;align-items:flex-start;gap:10px;margin-top:12px">
                 <span style="width:9px;height:9px;border-radius:999px;background:{{ c.color }};flex:none;margin-top:4px"></span>
@@ -2643,8 +2648,21 @@ class Component extends DCLogic {
       if (!raw) return false;
       const d = JSON.parse(raw);
       if (!d || !Array.isArray(d.entries)) return false;
+      const restoredEntries = d.entries.slice();
+      const sampleActual = restoredEntries.find(e => e.desc === 'Invoice draft for June' && !e.planned);
+      const looksLikeSample = sampleActual && restoredEntries.some(e => e.desc === 'Client feedback call');
+      if (looksLikeSample && !restoredEntries.some(e => e.sampleOverlapExample)) {
+        const planStart = sampleActual.start + 15 * MS;
+        restoredEntries.push({
+          id: uid(), desc: 'Prepare invoice supporting notes', projId: sampleActual.projId,
+          start: planStart, end: planStart + 30 * MS, billable: false, tag: 'Admin', note: 'Previously planned, but the tracked invoice work used this time.',
+          planned: true, planState: 'backlog', backlogReason: 'displaced', displacedAt: Date.now(),
+          displacedBy: sampleActual.id, originalStart: planStart, originalEnd: planStart + 30 * MS,
+          sampleOverlapExample: true
+        });
+      }
       this.setState({
-        projects: d.projects || [], entries: d.entries, lastProj: d.lastProj || null,
+        projects: d.projects || [], entries: restoredEntries, lastProj: d.lastProj || null,
         onboarded: !!d.onboarded,
         timer: d.timer && d.timer.start ? d.timer : null,
         task: d.task || '',
@@ -2725,6 +2743,15 @@ class Component extends DCLogic {
     mk(-1, 14, 10, 16, 46, 'Push notifications spec', p2, true);
     mk(-2, 9, 15, 12, 0, 'Wireframes v2', p1, true);
     mk(-2, 13, 0, 15, 30, 'API error handling', p2, true);
+    const sampleActual = entries.find(e => e.desc === 'Invoice draft for June');
+    const planStart = sampleActual.start + 15 * MS;
+    entries.push({
+      id: uid(), desc: 'Prepare invoice supporting notes', projId: p3.id,
+      start: planStart, end: planStart + 30 * MS, billable: false, tag: 'Admin', note: 'Previously planned, but the tracked invoice work used this time.',
+      planned: true, planState: 'backlog', backlogReason: 'displaced', displacedAt: Date.now(),
+      displacedBy: sampleActual.id, originalStart: planStart, originalEnd: planStart + 30 * MS,
+      sampleOverlapExample: true
+    });
     this.setState({ projects: [p1, p2, p3], entries, lastProj: p1.id });
   }
 
@@ -2749,6 +2776,7 @@ class Component extends DCLogic {
         planState: 'backlog',
         backlogReason: 'displaced',
         displacedAt: Date.now(),
+        displacedBy: excludeId || null,
         originalStart: e.originalStart || e.start,
         originalEnd: e.originalEnd || e.end
       });
@@ -3160,15 +3188,19 @@ class Component extends DCLogic {
       } else {
         const p = this.proj(e.projId);
         const money = this.money(e);
-        const clashes = e.parallel || e.end <= e.start ? [] : realList.filter(o =>
+        const timeClashes = e.parallel || e.end <= e.start ? [] : realList.filter(o =>
           o.id !== e.id && !o.parallel && o.end > o.start && o.start < e.end && e.start < o.end
         );
+        const linkedPlans = e.planned ? [] : s.entries.filter(o => o.planned && o.displacedBy === e.id);
+        const clashes = linkedPlans.concat(timeClashes.filter(o => !linkedPlans.some(c => c.id === o.id)));
 
         dayRows.push({
           isGap: false, isEntry: true, time: fmtShort(e.start), title: e.desc,
           planned: !!e.planned, rowClass: e.planned ? 'tempo-planned-row' : '',
           clash: clashes.length > 0, heightPx,
-          clashWith: clashes.length ? (clashes.length > 1 ? clashes.length + ' ENTRIES' : clashes[0].desc.toUpperCase()) : '',
+          clashWith: clashes.length ? (linkedPlans.length
+            ? (clashes.length > 1 ? 'PLANNED ITEM + ' + (clashes.length - 1) : 'PLAN: ' + linkedPlans[0].desc.toUpperCase())
+            : (clashes.length > 1 ? clashes.length + ' ENTRIES' : clashes[0].desc.toUpperCase())) : '',
           color: p ? p.color : '#7d7979', dur: durMins < 1 ? '<1m' : fmtHM(durMins),
           sub: (p ? this.projLabel(p) : '') + (e.tag ? ' · ' + e.tag : '') + (e.planned ? (e.billable ? ' · billable later' : ' · non-billable plan') : (money && showMoney ? ' · $' + money.toFixed(2) : e.billable ? '' : ' · non-billable')) + ' · ' + fmtClock(e.start) + ' – ' + fmtClock(e.end),
           note: e.note || '', hasNote: !!e.note,
@@ -3573,7 +3605,8 @@ class Component extends DCLogic {
             pick: () => {
               this.setState({
                 entries: this.state.entries.map(e => e.id === selectedBacklogPlan.id ? Object.assign({}, e, {
-                  start: gapStart, end: gapEnd, planned: false, planState: 'completed', completedFromPlan: true, invoiced: null
+                  start: gapStart, end: gapEnd, planned: false, planState: 'completed', completedFromPlan: true, invoiced: null,
+                  displacedBy: null, backlogReason: null, displacedAt: null
                 }) : e),
                 planGap: null,
                 planInbox: false,
@@ -3608,6 +3641,7 @@ class Component extends DCLogic {
       const values = {
         desc, projId: f.projId, billable: f.billable, parallel: f.parallel, tag: f.tag, note: f.note, start, end, planned,
         planState: planned ? 'scheduled' : (formExistingEntry && formExistingEntry.planned ? 'completed' : null),
+        displacedBy: null, backlogReason: null, displacedAt: null,
         originalStart: formExistingEntry && formExistingEntry.originalStart ? formExistingEntry.originalStart : (planned ? start : null),
         originalEnd: formExistingEntry && formExistingEntry.originalEnd ? formExistingEntry.originalEnd : (planned ? end : null)
       };
@@ -3628,7 +3662,7 @@ class Component extends DCLogic {
         const entry = Object.assign({ id: uid() }, values);
         let nextEntries = s.entries;
         if (!planned) {
-          const displaced = this.displacePlans(nextEntries, start, end, null);
+          const displaced = this.displacePlans(nextEntries, start, end, entry.id);
           nextEntries = displaced.entries;
           displacedCount = displaced.count;
         }
@@ -3681,6 +3715,8 @@ class Component extends DCLogic {
         meta: new Date(e.start).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + fmtClock(e.start) + ' – ' + fmtClock(e.end),
         project: p ? this.projLabel(p) : 'No project',
         isPlan: !!e.planned,
+        canSelect: index > 0,
+        select: () => this.setState({ clash: [clashEntries[1].id, clashEntries[0].id] }),
         edit: () => this.openEntryEditor(e),
         postpone: () => postponeClashPlan(e),
         logPast: () => moveClashPlan(e, 'gap')
@@ -3699,7 +3735,7 @@ class Component extends DCLogic {
       clashItems,
       clashBothTracked,
       clashHelp: clashEntries.some(e => e.planned)
-        ? 'Tracked work owns the time that actually happened. The plan is never billed until you place it at a real completed time.'
+        ? 'Tracked work owns the time that actually happened. Use either card directly, or make the other item selected to change your focus.'
         : 'Both items are tracked. Adjust one time, or keep both only if they truly happened simultaneously.',
       closeClash: () => this.setState({ clash: null }),
       keepClashParallel: () => {
@@ -3813,7 +3849,7 @@ class Component extends DCLogic {
           if (set.rounding) mins = Math.max(set.rounding, Math.round(mins / set.rounding) * set.rounding);
           if (mins >= 0.2) {
             const entry = { id: uid(), desc: s.task.trim() || '(no description)', projId: (cp || {}).id, start: s.timer.start, end: s.timer.start + mins * MS, billable: s.billable, tag: s.timerTag || '', note: '' };
-            const displaced = this.displacePlans(s.entries, entry.start, entry.end, null);
+            const displaced = this.displacePlans(s.entries, entry.start, entry.end, entry.id);
             this.setState({ entries: displaced.entries.concat([entry]), timer: null, task: '' });
             this.toast('Saved ' + fmtHM(mins) + (displaced.count ? ' · ' + displaced.count + ' plan moved to inbox' : ''));
           } else { this.setState({ timer: null }); this.toast('Under 12s — not saved'); }
