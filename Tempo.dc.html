@@ -1040,9 +1040,9 @@
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
               <span style="font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">Activity Heatmap</span>
             </div>
-            <div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none">
+            <div role="img" aria-label="{{ heatmapAria }}" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none">
               <sc-for list="{{ heatmapCols }}" as="col" hint-placeholder-count="16">
-                <div style="display:flex;flex-direction:column;gap:4px">
+                <div aria-hidden="true" style="display:flex;flex-direction:column;gap:4px">
                   <sc-for list="{{ col.days }}" as="day" hint-placeholder-count="7">
                     <div title="{{ day.title }}" style="width:14px;height:14px;border-radius:3px;background:{{ day.bg }};flex:none"></div>
                   </sc-for>
@@ -3490,12 +3490,17 @@ class Component extends DCLogic {
           }
 
           if (t > today) bg = 'transparent';
-          colDays.push({ bg, title: fmtHM(mins) + ' on ' + new Date(t).toLocaleDateString() });
+          colDays.push({ bg, mins, title: fmtHM(mins) + ' on ' + new Date(t).toLocaleDateString() });
         }
         cols.push({ days: colDays });
       }
       return cols;
     })();
+    const heatmapDays = heatmapCols.flatMap(col => col.days);
+    const heatmapTrackedDays = heatmapDays.filter(day => day.mins > 0).length;
+    const heatmapTrackedMins = heatmapDays.reduce((sum, day) => sum + day.mins, 0);
+    const heatmapAria = 'Activity heatmap for the last 16 weeks. ' + heatmapTrackedDays +
+      ' active ' + (heatmapTrackedDays === 1 ? 'day' : 'days') + ', ' + fmtHM(heatmapTrackedMins) + ' tracked.';
 
     const wmins = weekEntries.reduce((a, e) => a + this.mins(e), 0);
     const wbill = weekEntries.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0);
@@ -3928,7 +3933,7 @@ class Component extends DCLogic {
       })),
       resetSample: () => this.setState({ entries: [], projects: [], timer: null }, () => { this.seed(); this.toast('Sample day reloaded'); }),
       clearAll: () => { const snap = this.snapshot(); this.setState({ entries: [], projects: [], timer: null, lastProj: null, task: '' }); this.toast('Everything erased', snap); },
-      tabs, heatmapCols,
+      tabs, heatmapCols, heatmapAria,
       spark,
       showSpark: weekMinsTotal > 0,
       sparkTotal: fmtHM(weekMinsTotal),
