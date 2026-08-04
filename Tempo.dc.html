@@ -1484,7 +1484,7 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
                   <button onClick="{{ filterFreeFeatures }}" aria-pressed="{{ freeFilterPressed }}" style="padding:11px;border:1px solid {{ freeFilterBorder }};border-radius:12px;background:{{ freeFilterBg }};color:{{ freeFilterText }};cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
                     <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;color:{{ freeFilterLabelColor }}">FREE</span>
-                    <span style="display:block;font:600 11px/1.4 'Archivo',sans-serif;margin-top:6px">Track today and the past, reports, CSV and backup</span>
+                    <span style="display:block;font:600 11px/1.4 'Archivo',sans-serif;margin-top:6px">Track and search 90 days, projects, reports and backup</span>
                   </button>
                   <button onClick="{{ filterProFeatures }}" aria-pressed="{{ proFilterPressed }}" style="padding:11px;border:1px solid {{ proFilterBorder }};border-radius:12px;background:{{ proFilterBg }};color:var(--t-ink);cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
                     <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;color:{{ proFilterLabelColor }}">PRO</span>
@@ -1623,6 +1623,24 @@
                         <span style="display:block;padding:8px 11px;font:600 10.5px/1 'Archivo',sans-serif;color:var(--t-muted)">Restore from a backup file</span>
                       </span>
                     </sc-if>
+                    <sc-if value="{{ f.isProjects }}" hint-placeholder-val="{{ false }}">
+                      <span style="display:block">
+                        <span style="display:flex;justify-content:space-between;padding:8px 11px;border-bottom:1px solid var(--t-rule);font:700 10.5px/1 'Archivo',sans-serif"><span>Acme Website</span><span>$85/hr</span></span>
+                        <span style="display:flex;justify-content:space-between;padding:8px 11px;font:600 10px/1 'Archivo',sans-serif;color:var(--t-muted)"><span>Acme Corp</span><span>Project totals included</span></span>
+                      </span>
+                    </sc-if>
+                    <sc-if value="{{ f.isSearch90 }}" hint-placeholder-val="{{ false }}">
+                      <span style="display:block">
+                        <span style="display:block;padding:8px 11px;border-bottom:1px solid var(--t-rule);font:600 10.5px/1 'Archivo',sans-serif">Search descriptions, notes, projects and clients</span>
+                        <span style="display:block;padding:8px 11px;font:800 10px/1 'Archivo',sans-serif;color:var(--tempo-accent-deep)">LATEST 90 DAYS INCLUDED</span>
+                      </span>
+                    </sc-if>
+                    <sc-if value="{{ f.isOffline }}" hint-placeholder-val="{{ false }}">
+                      <span style="display:block">
+                        <span style="display:flex;justify-content:space-between;padding:8px 11px;border-bottom:1px solid var(--t-rule);font:700 10.5px/1 'Archivo',sans-serif"><span>Stored on this device</span><span>OFFLINE</span></span>
+                        <span style="display:block;padding:8px 11px;font:600 10px/1 'Archivo',sans-serif;color:var(--t-muted)">No account, cloud sync or connection required</span>
+                      </span>
+                    </sc-if>
                   </div>
                   </div>
                   </sc-if>
@@ -1638,7 +1656,7 @@
                   <button onClick="{{ downgradePro }}" style="padding:8px 11px;border:2px solid var(--t-rule);background:transparent;color:var(--t-muted);cursor:pointer;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.08em">TURN OFF</button>
                 </div>
               </sc-if>
-              <div style="padding:16px;font:400 11px/1.5 'Archivo',sans-serif;color:var(--t-muted)">No account required. Free keeps every entry on this device; reports and search show the latest 30 days. Pro unlocks your complete on-device history.</div>
+              <div style="padding:16px;font:400 11px/1.5 'Archivo',sans-serif;color:var(--t-muted)">No account required. Free keeps every entry on this device; reports and search include the latest 90 days. Pro unlocks your complete on-device history.</div>
             </div>
           </sc-if>
 
@@ -2080,6 +2098,7 @@
           <input value="{{ searchQ }}" onInput="{{ onSearch }}" placeholder="Search entries, notes, clients…" style="flex:1;border:0;background:transparent;font:600 15px/1.2 'Archivo',sans-serif;color:var(--t-ink);outline:none">
           <button onClick="{{ closeSearch }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CLOSE</button>
         </div>
+        <div style="padding:8px 16px;border-bottom:1px solid var(--t-rule2);font:600 10.5px/1.35 'Archivo',sans-serif;color:var(--t-muted);flex:none">{{ searchHistoryNote }}</div>
         <div style="flex:1;overflow-y:auto">
           <sc-if value="{{ searchPrompt }}" hint-placeholder-val="true">
             <div class="tempo-search-empty">Search descriptions, notes, work types, projects, or clients. Matching entries will appear here.</div>
@@ -2282,7 +2301,7 @@
               <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Your logo on printed invoices and reports</span>
               <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Invoiced-hours tracking, so nothing bills twice</span>
               <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Sent / paid / overdue tracking and what you're owed</span>
-              <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Full reports and search history — free keeps every entry but shows the latest 30 days</span>
+              <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Full reports and search history — Free includes the latest 90 days</span>
             </div>
           </div>
           <div class="tempo-paywall-actions" style="display:flex;border-top:2px solid var(--t-ink)">
@@ -2507,6 +2526,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:820,&quot;height&quot;:900},&quot;navStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;label&quot;,&quot;options&quot;:[&quot;label&quot;,&quot;marker&quot;,&quot;rule&quot;,&quot;block&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Appearance&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#ec3013&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#ec3013&quot;,&quot;#dd2b0f&quot;,&quot;#ae1800&quot;,&quot;#9e3526&quot;],&quot;section&quot;:&quot;Appearance&quot;},&quot;showEarnings&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;sampleData&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;}}">
 const MS = 60000;
+const FREE_HISTORY_DAYS = 90;
 const SWATCHES = ['#ec3013', '#007aff', '#34c759', '#ff9500', '#af52de', '#e946a4', '#5ac8fa', '#ff2d55'];
 const TAGS = ['Design', 'Build', 'Calls', 'Admin', 'Research'];
 const STORE_KEY = 'tempo.v1';
@@ -3362,7 +3382,7 @@ class Component extends DCLogic {
       if (s.scope.type === 'client') { const p = this.proj(e.projId); return !!p && (p.client || 'No client') === s.scope.value; }
       return true;
     };
-    const historyFloor = set.pro ? 0 : dayStart(0).getTime() - 29 * 86400000;
+    const historyFloor = set.pro ? 0 : dayStart(0).getTime() - (FREE_HISTORY_DAYS - 1) * DAY;
     const rangeAll = s.entries.filter(e => !e.planned && e.start >= rs && e.start < re + DAY && scopeMatch(e));
     const plannedInRange = s.entries.filter(e => e.planned && e.start >= rs && e.start < re + DAY && scopeMatch(e)).length;
     const weekEntries = rangeAll.filter(e => e.start >= historyFloor);
@@ -4075,7 +4095,7 @@ class Component extends DCLogic {
       openProject: () => this.setState({ sheet: 'project', proj: { name: '', client: '', color: SWATCHES[s.projects.length % SWATCHES.length], rate: '', est: '', archived: false, editId: null } }),
 
       historyLocked: hiddenOld > 0,
-      historyLockedText: hiddenOld + (hiddenOld === 1 ? ' entry is' : ' entries are') + ' older than 30 days. They remain on this device but are hidden from free reports and search.',
+      historyLockedText: hiddenOld + (hiddenOld === 1 ? ' entry is' : ' entries are') + ' older than ' + FREE_HISTORY_DAYS + ' days. They remain on this device but are hidden from Free reports and search.',
       tiles, bars, reportRows,
       scopeLabel: s.scope.type === 'all' ? 'All work' : s.scope.value && s.scope.type === 'project' ? (this.proj(s.scope.value) || {}).name || 'All work' : s.scope.value,
       scopeOpen: !!s.scopeOpen,
@@ -4383,10 +4403,11 @@ class Component extends DCLogic {
       openSearch: () => this.setState({ search: { open: true, q: '' } }),
       closeSearch: () => this.setState({ search: { open: false, q: '' } }),
       onSearch: e => this.setState({ search: { open: true, q: e.target.value } }),
+      searchHistoryNote: set.pro ? 'Searching your complete history' : 'Free search includes the latest ' + FREE_HISTORY_DAYS + ' days',
       searchResults: (() => {
         const q = s.search.q.trim().toLowerCase();
         if (!q) return [];
-        return s.entries.filter(e => {
+        return s.entries.filter(e => set.pro || e.start >= historyFloor).filter(e => {
           const p = this.proj(e.projId) || {};
           return (e.desc + ' ' + (e.note || '') + ' ' + (e.tag || '') + ' ' + (p.name || '') + ' ' + (p.client || '')).toLowerCase().includes(q);
         }).sort((a, b) => b.start - a.start).slice(0, 40).map(e => {
@@ -4405,7 +4426,7 @@ class Component extends DCLogic {
       searchEmpty: (() => {
         const q = s.search.q.trim().toLowerCase();
         if (!q) return false;
-        return !s.entries.some(e => {
+        return !s.entries.filter(e => set.pro || e.start >= historyFloor).some(e => {
           const p = this.proj(e.projId) || {};
           return (e.desc + ' ' + (e.note || '') + ' ' + (e.tag || '') + ' ' + (p.name || '') + ' ' + (p.client || '')).toLowerCase().includes(q);
         });
@@ -4497,11 +4518,14 @@ class Component extends DCLogic {
         ['No double billing', 'Invoiced hours are stamped with the invoice number and skipped next cycle — reopen them any time.', true, 'stamp'],
         ['Your logo', 'Printed at the top of invoices and time reports.', true, 'logo'],
         ['Breakdown charts', 'Bars above the invoice table showing the client where their hours actually went.', true, 'chart'],
-        ['Full history', 'Report and search across all time. Free keeps every entry on this device but shows the latest 30 days.', true, 'history'],
+        ['Full history', 'Report and search across all time. Free keeps every entry on this device and includes the latest 90 days.', true, 'history'],
         ['Automatic site visits & mileage', 'Coming later: Tempo can propose a client visit, travel time and mileage when you arrive and leave. Nothing is tracked without your review.', 'coming', 'field'],
         ['Tracking', 'The timer, gaps, overlaps, tags and notes.', false, 'timer'],
         ['Day and week views', 'The timeline, week strip and daily totals on your own billing cycle.', false, 'day'],
+        ['Projects & client rates', 'Create projects, group them by client, set hourly rates and see project totals.', false, 'projects'],
+        ['Search 90 days', 'Find tracked work from the latest 90 days by description, note, work type, project or client.', false, 'search90'],
         ['Reports and CSV', 'Scoped reports, printable time reports for an employer, CSV export.', false, 'report'],
+        ['Works offline', 'No account or connection required. Your tracking data stays on this device.', false, 'offline'],
         ['Your data', 'JSON backup and restore, all stored on this device.', false, 'backup']
       ].filter(f => s.proFeatureFilter === 'free' ? f[2] === false : s.proFeatureFilter === 'pro' ? f[2] === true : true).map(f => {
         const open = s.proFeatureOpen === f[3];
@@ -4517,7 +4541,8 @@ class Component extends DCLogic {
         isPlanning: f[3] === 'planning', isRecovery: f[3] === 'recovery', isField: f[3] === 'field', isInvoice: f[3] === 'invoice', isSplit: f[3] === 'split', isStatus: f[3] === 'status',
         isStamp: f[3] === 'stamp', isLogo: f[3] === 'logo', isChart: f[3] === 'chart',
         isHistory: f[3] === 'history', isTimer: f[3] === 'timer', isDay: f[3] === 'day',
-        isReport: f[3] === 'report', isBackup: f[3] === 'backup'
+        isReport: f[3] === 'report', isBackup: f[3] === 'backup', isProjects: f[3] === 'projects',
+        isSearch90: f[3] === 'search90', isOffline: f[3] === 'offline'
         };
       }),
       contractHours: String(set.contractHours || ''),
