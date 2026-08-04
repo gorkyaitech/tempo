@@ -1485,22 +1485,37 @@
                   <button onClick="{{ unlockPro }}" style="width:100%;margin-top:12px;padding:14px 16px;border:0;border-radius:12px;background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:center;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.08em">UNLOCK PRO</button>
                 </sc-if>
               </div>
+              <div style="margin:12px 16px 14px;border:1px solid var(--t-rule2);border-radius:16px;background:var(--t-field);overflow:hidden">
               <sc-for list="{{ proFeatures }}" as="f" hint-placeholder-count="8">
-                <div style="padding:14px 16px 16px;border-bottom:1px solid var(--t-rule)">
-                  <div style="display:flex;gap:12px">
-                    <span style="flex:1;min-width:0">
-                      <span style="display:block;font:700 13.5px/1.2 'Archivo',sans-serif">{{ f.label }}</span>
-                      <span style="display:block;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin-top:4px">{{ f.detail }}</span>
-                    </span>
-                    <span style="flex:none;align-self:flex-start;padding:4px 7px;background:{{ f.badgeBg }};color:{{ f.badgeColor }};font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.1em">{{ f.badge }}</span>
-                  </div>
-
-                  <div style="margin-top:14px;border-radius:12px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <div style="border-bottom:1px solid var(--t-rule2);background:{{ f.rowBg }}">
+                  <button onClick="{{ f.toggle }}" aria-expanded="{{ f.expanded }}" style="width:100%;min-height:50px;display:flex;align-items:center;gap:10px;padding:12px 14px;border:0;background:transparent;color:var(--t-ink);cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+                    <span style="flex:1;min-width:0;font:750 13px/1.2 'Archivo',sans-serif">{{ f.label }}</span>
+                    <span style="flex:none;padding:4px 7px;border-radius:6px;background:{{ f.badgeBg }};color:{{ f.badgeColor }};font:800 9px/1 'Archivo',sans-serif;letter-spacing:.1em">{{ f.badge }}</span>
+                    <span style="width:14px;flex:none;text-align:center;font:700 15px/1 'Archivo',sans-serif;color:var(--t-muted)">{{ f.caret }}</span>
+                  </button>
+                  <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:0 14px 14px">
+                    <div style="font:450 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted);padding:0 1px 10px">{{ f.detail }}</div>
+                  <div style="border-radius:12px;border:1px solid var(--t-rule2);background:var(--t-bg);overflow:hidden">
                     <sc-if value="{{ f.isPlanning }}" hint-placeholder-val="{{ false }}">
                       <span style="display:block">
                         <span style="display:flex;justify-content:space-between;padding:8px 11px;border-bottom:1px solid var(--t-rule2);font:800 10px/1 'Archivo',sans-serif"><span>Tomorrow</span><span style="color:#4f9cff">3:00 planned</span></span>
                         <span class="tempo-planned-row" style="display:flex;padding:10px 11px;gap:9px;align-items:center"><span style="width:8px;height:8px;border-radius:999px;background:#007aff"></span><span style="flex:1;font:700 10.5px/1.2 'Archivo',sans-serif">Prepare client presentation</span><span class="tempo-planned-badge">PLANNED</span></span>
                         <span style="display:flex;justify-content:space-between;padding:8px 11px;border-top:1px solid var(--t-rule2);font:600 9.5px/1 'Archivo',sans-serif;color:var(--t-muted)"><span>Tracked 0:00</span><span>Earned $0</span></span>
+                      </span>
+                    </sc-if>
+                    <sc-if value="{{ f.isRecovery }}" hint-placeholder-val="{{ false }}">
+                      <span style="display:block">
+                        <span style="display:flex;justify-content:space-between;padding:9px 11px;border-bottom:1px solid var(--t-rule2);font:700 10px/1.2 'Archivo',sans-serif"><span>Tracked work keeps its time</span><span style="color:var(--tempo-accent-deep)">DONE</span></span>
+                        <span style="display:flex;justify-content:space-between;padding:9px 11px;border-bottom:1px solid var(--t-rule2);font:700 10px/1.2 'Archivo',sans-serif"><span>Displaced plan moves to inbox</span><span style="color:#4f9cff">UNSCHEDULED</span></span>
+                        <span style="display:flex;gap:6px;padding:9px 11px;flex-wrap:wrap"><span style="padding:5px 7px;border:1px solid #4f9cff;border-radius:7px;color:#4f9cff;font:800 8.5px/1 'Archivo',sans-serif">RESCHEDULE</span><span style="padding:5px 7px;border:1px solid var(--t-rule2);border-radius:7px;font:800 8.5px/1 'Archivo',sans-serif">LOG IN PAST GAP</span><span style="padding:5px 7px;border:1px solid var(--t-rule2);border-radius:7px;font:800 8.5px/1 'Archivo',sans-serif">MARK DONE</span></span>
+                      </span>
+                    </sc-if>
+                    <sc-if value="{{ f.isField }}" hint-placeholder-val="{{ false }}">
+                      <span style="display:block">
+                        <span style="display:flex;justify-content:space-between;padding:9px 11px;border-bottom:1px solid var(--t-rule2);font:700 10px/1.2 'Archivo',sans-serif"><span>Arrive at a client site</span><span style="color:var(--t-muted)">9:12 AM</span></span>
+                        <span style="display:flex;justify-content:space-between;padding:9px 11px;border-bottom:1px solid var(--t-rule2);font:700 10px/1.2 'Archivo',sans-serif"><span>Leave</span><span style="color:var(--t-muted)">11:46 AM</span></span>
+                        <span style="display:block;padding:9px 11px;color:var(--tempo-accent-deep);font:800 9px/1.2 'Archivo',sans-serif;letter-spacing:.08em">VISIT, TRAVEL TIME &amp; MILEAGE PROPOSED</span>
                       </span>
                     </sc-if>
                     <sc-if value="{{ f.isInvoice }}" hint-placeholder-val="{{ true }}">
@@ -1598,8 +1613,11 @@
                       </span>
                     </sc-if>
                   </div>
+                  </div>
+                  </sc-if>
                 </div>
               </sc-for>
+              </div>
               <sc-if value="{{ proInactive }}" hint-placeholder-val="{{ true }}">
                 <button onClick="{{ unlockPro }}" style="width:100%;padding:18px 16px;border:0;border-bottom:2px solid var(--t-ink);background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 14px/1 'Archivo',sans-serif;letter-spacing:.06em">UNLOCK PRO</button>
               </sc-if>
@@ -2608,6 +2626,7 @@ class Component extends DCLogic {
     undo: null,
     invoice: { open: false, group: 'project', skipInvoiced: true, detailed: true, split: null, idx: 0 },
     pane: null,
+    proFeatureOpen: null,
     search: { open: false, q: '' },
     settings: { showEarnings: true, defaultBillable: true, keepAwake: false, rounding: 0, weekStartDay: 1, workStart: '09:00', workEnd: '17:00', theme: 'auto', invStatus: {}, breakMins: 0, breakPaid: true, goalHours: 30, goalIncome: 2500, contractHours: 0, overtime: 'off', bizName: '', taxRate: 0, terms: 14, invoiceNo: 1, logo: '', pro: false, invoiceChart: true },
     form: { desc: '', time: '', start: '', end: '', dateMs: null, billable: true, parallel: false, tag: '', note: '', projId: null, editId: null },
@@ -4431,7 +4450,8 @@ class Component extends DCLogic {
         };
       })(),
       proFeatures: [
-        ['Future planning', 'Schedule future work, keep displaced plans in an inbox, then reschedule or log them into a real past gap. Planned hours stay separate until completed.', true, 'planning'],
+        ['Future planning', 'Schedule work for tomorrow or any later date and time. Planned hours stay separate from tracked, earned, unbilled and invoiceable time until the work is completed.', true, 'planning'],
+        ['Plan inbox & conflict rescue', 'When tracked work overlaps a plan, Tempo keeps both: the tracked work stays in the timeline and the displaced plan moves to the inbox. Reschedule it, leave it unscheduled, mark it done, or place it in the past gap where it actually happened.', true, 'recovery'],
         ['Invoices', 'A numbered invoice built from the hours in your range — your business name, tax and payment terms, ready to print or save as PDF.', true, 'invoice'],
         ['One bill per project', 'Same client, separate invoices per project, each with its own number — for clients who book costs per project.', true, 'split'],
         ['Payment tracking', 'Mark each invoice sent or paid, see what has gone overdue against your terms, and what you are still owed.', true, 'status'],
@@ -4439,20 +4459,28 @@ class Component extends DCLogic {
         ['Your logo', 'Printed at the top of invoices and time reports.', true, 'logo'],
         ['Breakdown charts', 'Bars above the invoice table showing the client where their hours actually went.', true, 'chart'],
         ['Full history', 'Report and search across all time. Free keeps every entry on this device but shows the latest 30 days.', true, 'history'],
+        ['Automatic site visits & mileage', 'Coming later: Tempo can propose a client visit, travel time and mileage when you arrive and leave. Nothing is tracked without your review.', 'coming', 'field'],
         ['Tracking', 'The timer, gaps, overlaps, tags and notes.', false, 'timer'],
         ['Day and week views', 'The timeline, week strip and daily totals on your own billing cycle.', false, 'day'],
         ['Reports and CSV', 'Scoped reports, printable time reports for an employer, CSV export.', false, 'report'],
         ['Your data', 'JSON backup and restore, all stored on this device.', false, 'backup']
-      ].map(f => ({
+      ].map(f => {
+        const open = s.proFeatureOpen === f[3];
+        const coming = f[2] === 'coming';
+        return {
         label: f[0], detail: f[1],
-        badge: f[2] ? 'PRO' : 'FREE',
-        badgeColor: f[2] ? 'var(--tempo-accent)' : 'var(--t-muted)',
-        badgeBg: f[2] ? 'var(--tempo-accent-tint)' : 'transparent',
-        isPlanning: f[3] === 'planning', isInvoice: f[3] === 'invoice', isSplit: f[3] === 'split', isStatus: f[3] === 'status',
+        badge: coming ? 'COMING' : f[2] ? 'PRO' : 'FREE',
+        badgeColor: coming ? '#4f9cff' : f[2] ? 'var(--tempo-accent)' : 'var(--t-muted)',
+        badgeBg: coming ? 'color-mix(in srgb,#007aff 10%,var(--t-field))' : f[2] ? 'var(--tempo-accent-tint)' : 'transparent',
+        open, expanded: open ? 'true' : 'false', caret: open ? '⌃' : '⌄',
+        rowBg: open ? 'var(--tempo-accent-wash)' : 'transparent',
+        toggle: () => this.setState({ proFeatureOpen: open ? null : f[3] }),
+        isPlanning: f[3] === 'planning', isRecovery: f[3] === 'recovery', isField: f[3] === 'field', isInvoice: f[3] === 'invoice', isSplit: f[3] === 'split', isStatus: f[3] === 'status',
         isStamp: f[3] === 'stamp', isLogo: f[3] === 'logo', isChart: f[3] === 'chart',
         isHistory: f[3] === 'history', isTimer: f[3] === 'timer', isDay: f[3] === 'day',
         isReport: f[3] === 'report', isBackup: f[3] === 'backup'
-      })),
+        };
+      }),
       contractHours: String(set.contractHours || ''),
       onContractHours: e => this.setSetting({ contractHours: parseFloat(e.target.value) || 0 }),
       otOpts: [['No cap', 'off'], ['Unpaid', 'unpaid'], ['Paid', 'paid']].map(o => ({
