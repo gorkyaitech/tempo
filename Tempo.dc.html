@@ -844,18 +844,17 @@
         </sc-if>
         <sc-if value="{{ isDayMode }}" hint-placeholder-val="{{ true }}">
         <div class="tempo-day__workbar">
+          <button onClick="{{ openDayAdd }}" aria-label="{{ dayAddAria }}" style="flex:none;padding:0 10px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.06em;white-space:nowrap">{{ dayAddCompactLabel }}</button>
           <span style="flex:1;min-width:0;font:600 11px/1 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums">
             <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-faint);margin-right:6px">{{ dayContextLabel }}</span>{{ workdayRange }}
           </span>
-          <button onClick="{{ openDayAdd }}" aria-label="{{ dayAddAria }}" style="padding:0 13px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.07em;white-space:nowrap">{{ dayAddLabel }}</button>
-        </div>
-        <sc-if value="{{ showPlanBacklog }}" hint-placeholder-val="{{ false }}">
-          <button onClick="{{ openPlanInbox }}" aria-label="Open displaced plan inbox" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 16px;border:0;border-bottom:1px solid var(--t-rule2);background:color-mix(in srgb,#007aff 7%,var(--t-bg));color:#4f9cff;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+          <sc-if value="{{ showPlanBacklog }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openPlanInbox }}" aria-label="Open unscheduled plans" style="flex:none;display:flex;align-items:center;gap:6px;min-height:36px;padding:0 10px;border:1px solid color-mix(in srgb,#007aff 45%,var(--t-rule2));border-radius:11px;background:color-mix(in srgb,#007aff 7%,var(--t-field));color:#4f9cff;cursor:pointer;font-family:'Archivo',sans-serif;white-space:nowrap">
             <span style="width:6px;height:6px;border-radius:999px;background:#007aff;flex:none"></span>
-            <span style="flex:1;font:700 10.5px/1.2 'Archivo',sans-serif">{{ planInboxNotice }}</span>
-            <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.08em">OPEN →</span>
+            <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.04em">{{ planInboxNotice }}</span>
           </button>
-        </sc-if>
+          </sc-if>
+        </div>
         <div class="tempo-day__timeline" style="flex:1;overflow-y:auto;background:var(--t-bar)">
           <sc-for list="{{ dayRows }}" as="row" hint-placeholder-count="4">
             <div style="display:flex;border-bottom:1px solid var(--t-rule2)">
@@ -3904,8 +3903,8 @@ class Component extends DCLogic {
       showPlanBacklog: backlogPlans.length > 0,
       dayModeClass: s.dayOff > 0 ? 'tempo-day--planning' : '',
       planInboxNotice: backlogPlans.length === 1
-        ? '1 plan needs a home'
-        : backlogPlans.length + ' plans need a home',
+        ? '1 UNSCHEDULED →'
+        : backlogPlans.length + ' UNSCHEDULED →',
       openPlanInbox: () => {
         if (!set.pro) this.setState({ paywall: true, paywallReason: 'planning' });
         else this.setState({ planInbox: true });
@@ -3940,6 +3939,7 @@ class Component extends DCLogic {
       noPlanGaps: !!selectedBacklogPlan && planGapRows.length === 0,
       closePlanGap: () => this.setState({ planGap: null, planInbox: true }),
       dayAddLabel: s.dayOff > 0 ? '+ PLAN WORK' : '+ LOG TIME',
+      dayAddCompactLabel: s.dayOff > 0 ? '+ PLAN' : '+ LOG',
       dayAddAria: s.dayOff > 0 ? 'Plan work at an exact time' : 'Log completed work at an exact time',
       openDayAdd: () => {
         if (s.dayOff > 0 && !set.pro) {

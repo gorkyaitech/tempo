@@ -2,7 +2,7 @@
    Same-origin app files are network-first (updates land as soon as you're
    online, cache is the offline fallback); fonts and vendor libs are
    cache-first (immutable). */
-const VERSION = 'tempo-v15-conflict-outcomes';
+const VERSION = 'tempo-v16-compact-day-actions';
 const SHELL = [
   './',
   './index.html',
