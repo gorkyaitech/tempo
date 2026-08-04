@@ -537,7 +537,7 @@
   }
   .tempo-day__summary{
     flex:none;
-    margin:10px 16px 0;
+    margin:10px 16px;
     padding:13px 14px !important;
     border:1px solid var(--t-rule2) !important;
     border-radius:14px;
@@ -844,6 +844,12 @@
           </sc-for>
         </div>
 
+        <div class="tempo-day__summary" style="display:flex;justify-content:space-between;font:500 12px/1 'Archivo',sans-serif;color:var(--t-muted)">
+          <span>{{ dayPrimaryLabel }} <strong style="font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ dayTracked }}</strong></span>
+          <span>{{ daySecondaryLabel }} <strong style="font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ dayBillable }}</strong></span>
+          <span>{{ dayTertiaryLabel }} <strong style="font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ dayEarned }}</strong></span>
+        </div>
+
         <sc-if value="{{ isWeekMode }}" hint-placeholder-val="{{ false }}">
           <div class="tempo-day__timeline" style="flex:1;overflow-y:auto;background:var(--t-bar)">
             <sc-for list="{{ weekRows }}" as="wr" hint-placeholder-count="7">
@@ -864,18 +870,6 @@
           </div>
         </sc-if>
         <sc-if value="{{ isDayMode }}" hint-placeholder-val="{{ true }}">
-        <div class="tempo-day__workbar">
-          <button onClick="{{ openDayAdd }}" aria-label="{{ dayAddAria }}" style="flex:none;min-width:72px;padding:0 16px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.06em;white-space:nowrap">{{ dayAddCompactLabel }}</button>
-          <span style="flex:1;min-width:0;font:600 11px/1 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums">
-            <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-faint);margin-right:6px">{{ dayContextLabel }}</span>{{ workdayRange }}
-          </span>
-          <sc-if value="{{ showPlanBacklog }}" hint-placeholder-val="{{ false }}">
-          <button onClick="{{ openPlanInbox }}" aria-label="Open unscheduled plans" style="flex:none;display:flex;align-items:center;gap:6px;min-height:36px;padding:0 10px;border:1px solid color-mix(in srgb,#007aff 45%,var(--t-rule2));border-radius:11px;background:color-mix(in srgb,#007aff 7%,var(--t-field));color:#4f9cff;cursor:pointer;font-family:'Archivo',sans-serif;white-space:nowrap">
-            <span style="width:6px;height:6px;border-radius:999px;background:#007aff;flex:none"></span>
-            <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.04em">{{ planInboxNotice }}</span>
-          </button>
-          </sc-if>
-        </div>
         <div class="tempo-day__timeline" style="flex:1;overflow-y:auto;background:var(--t-bar)">
           <sc-for list="{{ dayRows }}" as="row" hint-placeholder-count="4">
             <div style="display:flex;border-bottom:1px solid var(--t-rule2)">
@@ -912,12 +906,19 @@
             </div>
           </sc-for>
         </div>
-        </sc-if>
-        <div class="tempo-day__summary" style="display:flex;justify-content:space-between;padding:14px 16px;border-top:2px solid var(--t-ink);font:500 12px/1 'Archivo',sans-serif;color:var(--t-muted)">
-          <span>{{ dayPrimaryLabel }} <strong style="font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ dayTracked }}</strong></span>
-          <span>{{ daySecondaryLabel }} <strong style="font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ dayBillable }}</strong></span>
-          <span>{{ dayTertiaryLabel }} <strong style="font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ dayEarned }}</strong></span>
+        <div class="tempo-day__workbar" style="margin:10px 16px 0">
+          <span style="flex:1;min-width:0;font:600 11px/1 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums">
+            <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-faint);margin-right:6px">{{ dayContextLabel }}</span>{{ workdayRange }}
+          </span>
+          <sc-if value="{{ showPlanBacklog }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openPlanInbox }}" aria-label="Open unscheduled plans" style="flex:none;display:flex;align-items:center;gap:6px;padding:0 10px;border:1px solid color-mix(in srgb,#007aff 45%,var(--t-rule2));background:color-mix(in srgb,#007aff 7%,var(--t-field));color:#4f9cff;cursor:pointer;font-family:'Archivo',sans-serif;white-space:nowrap">
+            <span style="width:6px;height:6px;border-radius:999px;background:#007aff;flex:none"></span>
+            <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.04em">{{ planInboxNotice }}</span>
+          </button>
+          </sc-if>
+          <button onClick="{{ openDayAdd }}" aria-label="{{ dayAddAria }}" style="flex:none;min-width:72px;padding:0 14px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.06em;white-space:nowrap">{{ dayAddCompactLabel }}</button>
         </div>
+        </sc-if>
       </div>
     </sc-if>
 
