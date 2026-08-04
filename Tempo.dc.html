@@ -25,8 +25,53 @@
       navigator.serviceWorker.register('./sw.js').catch(function (e) {
         console.warn('SW registration failed:', e);
       });
-    });
+      });
   }
+
+  // Follow the visible iPhone viewport when the software keyboard opens.
+  // `100vh` can continue behind the keyboard on iOS, while visualViewport
+  // reports the space the person can actually see and interact with.
+  (function () {
+    let largestViewportHeight = 0;
+    let lastViewportWidth = 0;
+
+    function syncVisualViewport() {
+      const viewport = window.visualViewport;
+      const height = viewport ? viewport.height : window.innerHeight;
+      const width = viewport ? viewport.width : window.innerWidth;
+
+      if (Math.abs(width - lastViewportWidth) > 80) largestViewportHeight = 0;
+      lastViewportWidth = width;
+      largestViewportHeight = Math.max(largestViewportHeight, height);
+
+      const keyboardOpen = largestViewportHeight - height > 120;
+      document.documentElement.style.setProperty('--tempo-visual-height', Math.round(height) + 'px');
+      document.body && document.body.classList.toggle('tempo-keyboard-open', keyboardOpen);
+
+      const active = document.activeElement;
+      if (keyboardOpen && active && active.closest && active.closest('.tempo-form-sheet__panel')) {
+        requestAnimationFrame(function () {
+          active.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+        });
+      }
+    }
+
+    addEventListener('DOMContentLoaded', syncVisualViewport);
+    addEventListener('resize', syncVisualViewport);
+    addEventListener('orientationchange', function () {
+      largestViewportHeight = 0;
+      setTimeout(syncVisualViewport, 120);
+    });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', syncVisualViewport);
+      window.visualViewport.addEventListener('scroll', syncVisualViewport);
+    }
+    document.addEventListener('focusin', function (event) {
+      if (event.target.closest && event.target.closest('.tempo-form-sheet__panel')) {
+        setTimeout(syncVisualViewport, 180);
+      }
+    });
+  }());
 </script>
 </head>
 <body>
@@ -39,21 +84,33 @@
 <script src="_ds/modernist-2f47e5dc-f28a-496c-a118-1aa0adbf05c3/_ds_bundle.js"></script>
 <style>
   body{margin:0;font-family:"Archivo",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
-    --tempo-accent:#ec3013;--tempo-accent-deep:#ae1800;--tempo-accent-tint:#ffe0d9;--tempo-accent-wash:#fff2ef;
+    --active-proj-color:#ec3013;
+    --tempo-accent:var(--active-proj-color);
+    --tempo-accent-deep:color-mix(in srgb, var(--tempo-accent) 65%, black);
+    --tempo-accent-tint:color-mix(in srgb, var(--tempo-accent) 15%, var(--t-field));
+    --tempo-accent-wash:color-mix(in srgb, var(--tempo-accent) 6%, var(--t-field));
     --t-page:#eceae9;--t-bg:#f6f5f4;--t-bar:#eeeeed;--t-sel:#e4e2e1;--t-field:#fcfbfa;
     --t-ink:#1a1817;--t-muted:#524f4e;--t-faint:#888381;--t-onink:rgba(246,245,244,.95);
     --t-rule:rgba(26,24,23,.38);--t-rule2:rgba(26,24,23,.22);--t-track:rgba(26,24,23,.12);--t-scrim:rgba(26,24,23,.55);
     --t-dock-bg:rgba(252,251,250,.88);--t-dock-shadow:0 16px 40px rgba(0,0,0,.15);--t-dock-inset:inset 0 1px 0 rgba(255,255,255,.6);
+    --tempo-radius-card:16px;--tempo-radius-control:12px;--tempo-radius-pill:999px;
+    --tempo-control-height:44px;
     background:var(--t-page);color:var(--t-ink);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
   body[data-theme="dark"]{
-    --tempo-accent:#ff563c;--tempo-accent-deep:#ff9783;--tempo-accent-tint:#4d170e;--tempo-accent-wash:#2b1411;
+    --tempo-accent:color-mix(in srgb, var(--active-proj-color) 85%, white);
+    --tempo-accent-deep:color-mix(in srgb, var(--active-proj-color) 60%, white);
+    --tempo-accent-tint:color-mix(in srgb, var(--active-proj-color) 25%, var(--t-field));
+    --tempo-accent-wash:color-mix(in srgb, var(--active-proj-color) 12%, var(--t-field));
     --t-page:#0e0d0c;--t-bg:#171514;--t-bar:#201d1c;--t-sel:#2d2928;--t-field:#221f1e;
     --t-ink:#f5f2f0;--t-muted:#b5adaa;--t-faint:#827977;--t-onink:rgba(23,21,20,.95);
     --t-rule:rgba(245,242,240,.3);--t-rule2:rgba(245,242,240,.16);--t-track:rgba(245,242,240,.12);--t-scrim:rgba(0,0,0,.75);
     --t-dock-bg:rgba(23,21,20,.88);--t-dock-shadow:0 16px 40px rgba(0,0,0,.45);--t-dock-inset:inset 0 1px 0 rgba(255,255,255,.12)}
   @media (prefers-color-scheme: dark){
     body[data-theme="auto"]{
-      --tempo-accent:#ff563c;--tempo-accent-deep:#ff9783;--tempo-accent-tint:#4d170e;--tempo-accent-wash:#2b1411;
+      --tempo-accent:color-mix(in srgb, var(--active-proj-color) 85%, white);
+    --tempo-accent-deep:color-mix(in srgb, var(--active-proj-color) 60%, white);
+    --tempo-accent-tint:color-mix(in srgb, var(--active-proj-color) 25%, var(--t-field));
+    --tempo-accent-wash:color-mix(in srgb, var(--active-proj-color) 12%, var(--t-field));
       --t-page:#0e0d0c;--t-bg:#171514;--t-bar:#201d1c;--t-sel:#2d2928;--t-field:#221f1e;
       --t-ink:#f5f2f0;--t-muted:#b5adaa;--t-faint:#827977;--t-onink:rgba(23,21,20,.95);
       --t-rule:rgba(245,242,240,.3);--t-rule2:rgba(245,242,240,.16);--t-track:rgba(245,242,240,.12);--t-scrim:rgba(0,0,0,.75);
@@ -71,10 +128,11 @@
   ::-webkit-scrollbar-thumb{background:var(--t-rule2);border-radius:2px}
 
   /* Buttons & Inputs */
-  .btn{color:var(--t-ink);transition:all .15s ease}
+  .btn{min-height:40px;border-radius:var(--tempo-radius-control);color:var(--t-ink);transition:all .15s ease}
   .btn-secondary{border-color:var(--t-rule)}
   .btn-primary{background:var(--tempo-accent);color:#fff}
-  .input{background:var(--t-field);color:var(--t-ink);border:1px solid var(--t-rule);caret-color:var(--tempo-accent);transition:border-color .15s ease}
+  .btn-icon{min-width:40px;min-height:40px;border-radius:var(--tempo-radius-control)}
+  .input{min-height:var(--tempo-control-height);padding:10px 12px;border-radius:var(--tempo-radius-control);box-sizing:border-box;background:var(--t-field);color:var(--t-ink);border:1px solid var(--t-rule);caret-color:var(--tempo-accent);transition:border-color .15s ease}
   .input:hover{border-color:var(--t-rule)}
   .input:focus-visible{border-color:var(--tempo-accent);outline:none}
 
@@ -82,9 +140,10 @@
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   html,body{height:100%;overscroll-behavior:none}
   #dc-root,#dc-root>.sc-host{height:100%}
-  .app-shell{height:100vh;height:100dvh;display:flex;justify-content:center;align-items:stretch;background:var(--t-page);overflow:hidden}
-  .app-frame{width:100%;max-width:440px;height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--t-bg);flex:none;box-sizing:border-box;
-    padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  .app-shell{height:100vh;height:var(--tempo-visual-height,100dvh);display:flex;justify-content:center;align-items:stretch;background:var(--t-page);overflow:hidden}
+  .app-frame{width:100%;max-width:440px;height:100vh;height:var(--tempo-visual-height,100dvh);display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--t-bg);flex:none;box-sizing:border-box;
+    --tempo-safe-top:env(safe-area-inset-top,0px);--tempo-safe-bottom:env(safe-area-inset-bottom,0px);
+    padding-top:var(--tempo-safe-top);padding-bottom:var(--tempo-safe-bottom)}
 
   /* Make custom template wrappers transparent to flexbox layout */
   sc-if, sc-for {
@@ -92,7 +151,7 @@
   }
 
   /* Overlays, drawers & floating sheets: safe areas & frosted glass */
-  .app-frame>div[style*="inset"]{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
+  .app-frame>div[style*="inset"]{box-sizing:border-box}
   .app-frame div[style*="background:var(--t-scrim)"]{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
   .app-frame div[style*="justify-content:flex-end"]>div[style*="background:var(--t-bg)"]{border-top-left-radius:20px;border-top-right-radius:20px;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
 
@@ -111,11 +170,12 @@
     .app-shell{align-items:center;padding:24px 0}
     .app-frame{
       position:relative;
-      height:min(875px, calc(100dvh - 48px));
+      height:min(875px, calc(var(--tempo-visual-height,100dvh) - 48px));
       border:12px solid #0d0c0b;
       border-radius:48px;
       box-shadow:0 28px 80px rgba(0,0,0,.5);
-      padding-top:34px;padding-bottom:22px;
+      --tempo-safe-top:34px;--tempo-safe-bottom:22px;
+      padding-top:var(--tempo-safe-top);padding-bottom:var(--tempo-safe-bottom);
     }
     .app-frame::before{content:'';position:absolute;top:11px;left:50%;transform:translateX(-50%);
       width:96px;height:24px;border-radius:12px;background:#0d0c0b;z-index:60;pointer-events:none}
@@ -216,6 +276,282 @@
     transform: scale(0.92) !important;
   }
 
+  /* Form sheets must sit above the persistent dock, not underneath it. */
+  .tempo-form-sheet{
+    z-index:50 !important;
+    isolation:isolate;
+    padding-top:var(--tempo-safe-top) !important;
+  }
+  .tempo-form-sheet__panel{
+    max-height:calc(100% - 42px) !important;
+    padding:18px 16px max(28px, var(--tempo-safe-bottom)) !important;
+    border-top:1px solid var(--t-rule2) !important;
+    border-top-left-radius:24px;
+    border-top-right-radius:24px;
+    box-sizing:border-box;
+    overscroll-behavior:contain;
+    scroll-padding:58px 0 max(96px, var(--tempo-safe-bottom));
+    box-shadow:0 -18px 55px rgba(0,0,0,.42);
+  }
+  .tempo-form-sheet__panel input,
+  .tempo-form-sheet__panel textarea{
+    scroll-margin-block:72px 112px;
+  }
+  .tempo-form-sheet__submit{
+    position:sticky;
+    bottom:0;
+    z-index:3;
+    box-shadow:0 -10px 0 var(--t-bg),0 7px 0 var(--t-bg);
+  }
+  body.tempo-keyboard-open .tempo-form-sheet__panel{
+    max-height:calc(100% - max(12px, var(--tempo-safe-top))) !important;
+    padding-bottom:16px !important;
+    scroll-behavior:smooth;
+  }
+  .tempo-planned-badge{
+    display:inline-flex;
+    align-items:center;
+    padding:3px 7px;
+    border:1px solid currentColor;
+    border-radius:999px;
+    color:#4f9cff;
+    font:800 9px/1 'Archivo',sans-serif;
+    letter-spacing:.1em;
+  }
+  .tempo-planned-row{
+    background:color-mix(in srgb, #007aff 8%, var(--t-bg)) !important;
+  }
+  .tempo-day--planning,
+  .tempo-form-sheet--planning{
+    --tempo-accent:#007aff;
+    --tempo-accent-deep:color-mix(in srgb,#007aff 72%,white);
+    --tempo-accent-tint:color-mix(in srgb,#007aff 24%,var(--t-field));
+    --tempo-accent-wash:color-mix(in srgb,#007aff 10%,var(--t-field));
+  }
+
+  /* Every app-level overlay owns the full foreground above navigation. */
+  .app-frame>div[style*="inset"][style*="z-index"]{
+    z-index:40 !important;
+  }
+  .app-frame>div.tempo-form-sheet[style*="inset"]{
+    z-index:50 !important;
+  }
+  .tempo-page-actions{
+    flex:none;
+    padding:10px 16px 2px;
+    background:var(--t-bg);
+  }
+
+  /* Consistent surface and control language */
+  .tempo-page-header{
+    height:60px !important;
+    padding:0 16px !important;
+    border-bottom:1px solid var(--t-rule2) !important
+  }
+  .tempo-page-header__actions{gap:6px !important}
+  .tempo-page-header__actions .btn-icon{
+    width:40px !important;
+    height:40px !important;
+    padding:0 !important;
+    border:1px solid var(--t-rule2) !important;
+    border-radius:var(--tempo-radius-control) !important;
+    background:var(--t-field)
+  }
+  .tempo-day__tools .btn-icon{
+    font-family:Arial,Helvetica,sans-serif !important;
+    font-size:28px !important;
+    font-weight:700 !important;
+    line-height:1 !important;
+    color:var(--t-ink) !important
+  }
+  .tempo-day__tools .btn-icon[aria-label="Search all entries"]{
+    font-size:23px !important;
+    font-weight:800 !important
+  }
+  .tempo-report-controls{border-bottom:0 !important}
+  .tempo-day__tools .btn{width:40px !important;height:40px !important;padding:0 !important;background:var(--t-field)}
+  .tempo-day__tools .tempo-day__view-toggle{width:auto !important;padding:0 12px !important}
+  .tempo-day__week{
+    margin:10px 16px;
+    border:1px solid var(--t-rule2) !important;
+    border-radius:var(--tempo-radius-card);
+    overflow:hidden;
+    background:var(--t-field)
+  }
+  .tempo-day__timeline{
+    margin:0 16px;
+    border:1px solid var(--t-rule2);
+    border-radius:var(--tempo-radius-card);
+    overflow:hidden !important
+  }
+  .tempo-day__workbar{
+    min-height:44px;
+    margin:0 16px 10px;
+    padding:4px 4px 4px 12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border:1px solid var(--t-rule2);
+    border-radius:14px;
+    background:var(--t-field);
+    box-sizing:border-box
+  }
+  .tempo-day__workbar button{min-height:36px;border-radius:11px}
+  .tempo-day__time{
+    width:52px !important;
+    min-height:38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 4px !important;
+    box-sizing:border-box;
+    text-align:center !important;
+    white-space:nowrap
+  }
+  .tempo-day__summary{
+    margin:10px 16px 0;
+    padding:13px 14px !important;
+    border:1px solid var(--t-rule2) !important;
+    border-radius:14px;
+    background:var(--t-field)
+  }
+  .tempo-form-sheet .input{width:100%;border-color:var(--t-rule2)}
+  .tempo-form-sheet .btn-primary{border-radius:14px;justify-content:center !important;box-shadow:0 6px 18px rgba(0,0,0,.16)}
+  .tempo-form-sheet .btn-secondary{border-radius:var(--tempo-radius-control)}
+  .tempo-select-control{min-height:var(--tempo-control-height);border:1px solid var(--t-rule2) !important;border-radius:var(--tempo-radius-control)}
+  .tempo-popover{border:1px solid var(--t-rule2) !important;border-radius:14px;overflow:hidden}
+  .tempo-quick-button,.tempo-tag-button{min-height:40px;border-radius:10px}
+  .tempo-swatch{border-radius:9px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+  .tempo-day button[style*="width:calc(100% - 32px)"]{border-radius:14px}
+  .tempo-reconstruct-card{
+    display:grid !important;
+    grid-template-columns:minmax(0, 1fr) auto;
+    grid-template-areas:"title action" "copy copy";
+    column-gap:12px;
+    row-gap:5px;
+    margin-top:10px !important;
+    padding:10px 12px !important;
+    border:1px solid color-mix(in srgb, var(--tempo-accent) 55%, var(--t-rule2)) !important;
+    border-radius:14px;
+    box-shadow:0 5px 16px rgba(0,0,0,.05)
+  }
+  .tempo-reconstruct-card__title{grid-area:title;align-self:center}
+  .tempo-reconstruct-card__copy{grid-area:copy;margin-top:0 !important}
+  .tempo-reconstruct-card__action{grid-area:action;align-self:center;margin-top:0 !important;white-space:nowrap}
+
+  /* Secondary surfaces share the same soft geometry as the primary tabs. */
+  .tempo-utility-screen{
+    padding-top:var(--tempo-safe-top) !important;
+    padding-bottom:var(--tempo-safe-bottom) !important;
+    box-sizing:border-box
+  }
+  .tempo-utility-screen>div:first-child{
+    height:60px !important;
+    padding:0 16px !important;
+    border-bottom:1px solid var(--t-rule2) !important
+  }
+  .tempo-utility-screen>div:first-child>button{
+    min-height:40px;
+    padding:0 12px !important;
+    border:1px solid var(--t-rule2) !important;
+    border-radius:var(--tempo-radius-control) !important;
+    background:var(--t-field) !important;
+    color:var(--t-ink) !important
+  }
+  .tempo-utility-screen>div:last-child[style*="border-top"]{
+    gap:8px;
+    padding:12px 16px !important;
+    border-top:1px solid var(--t-rule2) !important;
+    background:var(--t-bg)
+  }
+  .tempo-utility-screen>div:last-child[style*="border-top"] button{
+    min-height:48px;
+    border:1px solid var(--t-rule2) !important;
+    border-radius:14px !important;
+    text-align:center !important
+  }
+
+  .tempo-paywall-panel{
+    max-height:calc(100% - max(28px, var(--tempo-safe-top)));
+    margin:0 12px max(12px, var(--tempo-safe-bottom));
+    display:flex;
+    flex-direction:column;
+    border:1px solid var(--t-rule2) !important;
+    border-radius:24px !important;
+    overflow:hidden;
+    box-shadow:0 -18px 55px rgba(0,0,0,.42)
+  }
+  .tempo-paywall-content{overflow-y:auto;padding:24px 20px 18px !important}
+  .tempo-paywall-features{gap:10px !important}
+  .tempo-paywall-features>span{
+    padding:10px 12px;
+    border:1px solid var(--t-rule2);
+    border-radius:12px;
+    background:var(--t-field)
+  }
+  .tempo-paywall-actions{
+    gap:8px;
+    padding:12px;
+    border-top:1px solid var(--t-rule2) !important;
+    background:var(--t-bg)
+  }
+  .tempo-paywall-actions button{
+    min-height:48px;
+    padding:0 16px !important;
+    border:1px solid var(--t-rule2) !important;
+    border-radius:14px !important;
+    text-align:center !important
+  }
+
+  .tempo-onboarding{
+    justify-content:center !important;
+    padding:calc(var(--tempo-safe-top) + 24px) 16px calc(var(--tempo-safe-bottom) + 24px);
+    box-sizing:border-box
+  }
+  .tempo-onboarding__intro{
+    padding:24px 20px 20px !important;
+    border:1px solid var(--t-rule2);
+    border-bottom:0;
+    border-radius:24px 24px 0 0;
+    background:var(--t-field);
+    box-shadow:0 18px 55px rgba(0,0,0,.22)
+  }
+  .tempo-onboarding__intro>div[style*="height:2px"]{
+    height:1px !important;
+    background:var(--t-rule2) !important
+  }
+  .tempo-onboarding__choices,
+  .tempo-onboarding__actions{
+    border:1px solid var(--t-rule2) !important;
+    border-radius:0 0 24px 24px;
+    overflow:hidden;
+    background:var(--t-field)
+  }
+  .tempo-onboarding__choices button{padding:16px 20px !important;border-bottom:1px solid var(--t-rule2) !important}
+  .tempo-onboarding__actions{gap:8px;padding:12px}
+  .tempo-onboarding__actions button{
+    min-height:48px;
+    padding:0 16px !important;
+    border:1px solid var(--t-rule2) !important;
+    border-radius:14px !important;
+    text-align:center !important
+  }
+  .tempo-search-empty{
+    margin:18px 16px;
+    padding:18px 16px;
+    border:1px solid var(--t-rule2);
+    border-radius:var(--tempo-radius-card);
+    background:var(--t-field);
+    color:var(--t-muted);
+    font:500 12.5px/1.5 'Archivo',sans-serif
+  }
+  .tempo-utility-screen div[style*="border:2px dashed"]{border-radius:var(--tempo-radius-card)}
+  .tempo-toast{
+    border:1px solid var(--t-rule2);
+    border-radius:14px;
+    box-shadow:0 12px 32px rgba(0,0,0,.28)
+  }
+
   /* 5. Rounded Pill Buttons & Gauges */
   .app-frame button[onClick*="cycleProject"],
   .app-frame button[onClick*="toggleBillable"],
@@ -271,25 +607,25 @@
 </template>
 <div class="app-shell">
 
-  <div class="app-frame">
+  <div class="app-frame" style="--active-proj-color: {{ activeProjColor }}">
 
     <!-- TRACK -->
     <sc-if value="{{ isTrack }}" hint-placeholder-val="{{ true }}">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <div style="background:{{ bandBg }};color:{{ bandFg }};padding:16px 16px 18px;flex:none">
+        <div class="tempo-track-hero" style="background:{{ bandBg }};color:{{ bandFg }};margin:12px 16px 0;padding:18px;flex:none;border:1px solid var(--t-rule2);border-radius:20px;box-shadow:0 10px 28px rgba(0,0,0,.12)">
           <div style="display:flex;align-items:baseline;justify-content:space-between">
             <span style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase">{{ timerStateLabel }}</span>
             <span style="font:600 10.5px/1 'Archivo',sans-serif;letter-spacing:.06em;font-variant-numeric:tabular-nums;opacity:.85">{{ todaySummary }}</span>
           </div>
           <div class="{{ clockClass }}" style="font:800 44px/0.92 'Archivo',sans-serif;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:13px 0 10px">{{ clock }}</div>
-          <input value="{{ taskText }}" onInput="{{ onTaskInput }}" placeholder="What are you working on?" style="width:100%;box-sizing:border-box;border:0;border-bottom:2px solid {{ bandRule }};background:transparent;border-radius:0;padding:7px 0;font:600 16px/1.3 'Archivo',sans-serif;color:{{ bandFg }};outline:none">
+          <input value="{{ taskText }}" onInput="{{ onTaskInput }}" aria-label="What are you working on?" placeholder="What are you working on?" style="width:100%;box-sizing:border-box;border:0;border-bottom:1px solid {{ bandRule }};background:transparent;border-radius:0;padding:9px 0;font:600 16px/1.3 'Archivo',sans-serif;color:{{ bandFg }};outline:none">
           <div style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-top:16px">{{ billingToLabel }}</div>
           <div style="display:flex;gap:8px;margin-top:8px">
-            <button onClick="{{ cycleProject }}" style="display:flex;align-items:center;gap:8px;min-width:0;padding:7px 11px;border:2px solid {{ bandRule }};background:transparent;color:{{ bandFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase">
+            <button onClick="{{ cycleProject }}" style="display:flex;align-items:center;gap:8px;min-width:0;padding:10px 12px;border:1px solid {{ bandRule }};border-radius:12px;background:transparent;color:{{ bandFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em;text-transform:uppercase">
               <span style="width:8px;height:8px;background:{{ chipDotColor }};flex:none"></span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ projName }}</span><span style="opacity:.65;flex:none">▾</span>
             </button>
             <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
-              <button onClick="{{ toggleBillable }}" style="flex:none;white-space:nowrap;padding:7px 11px;border:2px solid {{ bandRule }};background:{{ billBg }};color:{{ billFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em">{{ billLabel }}</button>
+              <button onClick="{{ toggleBillable }}" style="flex:none;white-space:nowrap;padding:10px 12px;border:1px solid {{ bandRule }};border-radius:12px;background:{{ billBg }};color:{{ billFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em">{{ billLabel }}</button>
             </sc-if>
 
     <!-- ENTRY OPTIONS -->
@@ -318,7 +654,7 @@
           </div>
         </div>
 
-        <div style="display:flex;align-items:center;justify-content:space-between;height:44px;box-sizing:border-box;padding:0 16px;border-top:2px solid var(--t-ink);border-bottom:2px solid var(--t-ink);font:600 11px/1 'Archivo',sans-serif;color:var(--t-muted);letter-spacing:.04em;flex:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:44px;box-sizing:border-box;margin:10px 16px 0;padding:0 14px;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);font:600 11px/1 'Archivo',sans-serif;color:var(--t-muted);letter-spacing:.04em;flex:none">
           <span>{{ dateLabel }}</span>
           <span style="font-variant-numeric:tabular-nums">{{ dayStrip }}</span>
         </div>
@@ -328,13 +664,13 @@
             <div style="margin:14px 16px 0;border:2px solid var(--tempo-accent);background:var(--tempo-accent-wash);padding:11px 12px;font:600 12px/1.4 'Archivo',sans-serif;color:var(--t-ink)">{{ longRunText }}</div>
           </sc-if>
           <sc-if value="{{ idleNudge }}" hint-placeholder-val="{{ false }}">
-            <div style="margin:14px 16px 0;border:2px dashed var(--t-rule);padding:11px 12px;font:500 12px/1.4 'Archivo',sans-serif;color:var(--t-muted)">Nothing tracked today yet. Start a timer, or log time you already did.</div>
+            <div style="margin:10px 16px 0;border:1px solid var(--t-rule2);border-radius:16px;background:var(--t-field);padding:14px 16px;font:500 12px/1.45 'Archivo',sans-serif;color:var(--t-muted);box-shadow:0 5px 16px rgba(0,0,0,.05)">Nothing tracked today yet. Start a timer, or log time you already did.</div>
           </sc-if>
           <sc-if value="{{ showReconstruct }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ reconstructGo }}" style="display:block;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:2px solid var(--tempo-accent);background:var(--tempo-accent-wash);padding:12px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
-              <span style="display:block;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--tempo-accent-deep)">Reconstruct your day</span>
-              <span style="display:block;font:500 12.5px/1.45 'Archivo',sans-serif;color:var(--t-ink);margin-top:6px">{{ reconstructText }}</span>
-              <span style="display:block;font:800 11px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--tempo-accent-deep);margin-top:8px">FILL IT IN →</span>
+            <button class="tempo-reconstruct-card" onClick="{{ reconstructGo }}" style="display:block;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:2px solid var(--tempo-accent);background:var(--tempo-accent-wash);padding:12px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+              <span class="tempo-reconstruct-card__title" style="display:block;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--tempo-accent-deep)">Reconstruct your day</span>
+              <span class="tempo-reconstruct-card__copy" style="display:block;font:500 12.5px/1.4 'Archivo',sans-serif;color:var(--t-ink);margin-top:6px">{{ reconstructText }}</span>
+              <span class="tempo-reconstruct-card__action" style="display:block;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.06em;color:var(--tempo-accent-deep);margin-top:8px">LOG TIME →</span>
             </button>
           </sc-if>
           <sc-if value="{{ showRecoveryBand }}" hint-placeholder-val="{{ false }}">
@@ -355,12 +691,12 @@
           </sc-if>
           <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:14px 16px 8px">Recent — tap to restart</div>
           <sc-if value="{{ noRecent }}" hint-placeholder-val="{{ false }}">
-            <div style="margin:0 16px 14px;border:2px dashed var(--t-rule);padding:16px">
+            <div style="margin:0 16px 14px;border:1px solid var(--t-rule2);border-radius:16px;background:var(--t-field);padding:16px;box-shadow:0 5px 16px rgba(0,0,0,.05)">
               <div style="font:400 12.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Nothing tracked yet. Type what you're doing, pick a project, then hit start — finished entries show up here so you can restart them with one tap.</div>
             </div>
           </sc-if>
           <sc-for list="{{ recent }}" as="r" hint-placeholder-count="3">
-            <button onClick="{{ r.restart }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+            <button onClick="{{ r.restart }}" style="width:calc(100% - 32px);margin:0 16px 8px;display:flex;align-items:center;gap:10px;padding:13px 14px;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
               <span style="width:8px;height:8px;background:{{ r.color }};flex:none"></span>
               <span style="flex:1;min-width:0">
                 <span style="display:block;font:600 13.5px/1.3 'Archivo',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.desc }}</span>
@@ -391,30 +727,30 @@
             </div>
           </div>
         </sc-if>
-        <div style="display:flex;gap:0;border-top:2px solid var(--t-ink)">
-          <button class="btn" onClick="{{ toggleTimer }}" style="flex:1;justify-content:flex-start;border-radius:0;border:0;background:{{ bigBtnBg }};color:{{ bigBtnFg }};font:800 14px/1 'Archivo',sans-serif;letter-spacing:.07em;padding:15px 16px">{{ bigBtnLabel }}</button>
-          <button class="btn btn-secondary" onClick="{{ openAdd }}" style="width:104px;justify-content:flex-start;border-radius:0;border:0;border-left:2px solid var(--t-ink);font:700 12.5px/1 'Archivo',sans-serif;letter-spacing:.05em;padding:15px 16px">+ ADD</button>
+        <div style="display:flex;gap:8px;margin:8px 16px 10px">
+          <button class="btn" onClick="{{ toggleTimer }}" style="flex:1;justify-content:center;border-radius:14px;border:0;background:{{ bigBtnBg }};color:{{ bigBtnFg }};font:800 14px/1 'Archivo',sans-serif;letter-spacing:.07em;padding:15px 16px;box-shadow:0 6px 16px rgba(0,0,0,.12)">{{ bigBtnLabel }}</button>
+          <button class="btn btn-secondary" onClick="{{ openAdd }}" style="width:96px;justify-content:center;border-radius:14px;border:1px solid var(--t-rule2);background:var(--t-field);font:700 12.5px/1 'Archivo',sans-serif;letter-spacing:.05em;padding:15px 12px">+ LOG</button>
         </div>
       </div>
     </sc-if>
 
     <!-- DAY -->
     <sc-if value="{{ isDay }}" hint-placeholder-val="{{ false }}">
-      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:2px solid var(--t-ink)">
+      <div class="tempo-day {{ dayModeClass }}" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+        <div class="tempo-page-header" style="display:flex;align-items:center;justify-content:space-between;height:60px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:2px solid var(--t-ink)">
           <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em">{{ dayTitle }}</span>
-          <span style="display:flex;gap:8px">
-            <button class="btn btn-secondary" onClick="{{ toggleDayView }}" style="height:32px;padding:0 10px;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.08em">{{ dayViewToggleLabel }}</button>
+          <span class="tempo-page-header__actions tempo-day__tools" style="display:flex;gap:6px">
+            <button class="btn btn-secondary tempo-day__view-toggle" onClick="{{ toggleDayView }}" style="height:32px;padding:0 10px;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.08em">{{ dayViewToggleLabel }}</button>
             <button class="btn btn-secondary btn-icon" onClick="{{ openSearch }}" aria-label="Search all entries" title="Search" style="width:32px;height:32px;padding:0;justify-content:center">⌕</button>
             <button class="btn btn-secondary btn-icon" onClick="{{ dayPrev }}" aria-label="Previous day" title="Previous day" style="width:32px;height:32px;padding:0;justify-content:center">‹</button>
             <button class="btn btn-secondary btn-icon" onClick="{{ dayNext }}" aria-label="Next day" title="Next day" style="width:32px;height:32px;padding:0;justify-content:center">›</button>
           </span>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:2px solid var(--t-ink);flex:none">
+        <div class="tempo-day__week" style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:2px solid var(--t-ink);flex:none">
           <sc-for list="{{ week }}" as="w" hint-placeholder-count="7">
-            <button onClick="{{ w.pick }}" style="position:relative;border:0;border-right:1px solid var(--t-rule2);background:{{ w.bg }};padding:10px 0 12px;cursor:pointer;font-family:'Archivo',sans-serif">
-              <span style="display:block;font:800 13px/1 'Archivo',sans-serif;letter-spacing:.08em;color:{{ w.fg }}">{{ w.label }}</span>
+            <button onClick="{{ w.pick }}" aria-label="{{ w.ariaLabel }}" aria-current="{{ w.ariaCurrent }}" aria-pressed="{{ w.selected }}" style="position:relative;border:0;border-right:1px solid var(--t-rule2);background:{{ w.bg }};padding:8px 0 10px;cursor:pointer;font-family:'Archivo',sans-serif">
+              <span style="display:inline-flex;min-width:28px;height:20px;box-sizing:border-box;align-items:center;justify-content:center;border-radius:999px;background:{{ w.todayBg }};font:800 13px/1 'Archivo',sans-serif;letter-spacing:.06em;color:{{ w.todayFg }}">{{ w.label }}</span>
               <span style="display:block;font:400 11px/1 'Archivo',sans-serif;margin-top:6px;font-variant-numeric:tabular-nums;color:{{ w.hoursFg }}">{{ w.hours }}</span>
               <span style="position:absolute;left:8px;right:8px;bottom:4px;height:2px;background:{{ w.underline }}"></span>
             </button>
@@ -422,7 +758,7 @@
         </div>
 
         <sc-if value="{{ isWeekMode }}" hint-placeholder-val="{{ false }}">
-          <div style="flex:1;overflow-y:auto;background:var(--t-bar)">
+          <div class="tempo-day__timeline" style="flex:1;overflow-y:auto;background:var(--t-bar)">
             <sc-for list="{{ weekRows }}" as="wr" hint-placeholder-count="7">
               <button onClick="{{ wr.pick }}" style="width:100%;display:block;text-align:left;border:0;border-bottom:1px solid var(--t-rule2);background:var(--t-bg);padding:13px 16px;cursor:pointer;opacity:{{ wr.dim }};font-family:'Archivo',sans-serif">
                 <span style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
@@ -441,15 +777,28 @@
           </div>
         </sc-if>
         <sc-if value="{{ isDayMode }}" hint-placeholder-val="{{ true }}">
-        <div style="flex:1;overflow-y:auto;background:var(--t-bar)">
+        <div class="tempo-day__workbar">
+          <span style="flex:1;min-width:0;font:600 11px/1 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums">
+            <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-faint);margin-right:6px">{{ dayContextLabel }}</span>{{ workdayRange }}
+          </span>
+          <button onClick="{{ openDayAdd }}" aria-label="{{ dayAddAria }}" style="padding:0 13px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.07em;white-space:nowrap">{{ dayAddLabel }}</button>
+        </div>
+        <sc-if value="{{ showPlanBacklog }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openPlanInbox }}" aria-label="Open displaced plan inbox" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 16px;border:0;border-bottom:1px solid var(--t-rule2);background:color-mix(in srgb,#007aff 7%,var(--t-bg));color:#4f9cff;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+            <span style="width:6px;height:6px;border-radius:999px;background:#007aff;flex:none"></span>
+            <span style="flex:1;font:700 10.5px/1.2 'Archivo',sans-serif">{{ planInboxNotice }}</span>
+            <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.08em">OPEN →</span>
+          </button>
+        </sc-if>
+        <div class="tempo-day__timeline" style="flex:1;overflow-y:auto;background:var(--t-bar)">
           <sc-for list="{{ dayRows }}" as="row" hint-placeholder-count="4">
             <div style="display:flex;border-bottom:1px solid var(--t-rule2)">
-              <div style="width:64px;flex:none;padding:14px 8px 14px 0;text-align:right;border-right:1px solid var(--t-rule2);font:400 11px/1.3 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums;background:var(--t-bg)">{{ row.time }}</div>
+              <div class="tempo-day__time" style="width:64px;flex:none;padding:14px 8px 14px 0;text-align:right;border-right:1px solid var(--t-rule2);font:400 11px/1.3 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums;background:var(--t-bg)">{{ row.time }}</div>
               <sc-if value="{{ row.isGap }}" hint-placeholder-val="{{ false }}">
-                <button class="tempo-hatch" onClick="{{ row.click }}" style="flex:1;text-align:left;border:1.5px dashed var(--tempo-accent);border-radius:12px;margin:6px 12px;padding:12px 14px;cursor:pointer;font:700 12.5px/1.3 'Archivo',sans-serif;color:var(--tempo-accent-deep);background-color:var(--t-bg)">{{ row.title }}</button>
+                <button class="tempo-hatch" onClick="{{ row.click }}" style="flex:1;text-align:left;border:1.5px dashed {{ row.gapBorder }};border-radius:12px;margin:6px 12px;padding:12px 14px;cursor:pointer;font:700 12.5px/1.3 'Archivo',sans-serif;color:{{ row.gapColor }};background-color:{{ row.gapBg }}">{{ row.title }}</button>
               </sc-if>
               <sc-if value="{{ row.isEntry }}" hint-placeholder-val="{{ true }}">
-                <button onClick="{{ row.click }}" onContextMenu="{{ row.contextMenu }}" onPointerDown="{{ row.ptrDown }}" onPointerUp="{{ row.ptrUp }}" onPointerCancel="{{ row.ptrCancel }}" onPointerLeave="{{ row.ptrCancel }}" style="user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;flex:1;min-width:0;text-align:left;border:0;background:var(--t-bg);padding:13px 16px;cursor:pointer;font-family:'Archivo',sans-serif">
+                <button class="{{ row.rowClass }}" onClick="{{ row.click }}" onContextMenu="{{ row.contextMenu }}" onPointerDown="{{ row.ptrDown }}" onPointerUp="{{ row.ptrUp }}" onPointerCancel="{{ row.ptrCancel }}" onPointerLeave="{{ row.ptrCancel }}" style="user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;flex:1;min-width:0;text-align:left;border:0;background:var(--t-bg);padding:13px 16px;cursor:pointer;font-family:'Archivo',sans-serif">
                   <span style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
                     <span style="display:flex;align-items:center;gap:9px;min-width:0">
                       <span style="width:8px;height:8px;border-radius:999px;background:{{ row.color }};flex:none"></span>
@@ -458,6 +807,9 @@
                     <span style="font:800 14px/1.3 'Archivo',sans-serif;letter-spacing:-.01em;font-variant-numeric:tabular-nums;flex:none">{{ row.dur }}</span>
                   </span>
                   <span style="display:block;font:400 11px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin-top:6px">{{ row.sub }}</span>
+                  <sc-if value="{{ row.planned }}" hint-placeholder-val="{{ false }}">
+                    <span class="tempo-planned-badge" style="margin-top:8px">PLANNED · NOT TRACKED</span>
+                  </sc-if>
                   <sc-if value="{{ row.hasNote }}" hint-placeholder-val="{{ false }}">
                     <span style="display:block;margin-top:6px;padding-left:9px;border-left:2px solid var(--t-rule);font:400 11.5px/1.4 'Archivo',sans-serif;color:var(--t-muted)">{{ row.note }}</span>
                   </sc-if>
@@ -475,10 +827,10 @@
           </sc-for>
         </div>
         </sc-if>
-        <div style="display:flex;justify-content:space-between;padding:14px 16px;border-top:2px solid var(--t-ink);font:500 12px/1 'Archivo',sans-serif;color:var(--t-muted)">
-          <span>Tracked <strong style="font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ dayTracked }}</strong></span>
-          <span>Billable <strong style="font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ dayBillable }}</strong></span>
-          <span>Earned <strong style="font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ dayEarned }}</strong></span>
+        <div class="tempo-day__summary" style="display:flex;justify-content:space-between;padding:14px 16px;border-top:2px solid var(--t-ink);font:500 12px/1 'Archivo',sans-serif;color:var(--t-muted)">
+          <span>{{ dayPrimaryLabel }} <strong style="font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ dayTracked }}</strong></span>
+          <span>{{ daySecondaryLabel }} <strong style="font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ dayBillable }}</strong></span>
+          <span>{{ dayTertiaryLabel }} <strong style="font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ dayEarned }}</strong></span>
         </div>
       </div>
     </sc-if>
@@ -486,10 +838,10 @@
     <!-- PROJECTS -->
     <sc-if value="{{ isProjects }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:1px solid var(--t-rule2)">
+        <div class="tempo-page-header" style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:1px solid var(--t-rule2)">
           <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em">Projects</span>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:12px 0 100px">
+        <div style="flex:1;overflow-y:auto;padding:12px 0">
           <sc-for list="{{ projectRows }}" as="p" hint-placeholder-count="3">
             <sc-if value="{{ p.groupHead }}" hint-placeholder-val="{{ true }}">
               <div style="padding:10px 20px 8px;font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted)">{{ p.groupLabel }}</div>
@@ -521,8 +873,8 @@
             </div>
           </sc-if>
         </div>
-        <div style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px max(20px, env(safe-area-inset-bottom, 20px));background:linear-gradient(to top, var(--t-bg) 60%, transparent);display:flex;justify-content:center;pointer-events:none">
-          <button class="btn btn-primary" onClick="{{ openProject }}" style="pointer-events:auto;border-radius:999px;border:0;justify-content:center;font:800 13px/1 'Archivo',sans-serif;letter-spacing:.08em;padding:15px 24px;box-shadow:0 8px 24px rgba(0,0,0,0.22)">+ NEW PROJECT</button>
+        <div class="tempo-page-actions">
+          <button class="btn btn-primary" onClick="{{ openProject }}" style="width:100%;border-radius:14px;border:0;justify-content:center;font:800 13px/1 'Archivo',sans-serif;letter-spacing:.08em;padding:15px 24px;box-shadow:0 6px 18px rgba(0,0,0,0.18)">+ NEW PROJECT</button>
         </div>
       </div>
     </sc-if>
@@ -530,13 +882,13 @@
     <!-- REPORTS -->
     <sc-if value="{{ isReports }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <div style="flex:none;border-bottom:2px solid var(--t-ink)">
-          <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:1px solid var(--t-rule)">
+        <div class="tempo-report-controls" style="flex:none;border-bottom:2px solid var(--t-ink)">
+          <div class="tempo-page-header" style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:1px solid var(--t-rule)">
             <span>
               <span style="display:block;font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em">{{ rangeTitle }}</span>
               <span style="display:block;font:600 10.5px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted);margin-top:6px">{{ rangeSub }}</span>
             </span>
-            <span style="display:flex;gap:8px">
+            <span class="tempo-page-header__actions" style="display:flex;gap:8px">
               <button class="btn btn-secondary btn-icon" onClick="{{ rangePrev }}" aria-label="Previous range" title="Previous range" style="width:32px;height:32px;border-radius:10px;padding:0;justify-content:center">‹</button>
               <button class="btn btn-secondary btn-icon" onClick="{{ rangeNext }}" aria-label="Next range" title="Next range" style="width:32px;height:32px;border-radius:10px;padding:0;justify-content:center">›</button>
             </span>
@@ -585,6 +937,23 @@
               </sc-if>
             </div>
           </sc-if>
+
+
+          <!-- Activity Heatmap -->
+          <div style="margin:0 16px 14px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);padding:16px;box-shadow:0 6px 20px rgba(0,0,0,0.06)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <span style="font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">Activity Heatmap</span>
+            </div>
+            <div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none">
+              <sc-for list="{{ heatmapCols }}" as="col" hint-placeholder-count="16">
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <sc-for list="{{ col.days }}" as="day" hint-placeholder-count="7">
+                    <div title="{{ day.title }}" style="width:14px;height:14px;border-radius:3px;background:{{ day.bg }};flex:none"></div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
 
           <sc-if value="{{ historyLocked }}" hint-placeholder-val="{{ false }}">
             <button onClick="{{ openPaywall }}" style="width:calc(100% - 32px);margin:0 16px 14px;box-sizing:border-box;text-align:left;border:1px solid var(--tempo-accent);border-radius:14px;background:var(--tempo-accent-wash);padding:14px 16px;cursor:pointer;font:700 12px/1.4 'Archivo',sans-serif;color:var(--tempo-accent-deep)">{{ historyLockedText }} Unlock Pro for full history →</button>
@@ -665,7 +1034,7 @@
 
     <!-- INVOICE -->
     <sc-if value="{{ invoiceOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:15;background:var(--t-bg);display:flex;flex-direction:column">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:15;background:var(--t-bg);display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
           <span>
             <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent-deep)">Invoice</span>
@@ -777,7 +1146,7 @@
 
     <!-- PROJECT DETAIL -->
     <sc-if value="{{ detailOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:15;background:var(--t-bg);display:flex;flex-direction:column">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:15;background:var(--t-bg);display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
           <span style="min-width:0">
             <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted)">{{ detail.client }}</span>
@@ -839,7 +1208,7 @@
 
     <!-- PDF PREVIEW -->
     <sc-if value="{{ previewOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:17;background:var(--t-ink);display:flex;flex-direction:column">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:17;background:var(--t-ink);display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-bg);flex:none">
           <span>
             <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent-tint)">Preview — what prints</span>
@@ -861,7 +1230,7 @@
 
     <!-- TIME REPORT PREVIEW -->
     <sc-if value="{{ sheetDocOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:17;background:var(--t-bg);display:flex;flex-direction:column">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:17;background:var(--t-bg);display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
           <span>
             <span style="display:block;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent)">Time report</span>
@@ -953,7 +1322,7 @@
           </div>
           <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 10px 12px">
             <sc-for list="{{ calCells }}" as="c" hint-placeholder-count="35">
-              <button onClick="{{ c.pick }}" style="height:40px;border:0;border-radius:12px;background:{{ c.bg }};color:{{ c.fg }};cursor:pointer;font:{{ c.font }};font-variant-numeric:tabular-nums;transition:background 0.15s ease">{{ c.label }}</button>
+              <button onClick="{{ pickCalDate }}" data-time="{{ c.time }}" aria-label="{{ c.aria }}" aria-disabled="{{ c.disabled }}" style="height:40px;border:0;border-radius:12px;background:{{ c.bg }};color:{{ c.fg }};cursor:{{ c.cursor }};font:{{ c.font }};font-variant-numeric:tabular-nums;transition:background 0.15s ease">{{ c.label }}</button>
             </sc-for>
           </div>
           <div style="display:flex;gap:12px;padding:12px 20px 20px">
@@ -967,9 +1336,12 @@
     <!-- SETTINGS -->
     <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <div style="display:flex;align-items:center;gap:12px;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:1px solid var(--t-rule2)">
+        <div class="tempo-page-header" style="display:flex;align-items:center;gap:12px;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:1px solid var(--t-rule2)">
           <sc-if value="{{ paneOpen }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ closePane }}" aria-label="Back to settings" style="border:0;background:transparent;cursor:pointer;padding:0;font:700 16px/1 'Archivo',sans-serif;color:var(--t-ink)">‹</button>
+            <button onClick="{{ closePane }}" aria-label="Go Back" style="display:flex;align-items:center;gap:6px;border:0;background:transparent;cursor:pointer;padding:8px 12px;margin-left:-12px;font:600 15px/1 'Archivo',sans-serif;color:var(--tempo-accent);border-radius:20px;transition:background 0.15s">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              <span>Back</span>
+            </button>
           </sc-if>
           <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em">{{ paneTitle }}</span>
         </div>
@@ -997,7 +1369,7 @@
               <div style="padding:20px 20px 16px;border-bottom:1px solid var(--t-rule2)">
                 <div style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--tempo-accent)">Tempo Pro</div>
                 <div style="font:800 24px/1.15 'Archivo',sans-serif;letter-spacing:-.02em;margin:12px 0 10px;color:var(--t-ink)">Track for free. Pay for getting paid.</div>
-                <div style="font:500 13px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Everything you need to record your hours is free and stays free. Pro is the billing half — invoices, payment tracking and unlimited history.</div>
+                <div style="font:500 13px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Everything you need to record today and the past stays free. Pro adds future planning, invoices, payment tracking and unlimited history.</div>
               </div>
               <sc-for list="{{ proFeatures }}" as="f" hint-placeholder-count="8">
                 <div style="padding:14px 16px 16px;border-bottom:1px solid var(--t-rule)">
@@ -1010,6 +1382,13 @@
                   </div>
 
                   <div style="margin-top:14px;border-radius:12px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                    <sc-if value="{{ f.isPlanning }}" hint-placeholder-val="{{ false }}">
+                      <span style="display:block">
+                        <span style="display:flex;justify-content:space-between;padding:8px 11px;border-bottom:1px solid var(--t-rule2);font:800 10px/1 'Archivo',sans-serif"><span>Tomorrow</span><span style="color:#4f9cff">3:00 planned</span></span>
+                        <span class="tempo-planned-row" style="display:flex;padding:10px 11px;gap:9px;align-items:center"><span style="width:8px;height:8px;border-radius:999px;background:#007aff"></span><span style="flex:1;font:700 10.5px/1.2 'Archivo',sans-serif">Prepare client presentation</span><span class="tempo-planned-badge">PLANNED</span></span>
+                        <span style="display:flex;justify-content:space-between;padding:8px 11px;border-top:1px solid var(--t-rule2);font:600 9.5px/1 'Archivo',sans-serif;color:var(--t-muted)"><span>Tracked 0:00</span><span>Earned $0</span></span>
+                      </span>
+                    </sc-if>
                     <sc-if value="{{ f.isInvoice }}" hint-placeholder-val="{{ true }}">
                       <span style="display:block">
                         <span style="display:flex;justify-content:space-between;align-items:baseline;padding:12px 14px;border-bottom:1px solid var(--t-rule2);background:var(--t-bg)">
@@ -1112,7 +1491,7 @@
               </sc-if>
               <sc-if value="{{ proActive }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:2px solid var(--t-ink)">
-                  <span style="flex:1;font:700 13px/1.3 'Archivo',sans-serif;color:var(--tempo-accent-deep)">Pro is active — invoicing unlocked</span>
+                  <span style="flex:1;font:700 13px/1.3 'Archivo',sans-serif;color:var(--tempo-accent-deep)">Pro is active — planning and invoicing unlocked</span>
                   <button onClick="{{ downgradePro }}" style="padding:8px 11px;border:2px solid var(--t-rule);background:transparent;color:var(--t-muted);cursor:pointer;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.08em">TURN OFF</button>
                 </div>
               </sc-if>
@@ -1160,6 +1539,21 @@
                     </span>
                   </button>
                 </sc-for>
+              </div>
+
+              <div style="padding:10px 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Your workday</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--t-rule2)">
+                  <label style="display:block;padding:14px 16px;border-right:1px solid var(--t-rule2)">
+                    <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--t-muted);margin-bottom:8px">Starts</span>
+                    <input class="input" type="time" value="{{ workStartVal }}" onInput="{{ onWorkStart }}" aria-label="Workday start time" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:800 16px/1.1 'Archivo',sans-serif;color:var(--t-ink)">
+                  </label>
+                  <label style="display:block;padding:14px 16px">
+                    <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--t-muted);margin-bottom:8px">Ends</span>
+                    <input class="input" type="time" value="{{ workEndVal }}" onInput="{{ onWorkEnd }}" aria-label="Workday end time" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:800 16px/1.1 'Archivo',sans-serif;color:var(--t-ink)">
+                  </label>
+                </div>
+                <div style="padding:13px 16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:{{ workdayHintColor }}">{{ workdayHint }}</div>
               </div>
 
               <div style="padding:10px 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Types of work</div>
@@ -1240,7 +1634,7 @@
                 <div style="margin:0 16px 16px;border:2px solid var(--tempo-accent);border-radius:16px;background:var(--tempo-accent-wash);padding:20px 18px">
                   <div style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent)">Tempo Pro</div>
                   <div style="font:800 18px/1.2 'Archivo',sans-serif;margin:10px 0 8px;color:var(--tempo-accent-deep)">Invoicing is locked</div>
-                  <div style="font:500 12.5px/1.5 'Archivo',sans-serif;color:var(--tempo-accent-deep);margin-bottom:16px;opacity:0.8">Tracking, reports and CSV stay free. Unlock Pro to raise invoices, split them per project and print your logo.</div>
+                  <div style="font:500 12.5px/1.5 'Archivo',sans-serif;color:var(--tempo-accent-deep);margin-bottom:16px;opacity:0.8">Tracking, reports and CSV stay free. Unlock Pro to plan future work, raise invoices, split them per project and print your logo.</div>
                   <button onClick="{{ unlockPro }}" style="padding:12px 14px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.06em">UNLOCK PRO</button>
                 </div>
               </sc-if>
@@ -1362,7 +1756,7 @@
 
     <!-- ISSUED INVOICE -->
     <sc-if value="{{ issuedOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:15;background:var(--t-bg);display:flex;flex-direction:column">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:15;background:var(--t-bg);display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
           <span>
             <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent-deep)">Issued invoice</span>
@@ -1412,7 +1806,7 @@
 
     <!-- DAILY CLOSURE -->
     <sc-if value="{{ finishOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:15;background:var(--t-bg);display:flex;flex-direction:column">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:15;background:var(--t-bg);display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
           <span>
             <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent-deep)">Finish today</span>
@@ -1452,7 +1846,7 @@
 
     <!-- CSV IMPORT PREVIEW -->
     <sc-if value="{{ importOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:16;background:var(--t-bg);display:flex;flex-direction:column">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:16;background:var(--t-bg);display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
           <span style="min-width:0">
             <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent-deep)">Import preview</span>
@@ -1480,7 +1874,7 @@
 
     <!-- RECOVERY INBOX -->
     <sc-if value="{{ recoveryOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:14;background:var(--t-bg);display:flex;flex-direction:column">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:14;background:var(--t-bg);display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
           <span>
             <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent-deep)">Recovery</span>
@@ -1538,12 +1932,18 @@
 
     <!-- SEARCH -->
     <sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:14;background:var(--t-bg);display:flex;flex-direction:column">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:14;background:var(--t-bg);display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;gap:10px;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
           <input value="{{ searchQ }}" onInput="{{ onSearch }}" placeholder="Search entries, notes, clients…" style="flex:1;border:0;background:transparent;font:600 15px/1.2 'Archivo',sans-serif;color:var(--t-ink);outline:none">
           <button onClick="{{ closeSearch }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CLOSE</button>
         </div>
         <div style="flex:1;overflow-y:auto">
+          <sc-if value="{{ searchPrompt }}" hint-placeholder-val="true">
+            <div class="tempo-search-empty">Search descriptions, notes, work types, projects, or clients. Matching entries will appear here.</div>
+          </sc-if>
+          <sc-if value="{{ searchEmpty }}" hint-placeholder-val="false">
+            <div class="tempo-search-empty">No entries match that search. Try a project, client, work type, or a shorter phrase.</div>
+          </sc-if>
           <sc-for list="{{ searchResults }}" as="r" hint-placeholder-count="4">
             <button onClick="{{ r.open }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:13px 16px;border:0;border-bottom:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
               <span style="width:8px;height:8px;background:{{ r.color }};flex:none"></span>
@@ -1558,10 +1958,71 @@
       </div>
     </sc-if>
 
+    <!-- PLAN INBOX -->
+    <sc-if value="{{ planInboxOpen }}" hint-placeholder-val="{{ false }}">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:16;background:var(--t-bg);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:1px solid var(--t-rule2);flex:none">
+          <span>
+            <span style="display:block;font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;color:#4f9cff">TEMPO PRO</span>
+            <span style="display:block;font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em;margin-top:5px">Plan inbox</span>
+          </span>
+          <button onClick="{{ closePlanInbox }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CLOSE</button>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--t-rule2);font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Tracked work replaced these plans, their scheduled time passed, or you moved them here. Nothing was deleted. Reschedule a task or place it into a real past gap.</div>
+        <div style="flex:1;overflow-y:auto">
+          <sc-for list="{{ planBacklogRows }}" as="p" hint-placeholder-count="3">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--t-rule2);background:var(--t-bg)">
+              <div style="display:flex;align-items:flex-start;gap:10px">
+                <span style="width:9px;height:9px;border-radius:999px;background:{{ p.color }};flex:none;margin-top:4px"></span>
+                <span style="flex:1;min-width:0">
+                  <span style="display:block;font:800 13.5px/1.3 'Archivo',sans-serif">{{ p.title }}</span>
+                  <span style="display:block;font:500 11px/1.45 'Archivo',sans-serif;color:var(--t-muted);margin-top:4px">{{ p.meta }}</span>
+                  <span style="display:block;font:600 10.5px/1.4 'Archivo',sans-serif;color:#4f9cff;margin-top:4px">{{ p.reason }}</span>
+                </span>
+                <span class="tempo-planned-badge">{{ p.duration }}</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <button onClick="{{ p.reschedule }}" style="flex:1;padding:11px 10px;border:0;border-radius:10px;background:#007aff;color:#fff;cursor:pointer;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.06em">RESCHEDULE</button>
+                <button onClick="{{ p.findGap }}" style="flex:1;padding:11px 10px;border:1px solid #4f9cff;border-radius:10px;background:transparent;color:#4f9cff;cursor:pointer;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.05em">LOG IN PAST GAP</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- PAST GAP PICKER -->
+    <sc-if value="{{ planGapOpen }}" hint-placeholder-val="{{ false }}">
+      <div class="tempo-utility-screen" style="position:absolute;inset:0;z-index:17;background:var(--t-bg);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:1px solid var(--t-rule2);flex:none">
+          <span style="min-width:0">
+            <span style="display:block;font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;color:#4f9cff">LOG COMPLETED WORK</span>
+            <span style="display:block;font:800 16px/1 'Archivo',sans-serif;letter-spacing:-.02em;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ planGapTitle }}</span>
+          </span>
+          <button onClick="{{ closePlanGap }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">BACK</button>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--t-rule2);font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Only gaps large enough for the full planned duration are shown. Choosing one converts the plan into tracked work at that exact past time.</div>
+        <div style="flex:1;overflow-y:auto">
+          <sc-for list="{{ planGapRows }}" as="g" hint-placeholder-count="6">
+            <button onClick="{{ g.pick }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:13px 16px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+              <span style="flex:1;min-width:0">
+                <span style="display:block;font:800 13px/1.25 'Archivo',sans-serif">{{ g.label }}</span>
+                <span style="display:block;font:500 11.5px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:4px">{{ g.time }} · {{ g.available }}</span>
+              </span>
+              <span style="font:800 10px/1 'Archivo',sans-serif;color:#4f9cff;letter-spacing:.08em">LOG HERE →</span>
+            </button>
+          </sc-for>
+          <sc-if value="{{ noPlanGaps }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:16px;padding:18px 16px;border:1px dashed var(--t-rule);border-radius:14px;font:500 12px/1.5 'Archivo',sans-serif;color:var(--t-muted)">No past workday gap in the last 30 days is long enough. Reschedule this plan instead, or shorten its duration first.</div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- ONBOARDING -->
     <sc-if value="{{ showOnboarding }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:16;background:var(--t-bg);display:flex;flex-direction:column;justify-content:flex-end">
-        <div style="padding:28px 20px 24px">
+      <div class="tempo-onboarding" style="position:absolute;inset:0;z-index:16;background:var(--t-bg);display:flex;flex-direction:column;justify-content:flex-end">
+        <div class="tempo-onboarding__intro" style="padding:28px 20px 24px">
           <div style="font:800 12px/1 'Archivo',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--tempo-accent)">Tempo</div>
           <div style="height:2px;background:var(--t-ink);margin:14px 0 18px"></div>
           <h2 style="font:800 26px/1.05 'Archivo',sans-serif;letter-spacing:-.02em;margin:0 0 12px">Track hours. Fix the gaps. Get paid.</h2>
@@ -1574,7 +2035,7 @@
           </sc-if>
         </div>
         <sc-if value="{{ obStep1 }}" hint-placeholder-val="{{ true }}">
-          <div style="display:flex;flex-direction:column;border-top:2px solid var(--t-ink)">
+          <div class="tempo-onboarding__choices" style="display:flex;flex-direction:column;border-top:2px solid var(--t-ink)">
             <sc-for list="{{ obModes }}" as="om" hint-placeholder-count="4">
               <button onClick="{{ om.pick }}" style="padding:14px 20px;border:0;border-bottom:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
                 <span style="display:block;font:800 14px/1.2 'Archivo',sans-serif">{{ om.label }}</span>
@@ -1584,7 +2045,7 @@
           </div>
         </sc-if>
         <sc-if value="{{ obStep2 }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex;flex-direction:column;border-top:2px solid var(--t-ink)">
+        <div class="tempo-onboarding__actions" style="display:flex;flex-direction:column;border-top:2px solid var(--t-ink)">
           <button onClick="{{ startFresh }}" style="padding:16px 20px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 15px/1 'Archivo',sans-serif;letter-spacing:.06em">SET UP MY FIRST PROJECT</button>
           <button onClick="{{ startSample }}" style="padding:16px 20px;border:0;border-top:2px solid var(--t-ink);background:transparent;cursor:pointer;text-align:left;font:700 13px/1 'Archivo',sans-serif;letter-spacing:.06em">EXPLORE A SAMPLE WEEK FIRST</button>
         </div>
@@ -1594,14 +2055,16 @@
 
     <!-- PRO PAYWALL -->
     <sc-if value="{{ paywallOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:18;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim)">
+      <div class="tempo-paywall" style="position:absolute;inset:0;z-index:18;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim)">
         <div onClick="{{ closePaywall }}" style="flex:1"></div>
-        <div style="background:var(--t-bg);border-top:2px solid var(--t-ink)">
-          <div style="padding:22px 20px 18px">
+        <div class="tempo-paywall-panel" style="background:var(--t-bg);border-top:2px solid var(--t-ink)">
+          <div class="tempo-paywall-content" style="padding:22px 20px 18px">
             <div style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--tempo-accent)">Tempo Pro</div>
-            <h3 style="font:800 21px/1.1 'Archivo',sans-serif;letter-spacing:-.02em;margin:12px 0 10px">Invoicing lives in Pro.</h3>
-            <p style="font:400 13px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin:0 0 16px">Tracking, the day timeline, reports and CSV stay free forever. Pro adds getting paid:</p>
-            <div style="display:flex;flex-direction:column;gap:9px">
+            <h3 style="font:800 21px/1.1 'Archivo',sans-serif;letter-spacing:-.02em;margin:12px 0 10px">{{ paywallTitle }}</h3>
+            <p style="font:400 13px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin:0 0 16px">{{ paywallIntro }}</p>
+            <div class="tempo-paywall-features" style="display:flex;flex-direction:column;gap:9px">
+              <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Plan future work by day and exact time — kept separate from billable hours</span>
+              <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Recover displaced plans by rescheduling or logging them into past gaps</span>
               <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Invoices with numbering, tax and payment terms</span>
               <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>One bill per project for the same client</span>
               <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Your logo on printed invoices and reports</span>
@@ -1610,7 +2073,7 @@
               <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Full history — free keeps the last 30 days</span>
             </div>
           </div>
-          <div style="display:flex;border-top:2px solid var(--t-ink)">
+          <div class="tempo-paywall-actions" style="display:flex;border-top:2px solid var(--t-ink)">
             <button onClick="{{ unlockPro }}" style="flex:1;padding:15px 20px;border:0;border-right:2px solid var(--t-ink);background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 14px/1 'Archivo',sans-serif;letter-spacing:.06em">UNLOCK PRO</button>
             <button onClick="{{ closePaywall }}" style="width:120px;padding:18px 16px;border:0;background:transparent;cursor:pointer;text-align:left;font:700 12px/1 'Archivo',sans-serif;letter-spacing:.06em;color:var(--t-muted)">NOT NOW</button>
           </div>
@@ -1619,20 +2082,22 @@
     </sc-if>
 
     <!-- TAB BAR -->
-    <div class="tempo-tab-dock" style="display:grid;grid-template-columns:repeat(5,1fr);border-top:2px solid var(--t-ink);background:var(--t-bg)">
-      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
-        <button onClick="{{ t.go }}" aria-label="{{ t.label }}" style="border:0;border-top:3px solid {{ t.bar }};background:transparent;color:{{ t.fg }};padding:8px 0 7px;cursor:pointer;font:{{ t.font }};letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;gap:5px">
-          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" style="display:block;color:{{ t.iconColor }}"><path d="{{ t.iconPath }}"></path></svg>
-          <span>{{ t.label }}</span>
-        </button>
-      </sc-for>
-    </div>
+    <sc-if value="{{ showDock }}" hint-placeholder-val="{{ true }}">
+      <div class="tempo-tab-dock" style="display:grid;grid-template-columns:repeat(5,1fr);border-top:2px solid var(--t-ink);background:var(--t-bg)">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+          <button onClick="{{ t.go }}" aria-label="{{ t.label }}" style="border:0;border-top:3px solid {{ t.bar }};background:transparent;color:{{ t.fg }};padding:8px 0 7px;cursor:pointer;font:{{ t.font }};letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" style="display:block;color:{{ t.iconColor }}"><path d="{{ t.iconPath }}"></path></svg>
+            <span>{{ t.label }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
 
     <!-- SHEET -->
     <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim)">
+      <div class="tempo-form-sheet {{ sheetModeClass }}" style="position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
         <div onClick="{{ closeSheet }}" style="flex:1"></div>
-        <div style="background:var(--t-bg);border-top:2px solid var(--t-ink);padding:16px;max-height:88%;overflow-y:auto">
+        <div class="tempo-form-sheet__panel" style="background:var(--t-bg);border-top:1px solid var(--t-rule2);padding:18px 16px max(28px, env(safe-area-inset-bottom, 28px));max-height:calc(100% - max(42px, env(safe-area-inset-top, 0px)));overflow-y:auto">
           <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
             <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.01em">{{ sheetTitle }}</span>
             <button class="btn btn-ghost" onClick="{{ closeSheet }}" style="font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;padding:6px 8px">CLOSE</button>
@@ -1640,6 +2105,12 @@
 
           <sc-if value="{{ isEntrySheet }}" hint-placeholder-val="{{ true }}">
             <div>
+              <sc-if value="{{ formPlanned }}" hint-placeholder-val="{{ false }}">
+                <div style="margin:0 0 14px;padding:11px 12px;border:1px solid color-mix(in srgb,#007aff 55%,var(--t-rule2));border-radius:12px;background:color-mix(in srgb,#007aff 10%,var(--t-field));font:600 11.5px/1.45 'Archivo',sans-serif;color:var(--t-ink)">
+                  <span style="display:block;font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;color:#4f9cff;margin-bottom:5px">PLANNED WORK</span>
+                  This reserves time only. It will not count as tracked, earned, unbilled, or invoiceable until you mark it completed.
+                </div>
+              </sc-if>
               <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">What did you do?</label>
               <input class="input" value="{{ fDesc }}" onInput="{{ onDesc }}" placeholder="e.g. Logo revisions" style="width:100%;box-sizing:border-box">
               <sc-if value="{{ showDescHelper }}" hint-placeholder-val="{{ false }}">
@@ -1657,13 +2128,13 @@
 
               <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">Project</label>
               <div style="margin-bottom:14px;position:relative;z-index:5">
-                <button onClick="{{ toggleProjPicker }}" style="width:100%;display:flex;align-items:center;gap:9px;padding:10px 12px;background:var(--t-field);border:2px solid var(--t-rule);cursor:pointer;font-family:'Archivo',sans-serif;text-align:left">
+                <button class="tempo-select-control" onClick="{{ toggleProjPicker }}" style="width:100%;display:flex;align-items:center;gap:9px;padding:10px 12px;background:var(--t-field);border:2px solid var(--t-rule);cursor:pointer;font-family:'Archivo',sans-serif;text-align:left">
                   <span style="width:9px;height:9px;background:{{ selProjColor }};flex:none"></span>
                   <span style="flex:1;font:600 14px/1.2 'Archivo',sans-serif;color:{{ selProjFg }}">{{ selProjName }}</span>
                   <span style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">{{ pickerCaret }}</span>
                 </button>
                 <sc-if value="{{ projPickerOpen }}" hint-placeholder-val="{{ false }}">
-                  <div style="position:absolute;top:100%;left:0;right:0;border:2px solid var(--t-ink);border-top:0;background:var(--t-bg);box-shadow:0 12px 32px rgba(45,43,43,.22)">
+                  <div class="tempo-popover" style="position:absolute;top:calc(100% + 6px);left:0;right:0;border:2px solid var(--t-ink);background:var(--t-bg);box-shadow:0 12px 32px rgba(45,43,43,.22)">
                     <input class="input" value="{{ projQuery }}" onInput="{{ onProjQuery }}" placeholder="Search projects or clients…" style="width:100%;box-sizing:border-box;border:0;border-bottom:2px solid var(--t-rule);background:transparent;font-size:13px">
                     <div style="max-height:168px;overflow-y:auto">
                       <sc-for list="{{ formProjects }}" as="p" hint-placeholder-count="3">
@@ -1673,7 +2144,7 @@
                             <span style="display:block;font:600 13px/1.3 'Archivo',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
                             <span style="display:block;font:400 11px/1.3 'Archivo',sans-serif;color:var(--t-muted)">{{ p.client }}</span>
                           </span>
-                          <span style="font:700 11px/1 'Archivo',sans-serif;color:var(--tempo-accent)">{{ p.check }}</span>
+                          <span style="font:700 11px/1 'Archivo',sans-serif;color:{{ p.checkColor }}">{{ p.check }}</span>
                         </button>
                       </sc-for>
                       <sc-if value="{{ noProjMatches }}" hint-placeholder-val="{{ false }}">
@@ -1697,7 +2168,7 @@
               </div>
               <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px">
                 <sc-for list="{{ quick }}" as="q" hint-placeholder-count="5">
-                  <button class="btn btn-secondary" onClick="{{ q.pick }}" style="justify-content:center;font-size:12px;padding:7px 0">{{ q.label }}</button>
+                  <button class="btn btn-secondary tempo-quick-button" onClick="{{ q.pick }}" style="justify-content:center;font-size:12px;padding:7px 0">{{ q.label }}</button>
                 </sc-for>
               </div>
 
@@ -1706,7 +2177,7 @@
               <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin:14px 0 6px">Type of work</label>
               <div style="display:flex;flex-wrap:wrap;gap:6px">
                 <sc-for list="{{ tagOpts }}" as="t" hint-placeholder-count="5">
-                  <button onClick="{{ t.pick }}" style="padding:8px 11px;border:2px solid var(--t-rule);background:{{ t.bg }};color:{{ t.fg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.04em">{{ t.label }}</button>
+                  <button class="tempo-tag-button" onClick="{{ t.pick }}" style="padding:8px 11px;border:1px solid var(--t-rule);background:{{ t.bg }};color:{{ t.fg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.04em">{{ t.label }}</button>
                 </sc-for>
                 <sc-if value="{{ addingTag }}" hint-placeholder-val="{{ false }}">
                   <span style="display:flex;gap:6px;align-items:center">
@@ -1716,7 +2187,7 @@
                   </span>
                 </sc-if>
                 <sc-if value="{{ notAddingTag }}" hint-placeholder-val="{{ true }}">
-                  <button onClick="{{ startAddTag }}" style="padding:8px 11px;border:2px dashed var(--t-rule);background:transparent;color:var(--tempo-accent-deep);cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.04em">+ TYPE</button>
+                  <button class="tempo-tag-button" onClick="{{ startAddTag }}" style="padding:8px 11px;border:1px dashed var(--t-rule);background:transparent;color:var(--tempo-accent-deep);cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.04em">+ TYPE</button>
                 </sc-if>
               </div>
               <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin:14px 0 6px">Note <span style="font:400 10px/1 'Archivo',sans-serif;text-transform:none;letter-spacing:0">— shows up on invoices later</span></label>
@@ -1741,7 +2212,13 @@
                 </sc-if>
               </div>
 
-              <button class="btn btn-primary" onClick="{{ saveEntry }}" style="width:100%;justify-content:flex-start;margin-top:18px;font:800 14px/1 'Archivo',sans-serif;letter-spacing:.06em;padding:15px 16px;opacity:{{ saveOpacity }}">{{ saveLabel }}</button>
+              <sc-if value="{{ canCompletePlan }}" hint-placeholder-val="{{ false }}">
+                <button class="btn btn-secondary" onClick="{{ completePlan }}" style="width:100%;justify-content:center;margin-top:18px;border-color:#4f9cff;color:#4f9cff;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.06em;padding:13px 16px">MARK COMPLETED — MAKE TRACKED</button>
+              </sc-if>
+              <sc-if value="{{ canDeferPlan }}" hint-placeholder-val="{{ false }}">
+                <button class="btn btn-secondary" onClick="{{ deferPlan }}" style="width:100%;justify-content:center;margin-top:8px;border-color:var(--t-rule2);color:var(--t-muted);font:800 11px/1 'Archivo',sans-serif;letter-spacing:.06em;padding:12px 16px">MOVE TO PLAN INBOX</button>
+              </sc-if>
+              <button class="btn btn-primary tempo-form-sheet__submit" onClick="{{ saveEntry }}" style="width:100%;justify-content:flex-start;margin-top:{{ saveMarginTop }};font:800 14px/1 'Archivo',sans-serif;letter-spacing:.06em;padding:15px 16px;opacity:{{ saveOpacity }}">{{ saveLabel }}</button>
               <sc-if value="{{ entryInvoiced }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ clearInvoiced }}" style="width:100%;box-sizing:border-box;margin-top:8px;padding:12px 14px;border:2px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">ON {{ entryInvoicedNo }} — REMOVE FROM INVOICE</button>
               </sc-if>
@@ -1770,9 +2247,9 @@
                 <input class="input" value="{{ pRate }}" onInput="{{ onPRate }}" inputmode="decimal" placeholder="85 · blank if unbilled" style="width:100%;box-sizing:border-box;margin-bottom:14px">
               </sc-if>
               <label style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">Swatch</label>
-              <div style="display:flex;gap:8px;margin-bottom:14px">
+              <div style="display:flex;gap:4px;margin-bottom:14px">
                 <sc-for list="{{ swatches }}" as="s" hint-placeholder-count="4">
-                  <button onClick="{{ s.pick }}" style="width:30px;height:30px;background:{{ s.color }};border:2px solid {{ s.border }};cursor:pointer;padding:0"></button>
+                  <button class="tempo-swatch" onClick="{{ s.pick }}" aria-label="Select project colour {{ s.color }}" title="Select project colour" style="width:40px;height:40px;background:{{ s.color }};border:2px solid {{ s.border }};cursor:pointer;padding:0"></button>
                 </sc-for>
               </div>
               <button onClick="{{ toggleProjMore }}" style="width:100%;box-sizing:border-box;margin-top:4px;padding:11px 0;border:0;background:transparent;cursor:pointer;text-align:left;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">{{ projMoreLabel }}</button>
@@ -1800,7 +2277,7 @@
 
     <!-- TOAST -->
     <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;left:16px;right:16px;bottom:74px;z-index:20;background:var(--t-ink);color:var(--t-bg);padding:10px 14px;font:600 12px/1.3 'Archivo',sans-serif;display:flex;align-items:center;gap:12px">
+      <div class="tempo-toast" style="position:absolute;left:16px;right:16px;bottom:74px;z-index:20;background:var(--t-ink);color:var(--t-bg);padding:10px 14px;font:600 12px/1.3 'Archivo',sans-serif;display:flex;align-items:center;gap:12px">
         <span style="flex:1">{{ toast }}</span>
         <sc-if value="{{ hasUndo }}" hint-placeholder-val="{{ false }}">
           <button onClick="{{ doUndo }}" style="border:0;background:transparent;color:var(--tempo-accent-tint);cursor:pointer;font:800 11px/1 'Archivo',sans-serif;letter-spacing:.12em">UNDO</button>
@@ -1814,10 +2291,11 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:820,&quot;height&quot;:900},&quot;navStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;label&quot;,&quot;options&quot;:[&quot;label&quot;,&quot;marker&quot;,&quot;rule&quot;,&quot;block&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Appearance&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#ec3013&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#ec3013&quot;,&quot;#dd2b0f&quot;,&quot;#ae1800&quot;,&quot;#9e3526&quot;],&quot;section&quot;:&quot;Appearance&quot;},&quot;showEarnings&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;sampleData&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;}}">
 const MS = 60000;
-const SWATCHES = ['var(--tempo-accent)', 'var(--t-ink)', '#7d7979', 'var(--tempo-accent-deep)'];
+const SWATCHES = ['#ec3013', '#007aff', '#34c759', '#ff9500', '#af52de', '#e946a4', '#5ac8fa', '#ff2d55'];
 const TAGS = ['Design', 'Build', 'Calls', 'Admin', 'Research'];
 const STORE_KEY = 'tempo.v1';
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const DAY_SHORT = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 function triggerHaptic(type) {
@@ -1944,7 +2422,7 @@ class Component extends DCLogic {
     invoice: { open: false, group: 'project', skipInvoiced: true, detailed: true, split: null, idx: 0 },
     pane: null,
     search: { open: false, q: '' },
-    settings: { showEarnings: true, defaultBillable: true, keepAwake: false, rounding: 0, weekStartDay: 1, theme: 'auto', invStatus: {}, breakMins: 0, breakPaid: true, goalHours: 30, goalIncome: 2500, contractHours: 0, overtime: 'off', bizName: '', taxRate: 0, terms: 14, invoiceNo: 1, logo: '', pro: false, invoiceChart: true },
+    settings: { showEarnings: true, defaultBillable: true, keepAwake: false, rounding: 0, weekStartDay: 1, workStart: '09:00', workEnd: '17:00', theme: 'auto', invStatus: {}, breakMins: 0, breakPaid: true, goalHours: 30, goalIncome: 2500, contractHours: 0, overtime: 'off', bizName: '', taxRate: 0, terms: 14, invoiceNo: 1, logo: '', pro: false, invoiceChart: true },
     form: { desc: '', time: '', start: '', end: '', dateMs: null, billable: true, parallel: false, tag: '', note: '', projId: null, editId: null },
     proj: { name: '', client: '', color: SWATCHES[0], rate: '', est: '', archived: false, editId: null }
   };
@@ -2061,6 +2539,8 @@ class Component extends DCLogic {
   }
   escape() {
     const s = this.state;
+    if (s.planGap) return this.setState({ planGap: null });
+    if (s.planInbox) return this.setState({ planInbox: false });
     if (s.cal.field) return this.setState({ cal: { field: null, month: null } });
     if (s.issued) return this.setState({ issued: null });
     if (s.paywall) return this.setState({ paywall: false });
@@ -2099,16 +2579,33 @@ class Component extends DCLogic {
     clearTimeout(this._toast);
     this._toast = setTimeout(() => this.setState({ toast: '', undo: null }), undo ? 6000 : 2200);
   }
-  snapshot() { return { entries: this.state.entries.slice(), projects: this.state.projects.slice() }; }
+  snapshot() { return { cmdOpen: false, closeCmd: () => m.route.set(m.route.get(), { cmd: false }), entries: this.state.entries.slice(), projects: this.state.projects.slice() }; }
 
   proj(id) { return this.state.projects.find(p => p.id === id); }
   mins(e) { return (e.end - e.start) / MS; }
-  money(e) { const p = this.proj(e.projId); return e.billable && p && p.rate ? (this.mins(e) / 60) * p.rate : 0; }
+  money(e) { const p = this.proj(e.projId); return !e.planned && e.billable && p && p.rate ? (this.mins(e) / 60) * p.rate : 0; }
+  isPlanBacklog(e) { return !!(e && e.planned && (e.planState === 'backlog' || e.end <= Date.now())); }
+  planBacklog() { return this.state.entries.filter(e => this.isPlanBacklog(e)).sort((a, b) => b.end - a.end); }
+  displacePlans(entries, start, end, excludeId) {
+    let displaced = 0;
+    const next = entries.map(e => {
+      if (e.id === excludeId || !e.planned || this.isPlanBacklog(e) || e.start >= end || start >= e.end) return e;
+      displaced++;
+      return Object.assign({}, e, {
+        planState: 'backlog',
+        backlogReason: 'displaced',
+        displacedAt: Date.now(),
+        originalStart: e.originalStart || e.start,
+        originalEnd: e.originalEnd || e.end
+      });
+    });
+    return { entries: next, count: displaced };
+  }
   sameDay(ts, off) {
     const a = new Date(ts), b = dayStart(off);
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   }
-  dayEntries(off) { return this.state.entries.filter(e => this.sameDay(e.start, off)).sort((a, b) => a.start - b.start); }
+  dayEntries(off) { return this.state.entries.filter(e => this.sameDay(e.start, off) && !this.isPlanBacklog(e)).sort((a, b) => a.start - b.start); }
   weekStart(anchorOff) {
     const d = dayStart(anchorOff || 0);
     d.setDate(d.getDate() - ((d.getDay() - this.state.settings.weekStartDay + 7) % 7));
@@ -2118,6 +2615,12 @@ class Component extends DCLogic {
   liveProjects() { return this.state.projects.filter(p => !p.archived); }
   projLabel(p) { if (!p) return ''; const c = (p.client || '').trim(); return p.name + (c ? ' (' + c + ')' : ''); }
   currentProj() { const p = this.proj(this.state.lastProj); return (p && !p.archived) ? p : (this.liveProjects()[0] || null); }
+  workday() {
+    const a = toMins(this.state.settings.workStart || '09:00');
+    const b = toMins(this.state.settings.workEnd || '17:00');
+    const valid = a != null && b != null && b > a;
+    return { start: valid ? a : 9 * 60, end: valid ? b : 17 * 60, valid };
+  }
 
   setForm(patch) { this.setState(s => ({ form: Object.assign({}, s.form, patch) })); }
   setProj(patch) { this.setState(s => ({ proj: Object.assign({}, s.proj, patch) })); }
@@ -2158,7 +2661,7 @@ class Component extends DCLogic {
   anchor() {
     const base = this.formDate();
     const list = this.state.entries.filter(e => e.start >= base && e.start < base + 86400000);
-    if (!list.length) return 9 * 60;
+    if (!list.length) return this.workday().start;
     return Math.round((Math.max.apply(null, list.map(e => e.end)) - base) / MS);
   }
 
@@ -2282,12 +2785,17 @@ class Component extends DCLogic {
   renderVals() {
     const s = this.state;
     const set = s.settings;
+    const workday = this.workday();
+    const workdayValid = workday.valid;
+    const workStartMin = workday.start;
+    const workEndMin = workday.end;
     const showMoney = set.showEarnings;
     // Mode: 'billing' (default) | 'timesheet' | 'personal'.
     // Non-billing modes hide every dollar sign and all invoicing UI.
     const mode = set.mode || 'billing';
     const billing = mode === 'billing';
-    const today = this.dayEntries(0);
+    const todayAll = this.dayEntries(0);
+    const today = todayAll.filter(e => !e.planned);
     let tmins = today.reduce((a, e) => a + this.mins(e), 0);
 
     // "Reconstruct your day" — a big untracked stretch ends right now and
@@ -2299,17 +2807,17 @@ class Component extends DCLogic {
       if (today.length) {
         const lastEnd = Math.max.apply(null, today.map(e => e.end));
         const gapMin = (nowTs - lastEnd) / MS;
-        if (gapMin >= 75 && nowMin <= 23 * 60) {
+        if (gapMin >= 75 && nowMin >= workStartMin && nowMin <= workEndMin) {
           reconstruct = {
             startTs: lastEnd,
             text: 'Off the clock since ' + fmtClock(lastEnd) + ' — ' + fmtHM(gapMin) + ' untracked. Still working on something?'
           };
         }
-      } else if (nowMin >= 10 * 60 + 30 && nowMin <= 23 * 60) {
-        const nineAm = dayStart(0).getTime() + 9 * 3600000;
+      } else if (nowMin >= workStartMin + 90 && nowMin <= workEndMin) {
+        const workStartTs = dayStart(0).getTime() + workStartMin * MS;
         reconstruct = {
-          startTs: nineAm,
-          text: 'Nothing tracked today. Reconstruct your morning while it’s still fresh — from 9:00 am to now.'
+          startTs: workStartTs,
+          text: 'Nothing tracked today. Reconstruct while it’s still fresh — from ' + fmtT(workStartMin) + ' to now.'
         };
       }
     }
@@ -2319,7 +2827,7 @@ class Component extends DCLogic {
 
     // recent
     const seen = {}, recent = [];
-    s.entries.slice().sort((a, b) => b.start - a.start).forEach(e => {
+    s.entries.filter(e => !e.planned).slice().sort((a, b) => b.start - a.start).forEach(e => {
       const k = e.desc + '|' + e.projId;
       if (!seen[k] && recent.length < 4) {
         seen[k] = 1;
@@ -2350,25 +2858,39 @@ class Component extends DCLogic {
       const dd = new Date(wsD); dd.setDate(wsD.getDate() + i);
       const off = Math.round((dd - dayStart(0)) / 86400000);
       const des = this.dayEntries(off);
-      const m = des.reduce((a, e) => a + this.mins(e), 0);
+      const actual = des.filter(e => !e.planned);
+      const planned = des.filter(e => e.planned);
+      const m = actual.reduce((a, e) => a + this.mins(e), 0);
+      const pm = planned.reduce((a, e) => a + this.mins(e), 0);
       weekRaw.push({
-        m, off, label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()],
-        bm: des.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0),
-        money: des.reduce((a, e) => a + this.money(e), 0),
+        m, pm, off, label: DAY_SHORT[dd.getDay()],
+        bm: actual.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0),
+        pbm: planned.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0),
+        money: actual.reduce((a, e) => a + this.money(e), 0),
         name: dd.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' }),
-        count: des.length
+        count: actual.length, plannedCount: planned.length
       });
       const active = off === s.dayOff;
+      const isToday = off === 0;
+      const hoursLabel = m ? fmtHM(m) : pm ? fmtHM(pm) + ' planned' : 'no time';
       week.push({
-        label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()], hours: m ? fmtHM(m) : '—',
+        label: DAY_SHORT[dd.getDay()], hours: m ? fmtHM(m) : pm ? fmtHM(pm) + ' plan' : '—',
+        ariaLabel: dd.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }) + (isToday ? ', today' : '') + (active ? ', selected' : '') + ', ' + hoursLabel,
+        ariaCurrent: isToday ? 'date' : 'false',
+        selected: active ? 'true' : 'false',
+        todayBg: isToday ? '#ff563c' : 'transparent',
+        todayFg: isToday ? '#ffffff' : 'var(--t-ink)',
         pct: Math.min(100, (m / 540) * 100) + '%',
         bg: active ? 'var(--t-bg)' : 'transparent',
         shadow: active ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
         fg: 'var(--t-ink)',
-        hoursFg: m ? 'var(--tempo-accent-deep)' : 'var(--t-faint)',
-        underline: active ? 'var(--t-ink)' : (m ? 'rgba(236,48,19,.35)' : 'transparent'),
+        hoursFg: m ? 'var(--tempo-accent-deep)' : pm ? '#4f9cff' : 'var(--t-faint)',
+        underline: active ? 'var(--t-ink)' : (m ? 'rgba(236,48,19,.35)' : pm ? '#4f9cff' : 'transparent'),
         barColor: active ? '#ff563c' : 'var(--tempo-accent)',
-        pick: () => { if (off <= 0) this.setState({ dayOff: off }); }
+        pick: () => {
+          if (off > 0 && !set.pro) this.setState({ paywall: true, paywallReason: 'planning' });
+          else this.setState({ dayOff: off });
+        }
       });
     }
 
@@ -2380,8 +2902,8 @@ class Component extends DCLogic {
       for (let i = 0; i < 7; i++) {
         const dd = new Date(wsT); dd.setDate(wsT.getDate() + i);
         const off = Math.round((dd - dayStart(0)) / 86400000);
-        const m = this.dayEntries(off).reduce((a, e) => a + this.mins(e), 0);
-        sparkRaw.push({ m, off, label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()] });
+        const m = this.dayEntries(off).filter(e => !e.planned).reduce((a, e) => a + this.mins(e), 0);
+        sparkRaw.push({ m, off, label: DAY_SHORT[dd.getDay()] });
       }
     }
     const weekMinsTotal = sparkRaw.reduce((a, d) => a + d.m, 0);
@@ -2398,76 +2920,112 @@ class Component extends DCLogic {
 
     // Week view — one ledger row per day of the current week
     const weekMode = s.dayView === 'week';
-    const wkMaxM = Math.max.apply(null, weekRaw.map(d => d.m).concat([1]));
+    const wkMaxM = Math.max.apply(null, weekRaw.map(d => Math.max(d.m, d.pm)).concat([1]));
     const showMoneyWk = this.state.settings.showEarnings;
     const weekRows = weekRaw.map(d => ({
       name: d.name,
       hours: d.m ? fmtHM(d.m) : '—',
       money: d.m && showMoneyWk && d.money ? '$' + Math.round(d.money) : '',
-      sub: d.off > 0 ? '' : (d.count ? d.count + (d.count === 1 ? ' entry' : ' entries') : (d.off === 0 ? 'nothing yet today' : 'nothing tracked')),
-      barW: d.m ? Math.max(3, Math.round((d.m / wkMaxM) * 100)) + '%' : '0%',
-      barColor: d.off === 0 ? 'var(--tempo-accent)' : 'var(--t-ink)',
+      sub: d.plannedCount ? d.plannedCount + (d.plannedCount === 1 ? ' planned block' : ' planned blocks') + (d.count ? ' · ' + d.count + ' tracked' : '') : (d.count ? d.count + (d.count === 1 ? ' entry' : ' entries') : (d.off === 0 ? 'nothing yet today' : d.off > 0 ? 'nothing planned' : 'nothing tracked')),
+      barW: (d.m || d.pm) ? Math.max(3, Math.round(((d.m || d.pm) / wkMaxM) * 100)) + '%' : '0%',
+      barColor: d.pm && !d.m ? '#4f9cff' : d.off === 0 ? 'var(--tempo-accent)' : 'var(--t-ink)',
       nameFg: d.off === 0 ? 'var(--tempo-accent-deep)' : 'var(--t-ink)',
-      dim: d.off > 0 ? '.45' : (d.m ? '1' : '.75'),
-      pick: () => { if (d.off <= 0) this.setState({ dayOff: d.off, dayView: 'day' }); }
+      dim: d.m || d.pm ? '1' : '.65',
+      pick: () => {
+        if (d.off > 0 && !set.pro) this.setState({ paywall: true, paywallReason: 'planning' });
+        else this.setState({ dayOff: d.off, dayView: 'day' });
+      }
     }));
     const wkMins = weekRaw.reduce((a, d) => a + d.m, 0);
+    const wkPlanned = weekRaw.reduce((a, d) => a + d.pm, 0);
     const wkBillM = weekRaw.reduce((a, d) => a + d.bm, 0);
+    const wkPlannedBillM = weekRaw.reduce((a, d) => a + d.pbm, 0);
     const wkMoney = weekRaw.reduce((a, d) => a + d.money, 0);
     const weekEndD = new Date(wsD); weekEndD.setDate(wsD.getDate() + 6);
     const weekRangeTitle = wsD.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
       + ' – ' + weekEndD.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
     // day rows
-    const list = this.dayEntries(s.dayOff);
+    const realList = this.dayEntries(s.dayOff);
+    const actualList = realList.filter(e => !e.planned);
+    const plannedList = realList.filter(e => e.planned);
+
+    // Ghost calendar events (mocked)
+    const baseT = dayStart(s.dayOff).getTime();
+    const mockGhosts = [
+      { id: 'g1', desc: 'Sync with Design Team', start: baseT + 10 * 3600000, end: baseT + 11 * 3600000, isGhost: true },
+      { id: 'g2', desc: 'Client kickoff', start: baseT + 14 * 3600000, end: baseT + 15 * 3600000 + 30 * 60000, isGhost: true }
+    ];
+    // Filter out ghosts that overlap with real entries
+    const ghosts = mockGhosts.filter(g => !realList.some(r => Math.max(0, Math.min(r.end, g.end) - Math.max(r.start, g.start)) > 0));
+
+    const list = realList.concat(ghosts).sort((a, b) => a.start - b.start);
+
     const dayRows = [];
-    let prevEnd = null;
+    const workStartTs = baseT + workStartMin * MS;
+    const workEndTs = baseT + workEndMin * MS;
+    const pushGapRow = (a, b) => {
+      if (b - a < 10 * MS) return;
+      const gapMins = Math.round((b - a) / MS);
+      dayRows.push({
+        isGap: true, isEntry: false, time: fmtShort(a),
+        title: gapMins + (s.dayOff > 0 ? ' min open' : '-min gap — tap to log time'),
+        gapBorder: s.dayOff > 0 ? 'color-mix(in srgb,#007aff 55%,var(--t-rule2))' : 'var(--tempo-accent)',
+        gapColor: s.dayOff > 0 ? '#4f9cff' : 'var(--tempo-accent-deep)',
+        gapBg: s.dayOff > 0 ? 'color-mix(in srgb,#007aff 5%,var(--t-bg))' : 'var(--t-bg)',
+        heightPx: Math.min(Math.max(48, gapMins * 1.5), 150),
+        click: () => this.openSheet('entry', { start: fmtClock(a), end: fmtClock(b), dateMs: baseT })
+      });
+    };
+    let prevEnd = workStartTs;
     list.forEach(e => {
-      if (prevEnd && e.start - prevEnd >= 10 * MS) {
-        const a = prevEnd, b = e.start;
-        const gapMins = Math.round((b - a) / MS);
-        const gapHeight = Math.min(Math.max(48, gapMins * 1.5), 150);
+      if (e.start > prevEnd) pushGapRow(Math.max(prevEnd, workStartTs), Math.min(e.start, workEndTs));
+      const durMins = e.isGhost ? Math.round((e.end - e.start) / 60000) : this.mins(e);
+      const heightPx = Math.min(Math.max(64, durMins * 1.5), 300);
+
+      if (e.isGhost) {
         dayRows.push({
-          isGap: true, isEntry: false, time: fmtShort(a),
-          title: gapMins + '-min gap — tap to fill',
-          heightPx: gapHeight,
-          click: () => this.openSheet('entry', { start: fmtClock(a), end: fmtClock(b), dateMs: dayStart(s.dayOff).getTime() })
+          isGap: false, isEntry: false, isGhost: true, time: fmtShort(e.start), title: e.desc,
+          heightPx, color: 'var(--t-muted)', dur: fmtHM(durMins),
+          sub: 'Calendar Event · Tap to track',
+          click: () => this.openSheet('entry', {
+            desc: e.desc, start: fmtClock(e.start), end: fmtClock(e.end), dateMs: dayStart(s.dayOff).getTime()
+          })
+        });
+      } else {
+        const p = this.proj(e.projId);
+        const money = this.money(e);
+        const clashes = e.parallel ? [] : realList.filter(o => o.id !== e.id && !o.parallel && o.start < e.end && e.start < o.end);
+
+        dayRows.push({
+          isGap: false, isEntry: true, time: fmtShort(e.start), title: e.desc,
+          planned: !!e.planned, rowClass: e.planned ? 'tempo-planned-row' : '',
+          clash: clashes.length > 0, heightPx,
+          clashWith: clashes.length ? (clashes.length > 1 ? clashes.length + ' ENTRIES' : clashes[0].desc.toUpperCase()) : '',
+          color: p ? p.color : '#7d7979', dur: fmtHM(durMins),
+          sub: (p ? this.projLabel(p) : '') + (e.tag ? ' · ' + e.tag : '') + (e.planned ? (e.billable ? ' · billable later' : ' · non-billable plan') : (money && showMoney ? ' · $' + money.toFixed(2) : e.billable ? '' : ' · non-billable')) + ' · ' + fmtClock(e.start) + ' – ' + fmtClock(e.end),
+          note: e.note || '', hasNote: !!e.note,
+          invoiced: !!e.invoiced, invoicedNo: e.invoiced || '',
+          contextMenu: (ev) => { ev.preventDefault(); this.openEntryOptions(e); },
+          ptrDown: (ev) => { this._longHoldTimer = setTimeout(() => this.openEntryOptions(e), 500); },
+          ptrUp: () => clearTimeout(this._longHoldTimer),
+          ptrCancel: () => clearTimeout(this._longHoldTimer),
+          click: () => this.openSheet('entry', {
+            desc: e.desc, start: fmtClock(e.start), end: fmtClock(e.end),
+            projId: e.projId, billable: e.billable, parallel: !!e.parallel, tag: e.tag || '', note: e.note || '', editId: e.id, dateMs: dayStart(s.dayOff).getTime()
+          }),
+          id: e.id
         });
       }
-      const p = this.proj(e.projId);
-      const money = this.money(e);
-      const clashes = e.parallel ? [] : list.filter(o => o.id !== e.id && !o.parallel && o.start < e.end && e.start < o.end);
-      const durMins = this.mins(e);
-      const heightPx = Math.min(Math.max(64, durMins * 1.5), 300);
-      dayRows.push({
-        isGap: false, isEntry: true, time: fmtShort(e.start), title: e.desc,
-        clash: clashes.length > 0, heightPx,
-        clashWith: clashes.length ? (clashes.length > 1 ? clashes.length + ' ENTRIES' : clashes[0].desc.toUpperCase()) : '',
-        color: p ? p.color : '#7d7979', dur: fmtHM(durMins),
-        sub: (p ? this.projLabel(p) : '') + (e.tag ? ' · ' + e.tag : '') + (money && showMoney ? ' · $' + money.toFixed(2) : e.billable ? '' : ' · non-billable') + ' · ' + fmtClock(e.start) + ' – ' + fmtClock(e.end),
-        note: e.note || '', hasNote: !!e.note,
-        invoiced: !!e.invoiced, invoicedNo: e.invoiced || '',
-        contextMenu: (ev) => { ev.preventDefault(); this.openEntryOptions(e); },
-        ptrDown: (ev) => { this._longHoldTimer = setTimeout(() => this.openEntryOptions(e), 500); },
-        ptrUp: () => clearTimeout(this._longHoldTimer),
-        ptrCancel: () => clearTimeout(this._longHoldTimer),
-        click: () => this.openSheet('entry', {
-          desc: e.desc, start: fmtClock(e.start), end: fmtClock(e.end),
-          projId: e.projId, billable: e.billable, parallel: !!e.parallel, tag: e.tag || '', note: e.note || '', editId: e.id, dateMs: dayStart(s.dayOff).getTime()
-        })
-      });
       prevEnd = Math.max(prevEnd || 0, e.end);
     });
-    dayRows.push({
-      isGap: true, isEntry: false, time: prevEnd ? fmtShort(prevEnd) : '',
-      title: list.length ? '+ add what came next' : '+ add time for this day',
-      heightPx: 56,
-      click: () => this.openSheet('entry', Object.assign({ dateMs: dayStart(s.dayOff).getTime() }, prevEnd ? { start: fmtClock(prevEnd) } : {}))
-    });
+    pushGapRow(Math.max(prevEnd, workStartTs), workEndTs);
 
-    const dmins = list.reduce((a, e) => a + this.mins(e), 0);
-    const dbill = list.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0);
-    const dmoney = list.reduce((a, e) => a + this.money(e), 0);
+    const dmins = actualList.reduce((a, e) => a + this.mins(e), 0);
+    const dbill = actualList.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0);
+    const dmoney = actualList.reduce((a, e) => a + this.money(e), 0);
+    const dplanned = plannedList.reduce((a, e) => a + this.mins(e), 0);
+    const dplannedBill = plannedList.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0);
 
     // projects
     const wsT = this.weekStart().getTime();
@@ -2479,7 +3037,7 @@ class Component extends DCLogic {
     }).map((p, i, arr) => {
       const prev = i ? arr[i - 1] : null;
       const groupHead = !prev || (prev.client || 'No client') !== (p.client || 'No client') || (!!prev.archived !== !!p.archived);
-      const all = s.entries.filter(e => e.projId === p.id);
+      const all = s.entries.filter(e => e.projId === p.id && !e.planned);
       const wk = all.filter(e => e.start >= wsT);
       const tm = all.reduce((a, e) => a + this.mins(e), 0);
       return {
@@ -2516,7 +3074,8 @@ class Component extends DCLogic {
       return true;
     };
     const historyFloor = set.pro ? 0 : dayStart(0).getTime() - 29 * 86400000;
-    const rangeAll = s.entries.filter(e => e.start >= rs && e.start < re + DAY && scopeMatch(e));
+    const rangeAll = s.entries.filter(e => !e.planned && e.start >= rs && e.start < re + DAY && scopeMatch(e));
+    const plannedInRange = s.entries.filter(e => e.planned && e.start >= rs && e.start < re + DAY && scopeMatch(e)).length;
     const weekEntries = rangeAll.filter(e => e.start >= historyFloor);
     const hiddenOld = rangeAll.length - weekEntries.length;
     const capMins = (set.contractHours || 0) * 60;
@@ -2581,19 +3140,25 @@ class Component extends DCLogic {
       const lead = (first.getDay() - set.weekStartDay + 7) % 7;
       const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
       const todayT = dayStart(0).getTime();
-      for (let i = 0; i < lead; i++) calCells.push({ label: '', bg: 'transparent', fg: 'transparent', font: "500 13px/1 'Archivo',sans-serif", pick: () => {} });
+      for (let i = 0; i < lead; i++) calCells.push({ label: '', aria: 'Empty calendar cell', disabled: true, cursor: 'default', bg: 'transparent', fg: 'transparent', font: "500 13px/1 'Archivo',sans-serif", pick: () => {} });
       for (let dnum = 1; dnum <= daysInMonth; dnum++) {
         const t = new Date(first.getFullYear(), first.getMonth(), dnum).getTime();
+        const futurePlanLocked = calEntry && t > todayT && !set.pro;
         const isStart = calEntry ? t === entryDate : t === rs;
         const isEnd = calEntry ? false : t === re;
         const inRange = calEntry ? false : (t > rs && t < re);
         calCells.push({
           label: String(dnum),
-          bg: isStart || isEnd ? 'var(--tempo-accent)' : inRange ? 'var(--tempo-accent-wash)' : t === todayT ? 'var(--t-field)' : 'transparent',
-          fg: isStart || isEnd ? '#ffffff' : t === todayT ? 'var(--tempo-accent-deep)' : 'var(--t-ink)',
+          time: String(t),
+          aria: first.toLocaleDateString(undefined, { month: 'long' }) + ' ' + dnum + (futurePlanLocked ? ' — Pro planning' : ''),
+          disabled: false,
+          cursor: 'pointer',
+          bg: isStart || isEnd ? 'var(--tempo-accent)' : inRange ? 'var(--tempo-accent-wash)' : futurePlanLocked ? 'color-mix(in srgb,#007aff 7%,var(--t-bg))' : t === todayT ? 'var(--t-field)' : 'transparent',
+          fg: isStart || isEnd ? '#ffffff' : futurePlanLocked ? 'var(--t-faint)' : t === todayT ? 'var(--tempo-accent-deep)' : 'var(--t-ink)',
           font: isStart || isEnd || t === todayT ? "800 14px/1 'Archivo',sans-serif" : "600 14px/1 'Archivo',sans-serif",
           pick: () => {
-            if (calEntry) this.setState(st => ({ form: Object.assign({}, st.form, { dateMs: t }), cal: { field: null, month: null } }));
+            if (calEntry && futurePlanLocked) this.setState({ cal: { field: null, month: null }, paywall: true, paywallReason: 'planning' });
+            else if (calEntry) this.setState({ form: Object.assign({}, this.state.form, { dateMs: t }), cal: { field: null, month: null } });
             else {
               if (s.cal.field === 'to') setRange(Math.min(rs, t), t);
               else setRange(t, Math.max(t, re));
@@ -2602,8 +3167,49 @@ class Component extends DCLogic {
           }
         });
       }
-      while (calCells.length % 7 !== 0) calCells.push({ label: '', bg: 'transparent', fg: 'transparent', font: "500 13px/1 'Archivo',sans-serif", pick: () => {} });
+      while (calCells.length % 7 !== 0) calCells.push({ label: '', aria: 'Empty calendar cell', disabled: true, cursor: 'default', bg: 'transparent', fg: 'transparent', font: "500 13px/1 'Archivo',sans-serif", pick: () => {} });
     })();
+
+    const historyMap = {};
+    s.entries.filter(e => !e.planned).forEach(e => {
+      const d = new Date(e.start);
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      (historyMap[key] = historyMap[key] || []).push({ mins: this.mins(e) });
+    });
+
+    const heatmapCols = (() => {
+      const cols = [];
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const numCols = 16;
+      const startDay = new Date(today - (numCols * 7 - 1) * 86400000).getDay();
+
+      for (let c = 0; c < numCols; c++) {
+        const colDays = [];
+        for (let r = 0; r < 7; r++) {
+          const t = today - ((numCols - 1 - c) * 7 + (6 - r)) * 86400000;
+          let mins = 0;
+          let bg = 'var(--t-sel)';
+
+          const dt = new Date(t);
+          const dStr = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+          if (historyMap[dStr]) {
+            mins = historyMap[dStr].reduce((sum, e) => sum + e.mins, 0);
+          }
+
+          if (mins > 0) {
+            const intensity = Math.min(1, 0.3 + (mins / 480) * 0.7);
+            bg = `color-mix(in srgb, var(--tempo-accent) ${intensity * 100}%, var(--t-sel))`;
+          }
+
+          if (t > today) bg = 'transparent';
+          colDays.push({ bg, title: fmtHM(mins) + ' on ' + new Date(t).toLocaleDateString() });
+        }
+        cols.push({ days: colDays });
+      }
+      return cols;
+    })();
+
     const wmins = weekEntries.reduce((a, e) => a + this.mins(e), 0);
     const wbill = weekEntries.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0);
     const wmoney = weekEntries.reduce((a, e) => a + moneyOf(e), 0);
@@ -2766,12 +3372,109 @@ class Component extends DCLogic {
       const base = this.formDate();
       const st = base + (parsed.startMin != null ? parsed.startMin : this.anchor()) * MS;
       const en = st + parsed.mins * MS;
-      return s.entries.filter(e => e.id !== f.editId && !e.parallel && e.start < en && st < e.end);
+      const candidateIsPlan = base > dayStart(0).getTime() || !!(f.editId && (s.entries.find(x => x.id === f.editId) || {}).planned);
+      return s.entries.filter(e => e.id !== f.editId && !e.parallel && (candidateIsPlan || !e.planned) && e.start < en && st < e.end);
     })();
     const dTitle = s.dayOff === 0 ? 'Today' : s.dayOff === -1 ? 'Yesterday'
       : dayStart(s.dayOff).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+    const formBaseDate = this.formDate();
+    const formExistingEntry = f.editId ? s.entries.find(e => e.id === f.editId) : null;
+    const formIsFuture = formBaseDate > dayStart(0).getTime();
+    const formIsPlanned = formIsFuture || !!(formExistingEntry && formExistingEntry.planned);
+    const backlogPlans = this.planBacklog();
+    const selectedBacklogPlan = s.planGap ? s.entries.find(e => e.id === s.planGap) : null;
+    const planGapRows = (() => {
+      if (!selectedBacklogPlan) return [];
+      const need = this.mins(selectedBacklogPlan);
+      const out = [];
+      for (let off = 0; off >= -30 && out.length < 18; off--) {
+        const base = dayStart(off).getTime();
+        const startOfWork = base + workStartMin * MS;
+        const endOfWork = off === 0 ? Math.min(base + workEndMin * MS, Date.now()) : base + workEndMin * MS;
+        if (endOfWork - startOfWork < need * MS) continue;
+        const busy = s.entries.filter(e => !e.planned && this.sameDay(e.start, off)).sort((a, b) => a.start - b.start);
+        let cursor = startOfWork;
+        const addGap = end => {
+          const available = Math.round((end - cursor) / MS);
+          if (available < need || out.length >= 18) return;
+          const gapStart = cursor;
+          const gapEnd = gapStart + need * MS;
+          const label = off === 0 ? 'Earlier today' : off === -1 ? 'Yesterday' : dayStart(off).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+          out.push({
+            label,
+            time: fmtClock(gapStart) + ' – ' + fmtClock(gapEnd),
+            available: fmtHM(available) + ' open',
+            pick: () => {
+              this.setState({
+                entries: this.state.entries.map(e => e.id === selectedBacklogPlan.id ? Object.assign({}, e, {
+                  start: gapStart, end: gapEnd, planned: false, planState: 'completed', completedFromPlan: true, invoiced: null
+                }) : e),
+                planGap: null,
+                planInbox: false,
+                tab: 'day',
+                dayOff: off,
+                dayView: 'day'
+              });
+              this.toast('Plan logged in ' + label.toLowerCase() + ' gap');
+            }
+          });
+        };
+        busy.forEach(e => {
+          if (e.start > cursor) addGap(Math.min(e.start, endOfWork));
+          cursor = Math.max(cursor, e.end);
+        });
+        if (cursor < endOfWork) addGap(endOfWork);
+      }
+      return out;
+    })();
+    const commitEntry = plannedOverride => {
+      if (!parsed.ok) return;
+      if (formIsFuture && !set.pro) {
+        this.setState({ paywall: true, paywallReason: 'planning' });
+        return;
+      }
+      const base = this.formDate();
+      const startMin = parsed.startMin != null ? parsed.startMin : this.anchor();
+      const start = base + startMin * MS;
+      const end = Math.min(start + parsed.mins * MS, base + 1439 * MS);
+      const desc = f.desc.trim() || '(no description)';
+      const planned = plannedOverride == null ? (formIsFuture || !!(formExistingEntry && formExistingEntry.planned)) : !!plannedOverride;
+      const values = {
+        desc, projId: f.projId, billable: f.billable, parallel: f.parallel, tag: f.tag, note: f.note, start, end, planned,
+        planState: planned ? 'scheduled' : (formExistingEntry && formExistingEntry.planned ? 'completed' : null),
+        originalStart: formExistingEntry && formExistingEntry.originalStart ? formExistingEntry.originalStart : (planned ? start : null),
+        originalEnd: formExistingEntry && formExistingEntry.originalEnd ? formExistingEntry.originalEnd : (planned ? end : null)
+      };
+      let displacedCount = 0;
+      if (f.editId) {
+        let nextEntries = s.entries.map(e => e.id === f.editId ? Object.assign({}, e, values, planned ? { invoiced: null } : {}) : e);
+        if (!planned) {
+          const displaced = this.displacePlans(nextEntries, start, end, f.editId);
+          nextEntries = displaced.entries;
+          displacedCount = displaced.count;
+        }
+        this.setState({
+          entries: nextEntries,
+          sheet: null
+        });
+        this.toast((plannedOverride === false ? 'Plan marked completed' : planned ? 'Plan updated' : 'Entry updated') + (displacedCount ? ' · ' + displacedCount + ' plan moved to inbox' : ''));
+      } else {
+        const entry = Object.assign({ id: uid() }, values);
+        let nextEntries = s.entries;
+        if (!planned) {
+          const displaced = this.displacePlans(nextEntries, start, end, null);
+          nextEntries = displaced.entries;
+          displacedCount = displaced.count;
+        }
+        this.setState({ entries: nextEntries.concat([entry]), sheet: null });
+        this.toast((planned ? 'Work planned — not tracked yet' : 'Logged ' + fmtHM(parsed.mins)) + (displacedCount ? ' · ' + displacedCount + ' plan moved to inbox' : ''));
+      }
+    };
 
     return {
+      showDock: !(s.sheet || s.optionsOpen || s.trackPicker || s.scopeOpen || s.cal.field || s.planInbox || s.planGap ||
+        s.invoice.open || s.detail || s.preview || s.docPreview || s.issued || s.paywall ||
+        s.search.open || s.recovery || s.finish || s.importPrev || s.recentPickerOpen || !s.onboarded),
       recentPickerOpen: !!s.recentPickerOpen,
       toggleRecentPicker: () => this.setState({ recentPickerOpen: !s.recentPickerOpen }),
       closeRecentPicker: () => this.setState({ recentPickerOpen: false }),
@@ -2786,9 +3489,9 @@ class Component extends DCLogic {
       paneTitle: s.pane === 'pro' ? (set.pro ? 'Tempo Pro' : 'Upgrade') : s.pane === 'appearance' ? 'Appearance' : s.pane === 'tracking' ? 'Tracking' : s.pane === 'cycle' ? 'Billing cycle' : s.pane === 'invoicing' ? 'Invoicing' : s.pane === 'goals' ? 'Goals' : s.pane === 'data' ? 'Data' : 'Settings',
       closePane: () => this.setState({ pane: null }),
       settingsMenu: [].concat(
-        billing ? [['pro', set.pro ? 'Tempo Pro — active' : 'Upgrade to Tempo Pro', set.pro ? 'Invoicing, payment tracking, full history' : 'See everything Pro unlocks']] : [],
+        billing ? [['pro', set.pro ? 'Tempo Pro — active' : 'Upgrade to Tempo Pro', set.pro ? 'Future planning, invoicing, payment tracking, full history' : 'See everything Pro unlocks']] : [],
         [['appearance', 'Appearance', (set.theme || 'auto') === 'auto' ? 'Follows your phone' : ((set.theme === 'dark') ? 'Always dark' : 'Always light')],
-        ['tracking', 'Tracking', billing ? 'Mode, billable default, rounding, earnings' : 'Mode, rounding, reminders'],
+        ['tracking', 'Tracking', fmtT(workStartMin) + '–' + fmtT(workEndMin) + ' · mode and defaults'],
         ['cycle', billing ? 'Billing cycle' : 'Week start', 'Currently ' + DAY_NAMES[set.weekStartDay] + ' – ' + DAY_NAMES[(set.weekStartDay + 6) % 7]]],
         billing ? [['invoicing', 'Invoicing', set.pro ? ((set.bizName || 'Set your name') + ' · ' + (set.taxRate || 0) + '% tax · ' + (set.terms || 0) + ' day terms') : 'Locked — part of Tempo Pro']] : [],
         [['goals', 'Goals', (set.goalHours || 0) + 'h' + (billing ? ' and $' + (set.goalIncome || 0) : '') + ' per cycle'],
@@ -2800,6 +3503,7 @@ class Component extends DCLogic {
       bandBg: s.timer ? 'linear-gradient(135deg, var(--tempo-accent) 0%, var(--tempo-accent-deep) 100%)' : 'var(--t-bg)',
       bandFg: s.timer ? '#ffffff' : 'var(--t-ink)',
       bandRule: s.timer ? 'rgba(255,255,255,.65)' : 'var(--t-rule2)',
+      activeProjColor: this.currentProj() ? this.currentProj().color : '#ec3013',
       dayStrip: fmtHM(tmins) + ' TRACKED' + (showMoney && tmoney ? '  \u00b7  $' + Math.round(tmoney) : ''),
       toggles: [
         { label: 'Show earnings', hint: 'Money totals across the app', on: set.showEarnings, key: 'showEarnings' },
@@ -2812,6 +3516,14 @@ class Component extends DCLogic {
         justify: t.on ? 'flex-end' : 'flex-start',
         toggle: () => { const p = {}; p[t.key] = !t.on; this.setSetting(p); }
       })),
+      workStartVal: set.workStart || '09:00',
+      workEndVal: set.workEnd || '17:00',
+      onWorkStart: e => this.setSetting({ workStart: e.target.value }),
+      onWorkEnd: e => this.setSetting({ workEnd: e.target.value }),
+      workdayHint: workdayValid
+        ? 'Day uses this window to show open time and suggest real gaps.'
+        : 'End time must be later than start time. Day is using 9:00 am–5:00 pm until this is fixed.',
+      workdayHintColor: workdayValid ? 'var(--t-muted)' : 'var(--tempo-accent-deep)',
       roundOpts: [['Exact', 0], ['5 min', 5], ['15 min', 15], ['30 min', 30]].map(o => ({
         label: o[0],
         bg: set.rounding === o[1] ? 'var(--t-ink)' : 'transparent',
@@ -2820,14 +3532,14 @@ class Component extends DCLogic {
       })),
       cycleLabel: DAY_NAMES[set.weekStartDay] + ' – ' + DAY_NAMES[(set.weekStartDay + 6) % 7],
       weekStartOpts: [0, 1, 2, 3, 4, 5, 6].map(d => ({
-        label: DAY_NAMES[d].slice(0, 1),
+        label: DAY_SHORT[d],
         bg: set.weekStartDay === d ? 'var(--t-ink)' : 'transparent',
         fg: set.weekStartDay === d ? 'var(--t-bg)' : 'var(--t-muted)',
         pick: () => this.setSetting({ weekStartDay: d })
       })),
       resetSample: () => this.setState({ entries: [], projects: [], timer: null }, () => { this.seed(); this.toast('Sample day reloaded'); }),
       clearAll: () => { const snap = this.snapshot(); this.setState({ entries: [], projects: [], timer: null, lastProj: null, task: '' }); this.toast('Everything erased', snap); },
-      tabs,
+      tabs, heatmapCols,
       spark,
       showSpark: weekMinsTotal > 0,
       sparkTotal: fmtHM(weekMinsTotal),
@@ -2873,8 +3585,9 @@ class Component extends DCLogic {
           if (set.rounding) mins = Math.max(set.rounding, Math.round(mins / set.rounding) * set.rounding);
           if (mins >= 0.2) {
             const entry = { id: uid(), desc: s.task.trim() || '(no description)', projId: (cp || {}).id, start: s.timer.start, end: s.timer.start + mins * MS, billable: s.billable, tag: s.timerTag || '', note: '' };
-            this.setState({ entries: s.entries.concat([entry]), timer: null, task: '' });
-            this.toast('Saved ' + fmtHM(mins));
+            const displaced = this.displacePlans(s.entries, entry.start, entry.end, null);
+            this.setState({ entries: displaced.entries.concat([entry]), timer: null, task: '' });
+            this.toast('Saved ' + fmtHM(mins) + (displaced.count ? ' · ' + displaced.count + ' plan moved to inbox' : ''));
           } else { this.setState({ timer: null }); this.toast('Under 12s — not saved'); }
         } else {
           if (!s.projects.length) { this.setState({ sheet: 'project' }); return; }
@@ -2884,18 +3597,82 @@ class Component extends DCLogic {
       openAdd: () => this.openSheet('entry', {}),
 
       dayTitle: weekMode ? weekRangeTitle : dTitle, week, dayRows,
+      workdayRange: fmtT(workStartMin) + ' – ' + fmtT(workEndMin),
+      dayContextLabel: s.dayOff > 0 ? 'Plan day' : 'Workday',
+      showPlanBacklog: backlogPlans.length > 0,
+      dayModeClass: s.dayOff > 0 ? 'tempo-day--planning' : '',
+      planInboxNotice: backlogPlans.length === 1
+        ? '1 plan needs a home'
+        : backlogPlans.length + ' plans need a home',
+      openPlanInbox: () => {
+        if (!set.pro) this.setState({ paywall: true, paywallReason: 'planning' });
+        else this.setState({ planInbox: true });
+      },
+      planInboxOpen: !!s.planInbox,
+      closePlanInbox: () => this.setState({ planInbox: false }),
+      planBacklogRows: backlogPlans.map(e => {
+        const p = this.proj(e.projId);
+        const original = e.originalStart || e.start;
+        const originalEnd = e.originalEnd || e.end;
+        return {
+          title: e.desc,
+          color: p ? p.color : '#7d7979',
+          duration: fmtHM((originalEnd - original) / MS),
+          meta: new Date(original).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + fmtClock(original) + ' – ' + fmtClock(originalEnd) + (p ? ' · ' + this.projLabel(p) : ''),
+          reason: e.backlogReason === 'displaced' ? 'Tracked work took this time — kept for later' : e.backlogReason === 'deferred' ? 'Moved here for later — original time preserved' : 'Scheduled time passed — still available to recover',
+          reschedule: () => {
+            if (!set.pro) { this.setState({ planInbox: false, paywall: true, paywallReason: 'planning' }); return; }
+            this.setState({ planInbox: false }, () => this.openSheet('entry', {
+              desc: e.desc === '(no description)' ? '' : e.desc,
+              start: fmtClock(original), end: fmtClock(originalEnd),
+              projId: e.projId, billable: e.billable, parallel: !!e.parallel,
+              tag: e.tag || '', note: e.note || '', editId: e.id, dateMs: dayStart(1).getTime()
+            }));
+          },
+          findGap: () => this.setState({ planGap: e.id })
+        };
+      }),
+      planGapOpen: !!s.planGap,
+      planGapTitle: selectedBacklogPlan ? selectedBacklogPlan.desc : 'Choose a past gap',
+      planGapRows,
+      noPlanGaps: !!selectedBacklogPlan && planGapRows.length === 0,
+      closePlanGap: () => this.setState({ planGap: null, planInbox: true }),
+      dayAddLabel: s.dayOff > 0 ? '+ PLAN WORK' : '+ LOG TIME',
+      dayAddAria: s.dayOff > 0 ? 'Plan work at an exact time' : 'Log completed work at an exact time',
+      openDayAdd: () => {
+        if (s.dayOff > 0 && !set.pro) {
+          this.setState({ paywall: true, paywallReason: 'planning' });
+          return;
+        }
+        let startMin = workStartMin;
+        if (s.dayOff === 0) {
+          const now = new Date();
+          const nowMin = now.getHours() * 60 + now.getMinutes();
+          startMin = Math.ceil(nowMin / 15) * 15;
+          startMin = Math.max(workStartMin, Math.min(startMin, workEndMin - 15));
+        }
+        const endMin = Math.max(startMin + 15, Math.min(startMin + 60, workEndMin));
+        this.openSheet('entry', { dateMs: baseT, start: fmtT(startMin), end: fmtT(endMin) });
+      },
       isDayMode: !weekMode,
       isWeekMode: weekMode,
       weekRows,
       dayViewToggleLabel: weekMode ? 'DAY' : 'WEEK',
       toggleDayView: () => this.setState({ dayView: weekMode ? 'day' : 'week' }),
       dayPrev: () => this.setState({ dayOff: s.dayOff - (weekMode ? 7 : 1) }),
-      dayNext: () => this.setState({ dayOff: Math.min(0, s.dayOff + (weekMode ? 7 : 1)) }),
-      dayTracked: weekMode ? fmtHM(wkMins) : fmtHM(dmins),
+      dayNext: () => {
+        const next = s.dayOff + (weekMode ? 7 : 1);
+        if (next > 0 && !set.pro) this.setState({ paywall: true, paywallReason: 'planning' });
+        else this.setState({ dayOff: next });
+      },
+      dayPrimaryLabel: s.dayOff > 0 ? 'Planned' : 'Tracked',
+      daySecondaryLabel: s.dayOff > 0 ? 'Billable later' : 'Billable',
+      dayTertiaryLabel: s.dayOff > 0 ? 'Earned now' : 'Earned',
+      dayTracked: weekMode ? fmtHM(wkMins || wkPlanned) : fmtHM(s.dayOff > 0 ? dplanned : dmins),
       dayBillable: (weekMode
-        ? (wkMins ? Math.round((wkBillM / wkMins) * 100) : 0)
-        : (dmins ? Math.round((dbill / dmins) * 100) : 0)) + '%',
-      dayEarned: showMoney ? '$' + Math.round(weekMode ? wkMoney : dmoney) : '—',
+        ? ((wkMins || wkPlanned) ? Math.round(((wkMins ? wkBillM : wkPlannedBillM) / (wkMins || wkPlanned)) * 100) : 0)
+        : ((s.dayOff > 0 ? dplanned : dmins) ? Math.round(((s.dayOff > 0 ? dplannedBill : dbill) / (s.dayOff > 0 ? dplanned : dmins)) * 100) : 0)) + '%',
+      dayEarned: s.dayOff > 0 ? '$0' : showMoney ? '$' + Math.round(weekMode ? wkMoney : dmoney) : '—',
 
       projectRows,
       openProject: () => this.setState({ sheet: 'project', proj: { name: '', client: '', color: SWATCHES[s.projects.length % SWATCHES.length], rate: '', est: '', archived: false, editId: null } }),
@@ -2944,8 +3721,20 @@ class Component extends DCLogic {
       calPrev: () => this.setState({ cal: { field: s.cal.field, month: shiftMonth(calMonth, -1) } }),
       calNext: () => this.setState({ cal: { field: s.cal.field, month: shiftMonth(calMonth, 1) } }),
       calToday: () => this.setState({ cal: { field: s.cal.field, month: monthStart(dayStart(0).getTime()) } }),
-      calWeekdays: calCols.map(d => ({ label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][d] })),
+      calWeekdays: calCols.map(d => ({ label: DAY_SHORT[d] })),
       calCells: calCells,
+      pickCalDate: ev => {
+        const t = Number(ev.currentTarget && ev.currentTarget.getAttribute('data-time'));
+        if (!t) return;
+        const futurePlanLocked = s.cal.field === 'entry' && t > dayStart(0).getTime() && !set.pro;
+        if (futurePlanLocked) this.setState({ cal: { field: null, month: null }, paywall: true, paywallReason: 'planning' });
+        else if (s.cal.field === 'entry') this.setState({ form: Object.assign({}, this.state.form, { dateMs: t }), cal: { field: null, month: null } });
+        else {
+          if (s.cal.field === 'to') setRange(Math.min(rs, t), t);
+          else setRange(t, Math.max(t, re));
+          this.setState({ cal: { field: null, month: null } });
+        }
+      },
       rangePrev: () => { const span = re - rs + DAY; setRange(rs - span, re - span, s.report.preset === 'week' ? 'shifted' : s.report.preset); },
       rangeNext: () => { const span = re - rs + DAY; setRange(rs + span, re + span, s.report.preset === 'week' ? 'shifted' : s.report.preset); },
       presets: [
@@ -2975,7 +3764,14 @@ class Component extends DCLogic {
       },
 
       sheetOpen: !!s.sheet, isEntrySheet: s.sheet === 'entry', isProjectSheet: s.sheet === 'project',
-      sheetTitle: s.sheet === 'project' ? (s.proj.editId ? 'Edit project' : 'New project') : f.editId ? 'Edit entry' : 'Add time',
+      sheetModeClass: formIsPlanned ? 'tempo-form-sheet--planning' : '',
+      sheetTitle: s.sheet === 'project'
+        ? (s.proj.editId ? 'Edit project' : 'New project')
+        : formIsFuture
+          ? (f.editId ? 'Edit plan' : 'Plan work')
+          : f.editId
+            ? (formIsPlanned ? 'Edit plan' : 'Edit logged time')
+            : 'Log time',
       closeSheet: () => this.setState({ sheet: null }),
       fDesc: f.desc, fTime: f.time, fStart: f.start, fEnd: f.end,
       onDesc: e => this.setForm({ desc: e.target.value }),
@@ -3007,7 +3803,8 @@ class Component extends DCLogic {
       formProjects: matches.filter(p => !p.archived || p.id === f.projId).map(p => ({
         name: p.name, color: p.color, client: p.client || 'No client',
         check: p.id === f.projId ? '✓' : '',
-        bg: p.id === f.projId ? '#eae7e7' : 'transparent',
+        bg: p.id === f.projId ? `color-mix(in srgb, ${p.color} 24%, var(--t-field))` : 'transparent',
+        checkColor: p.id === f.projId ? p.color : 'var(--t-muted)',
         pick: () => this.setState({ projPickerOpen: false, projQuery: '', form: Object.assign({}, this.state.form, { projId: p.id }) })
       })),
       quickHint: f.start.trim() ? 'Durations set the end time from ' + f.start.trim() + '.' : 'Durations start after your last entry.',
@@ -3023,10 +3820,12 @@ class Component extends DCLogic {
         const t = f.dateMs != null ? f.dateMs : dayStart(0).getTime();
         if (t === dayStart(0).getTime()) return 'Today';
         if (t === dayStart(-1).getTime()) return 'Yesterday';
+        if (t === dayStart(1).getTime()) return 'Tomorrow';
         return new Date(t).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
       })(),
       openCalEntry: () => this.setState({ cal: { field: 'entry', month: monthStart(f.dateMs != null ? f.dateMs : dayStart(0).getTime()) } }),
-      fBillLabel: f.billable ? '$ BILLABLE' : 'NON-BILLABLE',
+      formPlanned: formIsPlanned,
+      fBillLabel: f.billable ? (formIsPlanned ? '$ BILLABLE LATER' : '$ BILLABLE') : 'NON-BILLABLE',
       fBillBg: f.billable ? 'var(--tempo-accent-tint)' : 'transparent',
       fBillFg: f.billable ? 'var(--tempo-accent-deep)' : 'var(--t-muted)',
       toggleFormBillable: () => this.setForm({ billable: !f.billable }),
@@ -3065,26 +3864,29 @@ class Component extends DCLogic {
         this.setState({ entries: s.entries.map(e => e.id === f.editId ? Object.assign({}, e, { invoiced: null }) : e) });
         this.toast('Removed from invoice', snap);
       },
-      isEdit: !!f.editId, saveLabel: f.editId ? 'SAVE CHANGES' : 'ADD ENTRY',
-      saveOpacity: parsed.ok ? 1 : 0.45,
-      saveEntry: () => {
-        if (!parsed.ok) return;
-        const base = this.formDate();
-        const startMin = parsed.startMin != null ? parsed.startMin : this.anchor();
-        const start = base + startMin * MS;
-        const end = Math.min(start + parsed.mins * MS, base + 1439 * MS);
-        const desc = f.desc.trim() || '(no description)';
-        if (f.editId) {
-          this.setState({
-            entries: s.entries.map(e => e.id === f.editId ? Object.assign({}, e, { desc, projId: f.projId, billable: f.billable, parallel: f.parallel, tag: f.tag, note: f.note, start, end }) : e),
-            sheet: null
-          });
-          this.toast('Entry updated');
-        } else {
-          this.setState({ entries: s.entries.concat([{ id: uid(), desc, projId: f.projId, start, end, billable: f.billable, parallel: f.parallel, tag: f.tag, note: f.note }]), sheet: null });
-          this.toast('Added ' + fmtHM(parsed.mins));
-        }
+      isEdit: !!f.editId,
+      canCompletePlan: !!(formExistingEntry && formExistingEntry.planned && !formIsFuture),
+      completePlan: () => commitEntry(false),
+      canDeferPlan: !!(formExistingEntry && formExistingEntry.planned),
+      deferPlan: () => {
+        if (!formExistingEntry) return;
+        this.setState({
+          entries: s.entries.map(e => e.id === formExistingEntry.id ? Object.assign({}, e, {
+            planState: 'backlog',
+            backlogReason: 'deferred',
+            displacedAt: Date.now(),
+            originalStart: e.originalStart || e.start,
+            originalEnd: e.originalEnd || e.end
+          }) : e),
+          sheet: null,
+          planInbox: true
+        });
+        this.toast('Plan moved to inbox');
       },
+      saveLabel: formIsFuture ? (f.editId ? 'SAVE PLAN' : 'PLAN WORK') : f.editId ? (formIsPlanned ? 'SAVE PLAN' : 'SAVE TIME') : 'LOG TIME',
+      saveMarginTop: formExistingEntry && formExistingEntry.planned ? '8px' : '18px',
+      saveOpacity: parsed.ok ? 1 : 0.45,
+      saveEntry: () => commitEntry(null),
       duplicateEntry: () => {
         const src = s.entries.find(e => e.id === f.editId);
         if (!src) return;
@@ -3195,7 +3997,7 @@ class Component extends DCLogic {
           const p = this.proj(e.projId) || {};
           return {
             desc: e.desc, color: p.color || '#7d7979', dur: fmtHM(this.mins(e)),
-            meta: new Date(e.start).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + (p.id ? this.projLabel(p) : 'No project') + (e.tag ? ' · ' + e.tag : ''),
+            meta: (e.planned ? 'PLANNED · ' : '') + new Date(e.start).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + (p.id ? this.projLabel(p) : 'No project') + (e.tag ? ' · ' + e.tag : ''),
             open: () => {
               const d = new Date(e.start); d.setHours(0, 0, 0, 0);
               this.setState({ search: { open: false, q: '' }, tab: 'day', dayOff: Math.round((d.getTime() - dayStart(0).getTime()) / 86400000) });
@@ -3203,7 +4005,15 @@ class Component extends DCLogic {
           };
         });
       })(),
-      searchEmpty: s.search.q.trim().length > 0,
+      searchPrompt: s.search.q.trim().length === 0,
+      searchEmpty: (() => {
+        const q = s.search.q.trim().toLowerCase();
+        if (!q) return false;
+        return !s.entries.some(e => {
+          const p = this.proj(e.projId) || {};
+          return (e.desc + ' ' + (e.note || '') + ' ' + (e.tag || '') + ' ' + (p.name || '') + ' ' + (p.client || '')).toLowerCase().includes(q);
+        });
+      })(),
 
       goalHoursPct: set.goalHours ? Math.min(100, (wmins / 60 / set.goalHours) * 100) + '%' : '0%',
       goalHoursLabel: set.goalHours ? fmtHM(wmins) + ' of ' + set.goalHours + 'h' : 'No hours goal',
@@ -3261,6 +4071,7 @@ class Component extends DCLogic {
         };
       })(),
       proFeatures: [
+        ['Future planning', 'Schedule future work, keep displaced plans in an inbox, then reschedule or log them into a real past gap. Planned hours stay separate until completed.', true, 'planning'],
         ['Invoices', 'A numbered invoice built from the hours in your range — your business name, tax and payment terms, ready to print or save as PDF.', true, 'invoice'],
         ['One bill per project', 'Same client, separate invoices per project, each with its own number — for clients who book costs per project.', true, 'split'],
         ['Payment tracking', 'Mark each invoice sent or paid, see what has gone overdue against your terms, and what you are still owed.', true, 'status'],
@@ -3277,7 +4088,7 @@ class Component extends DCLogic {
         badge: f[2] ? 'PRO' : 'FREE',
         badgeColor: f[2] ? 'var(--tempo-accent)' : 'var(--t-muted)',
         badgeBg: f[2] ? 'var(--tempo-accent-tint)' : 'transparent',
-        isInvoice: f[3] === 'invoice', isSplit: f[3] === 'split', isStatus: f[3] === 'status',
+        isPlanning: f[3] === 'planning', isInvoice: f[3] === 'invoice', isSplit: f[3] === 'split', isStatus: f[3] === 'status',
         isStamp: f[3] === 'stamp', isLogo: f[3] === 'logo', isChart: f[3] === 'chart',
         isHistory: f[3] === 'history', isTimer: f[3] === 'timer', isDay: f[3] === 'day',
         isReport: f[3] === 'report', isBackup: f[3] === 'backup'
@@ -3315,9 +4126,9 @@ class Component extends DCLogic {
             ignore: () => this.setSetting({ recoveryDismissed: (this.state.settings.recoveryDismissed || []).concat([id]).slice(-200) })
           });
         };
-        const anyLast7 = s.entries.some(e => e.start >= dayStart(-6).getTime());
+        const anyLast7 = s.entries.some(e => !e.planned && e.start >= dayStart(-6).getTime());
         for (let off = 0; off >= -6; off--) {
-          const es = this.dayEntries(off).slice().sort((a, b) => a.start - b.start);
+          const es = this.dayEntries(off).filter(e => !e.planned).slice().sort((a, b) => a.start - b.start);
           const dd = dayStart(off);
           const dLabel = off === 0 ? 'Today' : off === -1 ? 'Yesterday'
             : dd.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
@@ -3327,7 +4138,7 @@ class Component extends DCLogic {
             if (gapMs >= 45 * MS && gapMs <= 6 * 3600000) {
               const a = es[i - 1].end, b = es[i].start;
               pushItem('gap:' + off + ':' + Math.round(a / MS), 'Possible forgotten work',
-                fmtHM(gapMs / MS) + ' gap — ' + dLabel, fmtClock(a) + ' – ' + fmtClock(b), 'ADD ENTRY',
+                fmtHM(gapMs / MS) + ' gap — ' + dLabel, fmtClock(a) + ' – ' + fmtClock(b), 'LOG TIME',
                 () => { this.setState({ recovery: false, finish: false }); this.openSheet('entry', { start: fmtClock(a), end: fmtClock(b), dateMs: dd.getTime() }); }, off === 0);
             }
           }
@@ -3377,7 +4188,7 @@ class Component extends DCLogic {
             () => this.setState({ recovery: false, finish: false, tab: 'track' }), true);
         }
         // g) unbilled work older than 3 days (billing mode only)
-        const unb = billing ? s.entries.filter(e => e.billable && !e.invoiced && this.money(e) > 0 && e.end < Date.now() - 3 * 86400000) : [];
+        const unb = billing ? s.entries.filter(e => !e.planned && e.billable && !e.invoiced && this.money(e) > 0 && e.end < Date.now() - 3 * 86400000) : [];
         if (unb.length) {
           const um = unb.reduce((a, e) => a + this.mins(e), 0);
           const uMoney = unb.reduce((a, e) => a + this.money(e), 0);
@@ -3394,7 +4205,7 @@ class Component extends DCLogic {
         const nowMin2 = new Date().getHours() * 60 + new Date().getMinutes();
         const finishItems = [];
         if (reconstruct) finishItems.push({
-          kind: 'Untracked until now', title: 'Reconstruct the end of your day', sub: reconstruct.text, cta: 'FILL IT IN',
+          kind: 'Untracked until now', title: 'Reconstruct the end of your day', sub: reconstruct.text, cta: 'LOG TIME',
           go: () => { this.setState({ finish: false }); this.openSheet('entry', { start: fmtClock(reconstruct.startTs), end: fmtClock(Date.now()), dateMs: todayKey }); },
           ignore: null
         });
@@ -3481,6 +4292,11 @@ class Component extends DCLogic {
       cancelImport: () => this.setState({ importPrev: null }),
       doImport: () => {
         const ip = s.importPrev; if (!ip) return;
+        const hasFuture = ip.list.some(e => e.start >= dayStart(1).getTime());
+        if (hasFuture && !set.pro) {
+          this.setState({ paywall: true, paywallReason: 'planning' });
+          return;
+        }
         const snap = this.snapshot();
         const projects = s.projects.slice();
         ip.newProjects.forEach(np => {
@@ -3490,7 +4306,7 @@ class Component extends DCLogic {
           p.name.toLowerCase() === String(name).toLowerCase() && (p.client || '').toLowerCase() === String(client || '').toLowerCase());
         const entries = s.entries.concat(ip.list.map(e => {
           const p = e.projName ? findProj(e.projName, e.clientName) : null;
-          return { id: uid(), desc: e.desc, projId: p ? p.id : (this.currentProj() || {}).id, start: e.start, end: e.end, billable: e.billable, tag: '', note: '' };
+          return { id: uid(), desc: e.desc, projId: p ? p.id : (this.currentProj() || {}).id, start: e.start, end: e.end, billable: e.billable, planned: e.start >= dayStart(1).getTime(), tag: '', note: '' };
         }));
         this.setState({ projects, entries, importPrev: null });
         this.toast('Imported ' + ip.list.length + ' entries' + (ip.newProjects.length ? ' · ' + ip.newProjects.length + ' new projects' : ''), snap);
@@ -3524,13 +4340,17 @@ class Component extends DCLogic {
 
       invoiceOpen: !!s.invoice.open,
       openInvoice: () => {
-        if (!set.pro) { this.setState({ paywall: true }); return; }
+        if (!set.pro) { this.setState({ paywall: true, paywallReason: 'invoice' }); return; }
         this.setState({ invoice: Object.assign({}, s.invoice, { open: true }) });
       },
       paywallOpen: !!s.paywall,
-      openPaywall: () => this.setState({ paywall: true }),
-      closePaywall: () => this.setState({ paywall: false }),
-      unlockPro: () => { this.setSetting({ pro: true }); this.setState({ paywall: false }); this.toast('Pro unlocked'); },
+      paywallTitle: s.paywallReason === 'planning' ? 'Plan ahead with Pro.' : 'Invoicing lives in Pro.',
+      paywallIntro: s.paywallReason === 'planning'
+        ? 'Choose any future day and reserve exact working hours. Plans remain separate from tracked time and billing until completed.'
+        : 'Tracking, the day timeline, reports and CSV stay free forever. Pro adds future planning and getting paid:',
+      openPaywall: () => this.setState({ paywall: true, paywallReason: 'upgrade' }),
+      closePaywall: () => this.setState({ paywall: false, paywallReason: null }),
+      unlockPro: () => { this.setSetting({ pro: true }); this.setState({ paywall: false, paywallReason: null }); this.toast('Pro unlocked — future planning available'); },
       invoiceLocked: !set.pro,
       invoiceBtnLabel: set.pro ? 'INVOICE' : 'INVOICE 🔒',
       closeInvoice: () => this.setState({ invoice: Object.assign({}, s.invoice, { open: false }) }),
@@ -3566,10 +4386,12 @@ class Component extends DCLogic {
       invTax: '$' + (splitOn ? cur.tax : inv.tax).toFixed(2),
       invTotal: '$' + (splitOn ? cur.total : inv.total).toFixed(2),
       invEmpty: inv.lines.length === 0,
-      invEmptyTitle: inv.hiddenCount ? 'Already invoiced' : 'No billable hours here',
+      invEmptyTitle: inv.hiddenCount ? 'Already invoiced' : plannedInRange ? 'Planned work is not billable yet' : 'No billable hours here',
       invEmptyText: inv.hiddenCount
         ? inv.hiddenCount + ' billable ' + (inv.hiddenCount === 1 ? 'entry is' : 'entries are') + ' in this range but already on ' + inv.hiddenNos + '. Untick “skip already invoiced” below to include them.'
-        : 'Widen the date range, change the scope, or check that these hours are marked billable.',
+        : plannedInRange
+          ? plannedInRange + (plannedInRange === 1 ? ' planned block is' : ' planned blocks are') + ' intentionally excluded. Mark planned work completed before adding it to an invoice.'
+          : 'Widen the date range, change the scope, or check that these hours are marked billable.',
       invCount: splitOn ? cur.entries.length + ' entries · ' + batch.length + ' invoices' : inv.entries.length + ' entries',
       splitOn: splitOn,
       notSplit: !splitOn,
@@ -3913,6 +4735,14 @@ class Component extends DCLogic {
     };
   }
 }
+
+
+document.addEventListener('keydown', (e) => {
+  if (e.metaKey && e.key === 'k') {
+    e.preventDefault();
+    m.route.set(m.route.get(), { cmd: true });
+  }
+});
 
 </script>
 </body>
