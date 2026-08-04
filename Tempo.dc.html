@@ -5,13 +5,13 @@
 <!-- width=340 scales the 390px-authored design up ~15-25% on real phones
      (device-width / 340), enlarging all text and touch targets uniformly.
      Desktop browsers ignore the viewport meta entirely. -->
-<meta name="viewport" content="width=340, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Tempo</title>
-<meta name="theme-color" content="#151413" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#e6e4e4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e0d0c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#eceae9" media="(prefers-color-scheme: light)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tempo">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icons/icon-192.png" type="image/png">
@@ -34,97 +34,220 @@
 <helmet>
 <meta name="design_doc_mode" content="canvas">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&display=swap">
 <link rel="stylesheet" href="_ds/modernist-2f47e5dc-f28a-496c-a118-1aa0adbf05c3/styles.css">
 <script src="_ds/modernist-2f47e5dc-f28a-496c-a118-1aa0adbf05c3/_ds_bundle.js"></script>
 <style>
-  body{margin:0;font-family:"Archivo",system-ui,sans-serif;
+  body{margin:0;font-family:"Archivo",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
     --tempo-accent:#ec3013;--tempo-accent-deep:#ae1800;--tempo-accent-tint:#ffe0d9;--tempo-accent-wash:#fff2ef;
-    --t-page:#e6e4e4;--t-bg:#f3f2f2;--t-bar:#eae9e9;--t-sel:#e0dedd;--t-field:#f8f4f4;
-    --t-ink:#201e1d;--t-muted:#605d5d;--t-faint:#9b9797;--t-onink:rgba(243,242,242,.85);
-    --t-rule:rgba(32,30,29,.4);--t-rule2:rgba(32,30,29,.25);--t-track:rgba(32,30,29,.14);--t-scrim:rgba(32,30,29,.45);
-    background:var(--t-page);color:var(--t-ink)}
+    --t-page:#eceae9;--t-bg:#f6f5f4;--t-bar:#eeeeed;--t-sel:#e4e2e1;--t-field:#fcfbfa;
+    --t-ink:#1a1817;--t-muted:#524f4e;--t-faint:#888381;--t-onink:rgba(246,245,244,.95);
+    --t-rule:rgba(26,24,23,.38);--t-rule2:rgba(26,24,23,.22);--t-track:rgba(26,24,23,.12);--t-scrim:rgba(26,24,23,.55);
+    --t-dock-bg:rgba(252,251,250,.88);--t-dock-shadow:0 16px 40px rgba(0,0,0,.15);--t-dock-inset:inset 0 1px 0 rgba(255,255,255,.6);
+    background:var(--t-page);color:var(--t-ink);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
   body[data-theme="dark"]{
-    --tempo-accent:#ff563c;--tempo-accent-deep:#ff9783;--tempo-accent-tint:#4d170e;--tempo-accent-wash:#2d1512;
-    --t-page:#151413;--t-bg:#1d1b1a;--t-bar:#252322;--t-sel:#332f2e;--t-field:#262322;
-    --t-ink:#f1eeec;--t-muted:#b0a9a6;--t-faint:#7d7573;--t-onink:rgba(29,27,26,.9);
-    --t-rule:rgba(241,238,236,.32);--t-rule2:rgba(241,238,236,.18);--t-track:rgba(241,238,236,.14);--t-scrim:rgba(0,0,0,.6)}
+    --tempo-accent:#ff563c;--tempo-accent-deep:#ff9783;--tempo-accent-tint:#4d170e;--tempo-accent-wash:#2b1411;
+    --t-page:#0e0d0c;--t-bg:#171514;--t-bar:#201d1c;--t-sel:#2d2928;--t-field:#221f1e;
+    --t-ink:#f5f2f0;--t-muted:#b5adaa;--t-faint:#827977;--t-onink:rgba(23,21,20,.95);
+    --t-rule:rgba(245,242,240,.3);--t-rule2:rgba(245,242,240,.16);--t-track:rgba(245,242,240,.12);--t-scrim:rgba(0,0,0,.75);
+    --t-dock-bg:rgba(23,21,20,.88);--t-dock-shadow:0 16px 40px rgba(0,0,0,.45);--t-dock-inset:inset 0 1px 0 rgba(255,255,255,.12)}
   @media (prefers-color-scheme: dark){
     body[data-theme="auto"]{
-      --tempo-accent:#ff563c;--tempo-accent-deep:#ff9783;--tempo-accent-tint:#4d170e;--tempo-accent-wash:#2d1512;
-      --t-page:#151413;--t-bg:#1d1b1a;--t-bar:#252322;--t-sel:#332f2e;--t-field:#262322;
-      --t-ink:#f1eeec;--t-muted:#b0a9a6;--t-faint:#7d7573;--t-onink:rgba(29,27,26,.9);
-      --t-rule:rgba(241,238,236,.32);--t-rule2:rgba(241,238,236,.18);--t-track:rgba(241,238,236,.14);--t-scrim:rgba(0,0,0,.6)}
+      --tempo-accent:#ff563c;--tempo-accent-deep:#ff9783;--tempo-accent-tint:#4d170e;--tempo-accent-wash:#2b1411;
+      --t-page:#0e0d0c;--t-bg:#171514;--t-bar:#201d1c;--t-sel:#2d2928;--t-field:#221f1e;
+      --t-ink:#f5f2f0;--t-muted:#b5adaa;--t-faint:#827977;--t-onink:rgba(23,21,20,.95);
+      --t-rule:rgba(245,242,240,.3);--t-rule2:rgba(245,242,240,.16);--t-track:rgba(245,242,240,.12);--t-scrim:rgba(0,0,0,.75);
+      --t-dock-bg:rgba(23,21,20,.88);--t-dock-shadow:0 16px 40px rgba(0,0,0,.45);--t-dock-inset:inset 0 1px 0 rgba(255,255,255,.12)}
   }
+  ::selection{background:var(--tempo-accent);color:#ffffff}
   .tempo-hatch{background-image:repeating-linear-gradient(-45deg,transparent,transparent 9px,var(--t-track) 9px,var(--t-track) 10px)}
-  a{color:var(--tempo-accent-deep)}
-  a:hover{color:#dd2b0f}
-  input{font-family:inherit}
-  input::placeholder{color:currentColor;opacity:.62}
-  .tempo-hatch{background-image:repeating-linear-gradient(-45deg,transparent,transparent 9px,rgba(32,30,29,.14) 9px,rgba(32,30,29,.14) 10px)}
-  input[type="date"]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.75;transform:scale(1.25);transform-origin:right center}
-  ::-webkit-scrollbar{width:0}
-  /* DS buttons follow the app theme (the DS tokens are light-only) */
-  .btn{color:var(--t-ink)}
+  a{color:var(--tempo-accent-deep);text-decoration:underline;text-underline-offset:3px}
+  a:hover{color:var(--tempo-accent)}
+  input,textarea,select{font-family:inherit}
+  input::placeholder{color:currentColor;opacity:.6}
+  input[type="date"]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.8;transform:scale(1.25);transform-origin:right center}
+  ::-webkit-scrollbar{width:4px;height:4px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--t-rule2);border-radius:2px}
+
+  /* Buttons & Inputs */
+  .btn{color:var(--t-ink);transition:all .15s ease}
   .btn-secondary{border-color:var(--t-rule)}
   .btn-primary{background:var(--tempo-accent);color:#fff}
-  /* DS inputs: app-theme colors, no color-mix (unsupported on older iOS) */
-  .input{background:var(--t-field);color:var(--t-ink);border:1px solid var(--t-rule);caret-color:var(--tempo-accent)}
+  .input{background:var(--t-field);color:var(--t-ink);border:1px solid var(--t-rule);caret-color:var(--tempo-accent);transition:border-color .15s ease}
   .input:hover{border-color:var(--t-rule)}
-  .input:focus-visible{border-color:var(--tempo-accent)}
-  /* App shell — full-viewport native-app presentation */
+  .input:focus-visible{border-color:var(--tempo-accent);outline:none}
+
+  /* App Shell & Mobile Responsive Frame */
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   html,body{height:100%;overscroll-behavior:none}
   #dc-root,#dc-root>.sc-host{height:100%}
   .app-shell{height:100vh;height:100dvh;display:flex;justify-content:center;align-items:stretch;background:var(--t-page);overflow:hidden}
-  .app-frame{width:100%;max-width:430px;height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--t-bg);flex:none;box-sizing:border-box;
+  .app-frame{width:100%;max-width:440px;height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--t-bg);flex:none;box-sizing:border-box;
     padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-  /* Full-screen overlays (sheets, invoice, search…) sit above the frame's
-     padding box — give them their own safe-area padding so action rows
-     clear the notch and the home indicator. */
+
+  /* Make custom template wrappers transparent to flexbox layout */
+  sc-if, sc-for {
+    display: contents !important;
+  }
+
+  /* Overlays, drawers & floating sheets: safe areas & frosted glass */
   .app-frame>div[style*="inset"]{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
-  /* Desktop: present the app inside a phone — bezel, camera island, home
-     indicator — centered on the page. Real phones (narrow screens) keep the
-     edge-to-edge native look. */
+  .app-frame div[style*="background:var(--t-scrim)"]{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .app-frame div[style*="justify-content:flex-end"]>div[style*="background:var(--t-bg)"]{border-top-left-radius:20px;border-top-right-radius:20px;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+
+  /* Bottom Tab Navigation Bar — Always Pinned */
+  .app-frame>div:last-child[style*="grid-template-columns"],
+  .app-frame div[style*="repeat(5,1fr)"]{
+    flex: none !important;
+    z-index: 12 !important;
+    position: relative !important;
+    padding-bottom:max(8px, env(safe-area-inset-bottom, 8px));
+    box-sizing:border-box
+  }
+
+  /* Desktop Phone Mockup Shell */
   @media (min-width:521px){
-    .app-shell{align-items:center;padding:28px 0}
+    .app-shell{align-items:center;padding:24px 0}
     .app-frame{
       position:relative;
-      height:min(860px, calc(100dvh - 56px));
+      height:min(875px, calc(100dvh - 48px));
       border:12px solid #0d0c0b;
-      border-radius:52px;
-      box-shadow:0 30px 80px rgba(0,0,0,.45);
+      border-radius:48px;
+      box-shadow:0 28px 80px rgba(0,0,0,.5);
       padding-top:34px;padding-bottom:22px;
     }
     .app-frame::before{content:'';position:absolute;top:11px;left:50%;transform:translateX(-50%);
-      width:92px;height:24px;border-radius:12px;background:#0d0c0b;z-index:60;pointer-events:none}
+      width:96px;height:24px;border-radius:12px;background:#0d0c0b;z-index:60;pointer-events:none}
     .app-frame::after{content:'';position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
-      width:118px;height:5px;border-radius:3px;background:var(--t-ink);opacity:.85;z-index:60;pointer-events:none}
-    .app-shell::after{content:'TEMPO';position:fixed;top:26px;left:30px;
+      width:124px;height:5px;border-radius:3px;background:var(--t-ink);opacity:.85;z-index:60;pointer-events:none}
+    .app-shell::after{content:'TEMPO';position:fixed;top:24px;left:28px;
       font:800 15px/1 'Archivo',sans-serif;letter-spacing:.22em;color:var(--tempo-accent)}
   }
-  /* Native touch feel */
+
+  /* Native Touch Feel & Feedback */
   body{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;
-    -webkit-font-smoothing:antialiased;touch-action:manipulation;
-    user-select:none;-webkit-user-select:none}
+    touch-action:manipulation;user-select:none;-webkit-user-select:none}
   input,textarea{user-select:text;-webkit-user-select:text}
   button{touch-action:manipulation}
-  /* iOS zooms the viewport when a focused input is under 16px — never allow that */
   @media (pointer:coarse){
     input,textarea{font-size:16px !important}
   }
-  /* Press feedback — every control responds to touch. Brightness works on
-     any background; direction flips per theme so it's visible on both. */
-  .app-frame button{transition:filter .12s ease,transform .12s ease}
-  .app-frame button:active:not(:disabled){filter:brightness(.85);transform:scale(.985)}
-  body[data-theme="dark"] .app-frame button:active:not(:disabled){filter:brightness(1.35)}
+
+  .app-frame button{transition:filter .12s ease,transform .12s cubic-bezier(.2,.9,.3,1)}
+  .app-frame button:active:not(:disabled){filter:brightness(.9);transform:scale(.975)}
+  body[data-theme="dark"] .app-frame button:active:not(:disabled){filter:brightness(1.3)}
   @media (prefers-color-scheme: dark){
-    body[data-theme="auto"] .app-frame button:active:not(:disabled){filter:brightness(1.35)}
+    body[data-theme="auto"] .app-frame button:active:not(:disabled){filter:brightness(1.3)}
   }
-  /* List scrolling stays inside its pane */
-  .app-frame div[style*="overflow-y"]{overscroll-behavior:contain}
-  /* Motion — sheets slide up, overlays rise, scrims fade. sc-if remounts
-     fresh DOM on every open, so mount animations replay naturally. */
+
+  /* Active Timer Glow & Pulse */
+  @keyframes tempo-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(236,48,19,0.45); }
+    70% { box-shadow: 0 0 0 18px rgba(236,48,19,0); }
+    100% { box-shadow: 0 0 0 0 rgba(236,48,19,0); }
+  }
+  @keyframes tempo-glow-text {
+    0%,100% { opacity: 1; text-shadow: 0 0 20px rgba(255,255,255,0.4); }
+    50% { opacity: 0.85; text-shadow: 0 0 8px rgba(255,255,255,0.2); }
+  }
+  .tempo-timer-active {
+    animation: tempo-glow-text 2s ease-in-out infinite;
+  }
+
+  /* BOLD PREMIUM UI REDESIGN */
+  /* 1. Hero Timer Header Card */
+  .app-frame div[style*="background:{{ bandBg }}"],
+  .app-frame div[style*="background:var(--tempo-accent)"] {
+    border-bottom-left-radius: 24px !important;
+    border-bottom-right-radius: 24px !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,.22);
+    transition: all .25s ease;
+  }
+
+  /* 2. List Item Hover & Active States */
+  .app-frame button[onClick*="restart"] {
+    border-top: 1px solid var(--t-rule2) !important;
+    transition: background-color .15s ease, transform .12s ease;
+  }
+  .app-frame button[onClick*="restart"]:hover {
+    background: var(--t-sel) !important;
+  }
+  .app-frame button[onClick*="restart"]:active {
+    transform: scale(0.985);
+  }
+
+  .app-frame button[onClick*="p.edit"] {
+    border-bottom: 1px solid var(--t-rule2) !important;
+    transition: background-color .15s ease;
+  }
+  .app-frame button[onClick*="p.edit"]:hover {
+    background: var(--t-sel) !important;
+  }
+
+  /* 4. Floating Premium Glass Bottom Dock */
+  .tempo-tab-dock {
+    flex: none !important;
+    position: relative !important;
+    z-index: 12 !important;
+    margin: 8px 14px max(10px, env(safe-area-inset-bottom, 10px)) 14px !important;
+    border-radius: 24px !important;
+    border: 1px solid var(--t-rule2) !important;
+    background: var(--t-dock-bg) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
+    box-shadow: var(--t-dock-shadow), var(--t-dock-inset) !important;
+    overflow: hidden !important;
+    padding: 3px !important;
+  }
+  .tempo-tab-dock button {
+    border-top: 0 !important;
+    padding: 8px 0 7px !important;
+    transition: all .2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    border-radius: 18px !important;
+    margin: 0 !important;
+    position: relative !important;
+  }
+  .tempo-tab-dock button[style*="var(--tempo-accent)"] {
+    background: rgba(236, 48, 19, 0.14) !important;
+    box-shadow: inset 0 0 0 1px rgba(236, 48, 19, 0.25) !important;
+  }
+  .tempo-tab-dock button:active {
+    transform: scale(0.92) !important;
+  }
+
+  /* 5. Rounded Pill Buttons & Gauges */
+  .app-frame button[onClick*="cycleProject"],
+  .app-frame button[onClick*="toggleBillable"],
+  .app-frame button[onClick*="toggleRecentPicker"] {
+    border-radius: 999px !important;
+    padding: 8px 14px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.08em !important;
+  }
+
+  .app-frame div[style*="height:4px"],
+  .app-frame div[style*="height:5px"],
+  .app-frame div[style*="height:6px"],
+  .app-frame span[style*="height:4px"],
+  .app-frame span[style*="height:5px"],
+  .app-frame span[style*="height:8px"] {
+    border-radius: 999px !important;
+    height: 8px !important;
+    overflow: hidden;
+  }
+  .app-frame div[style*="height:4px"]>*,
+  .app-frame div[style*="height:5px"]>*,
+  .app-frame div[style*="height:6px"]>*,
+  .app-frame span[style*="height:4px"]>*,
+  .app-frame span[style*="height:5px"]>*,
+  .app-frame span[style*="height:8px"]>* {
+    border-radius: 999px !important;
+    height: 8px !important;
+  }
+
+  /* 6. Smooth Motion & Scroll Behavior */
+  .app-frame div[style*="overflow-y"]{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
   @media (prefers-reduced-motion: no-preference){
     @keyframes t-fade{from{opacity:0}to{opacity:1}}
     @keyframes t-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
@@ -158,7 +281,7 @@
             <span style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase">{{ timerStateLabel }}</span>
             <span style="font:600 10.5px/1 'Archivo',sans-serif;letter-spacing:.06em;font-variant-numeric:tabular-nums;opacity:.85">{{ todaySummary }}</span>
           </div>
-          <div style="font:800 44px/0.92 'Archivo',sans-serif;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:13px 0 10px">{{ clock }}</div>
+          <div class="{{ clockClass }}" style="font:800 44px/0.92 'Archivo',sans-serif;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:13px 0 10px">{{ clock }}</div>
           <input value="{{ taskText }}" onInput="{{ onTaskInput }}" placeholder="What are you working on?" style="width:100%;box-sizing:border-box;border:0;border-bottom:2px solid {{ bandRule }};background:transparent;border-radius:0;padding:7px 0;font:600 16px/1.3 'Archivo',sans-serif;color:{{ bandFg }};outline:none">
           <div style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-top:16px">{{ billingToLabel }}</div>
           <div style="display:flex;gap:8px;margin-top:8px">
@@ -168,6 +291,30 @@
             <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
               <button onClick="{{ toggleBillable }}" style="flex:none;white-space:nowrap;padding:7px 11px;border:2px solid {{ bandRule }};background:{{ billBg }};color:{{ billFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em">{{ billLabel }}</button>
             </sc-if>
+
+    <!-- ENTRY OPTIONS -->
+    <sc-if value="{{ optionsOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:45;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
+        <div onClick="{{ closeEntryOptions }}" style="flex:1"></div>
+        <div style="background:var(--t-bg);border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid var(--t-rule2);padding:20px 18px max(24px, env(safe-area-inset-bottom, 24px));box-shadow:0 -16px 50px rgba(0,0,0,0.4)">
+          <div style="font:800 13px/1 'Archivo',sans-serif;color:var(--t-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;padding:0 4px">Quick Actions</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button onClick="{{ dupEntry }}" style="display:flex;align-items:center;padding:16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);cursor:pointer;text-align:left;font:700 15px/1 'Archivo',sans-serif;color:var(--t-ink)">
+              Duplicate Entry
+            </button>
+            <button onClick="{{ editEntryOptions }}" style="display:flex;align-items:center;padding:16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);cursor:pointer;text-align:left;font:700 15px/1 'Archivo',sans-serif;color:var(--t-ink)">
+              Edit Entry
+            </button>
+            <button onClick="{{ delEntryOptions }}" style="display:flex;align-items:center;padding:16px;border-radius:16px;border:1px solid var(--tempo-accent-wash);background:var(--tempo-accent-wash);cursor:pointer;text-align:left;font:700 15px/1 'Archivo',sans-serif;color:var(--tempo-accent-deep)">
+              Delete Entry
+            </button>
+            <button onClick="{{ closeEntryOptions }}" style="display:flex;align-items:center;padding:16px;border-radius:16px;border:0;background:var(--t-ink);color:var(--t-onink);cursor:pointer;text-align:left;font:700 15px/1 'Archivo',sans-serif;margin-top:8px">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
           </div>
         </div>
 
@@ -299,13 +446,13 @@
             <div style="display:flex;border-bottom:1px solid var(--t-rule2)">
               <div style="width:64px;flex:none;padding:14px 8px 14px 0;text-align:right;border-right:1px solid var(--t-rule2);font:400 11px/1.3 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums;background:var(--t-bg)">{{ row.time }}</div>
               <sc-if value="{{ row.isGap }}" hint-placeholder-val="{{ false }}">
-                <button class="tempo-hatch" onClick="{{ row.click }}" style="flex:1;text-align:left;border:0;padding:14px 16px;cursor:pointer;font:700 12.5px/1.3 'Archivo',sans-serif;color:var(--tempo-accent-deep);background-color:var(--t-bg)">{{ row.title }}</button>
+                <button class="tempo-hatch" onClick="{{ row.click }}" style="flex:1;text-align:left;border:1.5px dashed var(--tempo-accent);border-radius:12px;margin:6px 12px;padding:12px 14px;cursor:pointer;font:700 12.5px/1.3 'Archivo',sans-serif;color:var(--tempo-accent-deep);background-color:var(--t-bg)">{{ row.title }}</button>
               </sc-if>
               <sc-if value="{{ row.isEntry }}" hint-placeholder-val="{{ true }}">
-                <button onClick="{{ row.click }}" style="flex:1;min-width:0;text-align:left;border:0;background:var(--t-bg);padding:13px 16px;cursor:pointer;font-family:'Archivo',sans-serif">
+                <button onClick="{{ row.click }}" onContextMenu="{{ row.contextMenu }}" onPointerDown="{{ row.ptrDown }}" onPointerUp="{{ row.ptrUp }}" onPointerCancel="{{ row.ptrCancel }}" onPointerLeave="{{ row.ptrCancel }}" style="user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;flex:1;min-width:0;text-align:left;border:0;background:var(--t-bg);padding:13px 16px;cursor:pointer;font-family:'Archivo',sans-serif">
                   <span style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
                     <span style="display:flex;align-items:center;gap:9px;min-width:0">
-                      <span style="width:8px;height:8px;background:{{ row.color }};flex:none"></span>
+                      <span style="width:8px;height:8px;border-radius:999px;background:{{ row.color }};flex:none"></span>
                       <span style="font:800 14px/1.3 'Archivo',sans-serif;letter-spacing:-.01em;text-wrap:pretty">{{ row.title }}</span>
                     </span>
                     <span style="font:800 14px/1.3 'Archivo',sans-serif;letter-spacing:-.01em;font-variant-numeric:tabular-nums;flex:none">{{ row.dur }}</span>
@@ -339,41 +486,44 @@
     <!-- PROJECTS -->
     <sc-if value="{{ isProjects }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:2px solid var(--t-ink)">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:1px solid var(--t-rule2)">
           <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em">Projects</span>
         </div>
-        <div style="flex:1;overflow-y:auto">
+        <div style="flex:1;overflow-y:auto;padding:12px 0 100px">
           <sc-for list="{{ projectRows }}" as="p" hint-placeholder-count="3">
             <sc-if value="{{ p.groupHead }}" hint-placeholder-val="{{ true }}">
-              <div style="padding:14px 16px 8px;border-bottom:1px solid var(--t-rule);font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted)">{{ p.groupLabel }}</div>
+              <div style="padding:10px 20px 8px;font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted)">{{ p.groupLabel }}</div>
             </sc-if>
-            <button onClick="{{ p.edit }}" style="width:100%;text-align:left;border:0;border-bottom:1px solid var(--t-rule);background:transparent;cursor:pointer;padding:14px 16px;opacity:{{ p.rowOpacity }};font-family:'Archivo',sans-serif">
-              <div style="display:flex;align-items:center;gap:8px">
-                <span style="width:10px;height:10px;background:{{ p.color }};flex:none"></span>
-                <span style="flex:1;font:700 15px/1.2 'Archivo',sans-serif">{{ p.name }}</span>
-                <span style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">{{ p.statusLabel }}</span>
-                <span style="font:600 12px/1 'Archivo',sans-serif;color:{{ p.rateColor }};font-variant-numeric:tabular-nums">{{ p.rate }}</span>
-              </div>
-              <div style="height:10px"></div>
-              <div style="display:flex;gap:18px;font:500 11.5px/1 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums">
-                <span>{{ p.week }} this week</span>
-                <span>{{ p.total }} total</span>
-                <span style="color:var(--tempo-accent-deep)">{{ p.unbilled }}</span>
-              </div>
-              <div style="height:4px;background:{{ p.barBg }};margin-top:10px">
-                <div style="height:4px;width:{{ p.pct }};background:{{ p.color }}"></div>
-              </div>
-              <div style="font:400 10.5px/1 'Archivo',sans-serif;color:var(--t-muted);margin-top:6px">{{ p.budget }}</div>
-            </button>
+            <div style="margin:0 16px 12px;border-radius:20px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,0.08)">
+              <button onClick="{{ p.edit }}" style="width:100%;text-align:left;border:0;background:transparent;cursor:pointer;padding:18px;opacity:{{ p.rowOpacity }};font-family:'Archivo',sans-serif;transition:background 0.15s ease">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="width:10px;height:10px;border-radius:999px;background:{{ p.color }};flex:none"></span>
+                  <span style="flex:1;font:700 15px/1.2 'Archivo',sans-serif">{{ p.name }}</span>
+                  <span style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted);text-transform:uppercase">{{ p.statusLabel }}</span>
+                  <span style="font:700 12.5px/1 'Archivo',sans-serif;color:{{ p.rateColor }};font-variant-numeric:tabular-nums">{{ p.rate }}</span>
+                </div>
+                <div style="display:flex;gap:18px;font:500 12px/1 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums;margin-top:12px">
+                  <span>{{ p.week }} this week</span>
+                  <span>{{ p.total }} total</span>
+                  <span style="color:var(--tempo-accent-deep);font-weight:700">{{ p.unbilled }}</span>
+                </div>
+                <div style="height:6px;background:{{ p.barBg }};margin-top:12px;border-radius:999px;overflow:hidden">
+                  <div style="height:6px;width:{{ p.pct }};background:{{ p.color }};border-radius:999px"></div>
+                </div>
+                <div style="font:400 11px/1 'Archivo',sans-serif;color:var(--t-muted);margin-top:8px">{{ p.budget }}</div>
+              </button>
+            </div>
           </sc-for>
           <sc-if value="{{ noProjects }}" hint-placeholder-val="{{ false }}">
-            <div style="margin:16px;border:2px dashed var(--t-rule);padding:20px 16px">
+            <div style="margin:0 16px 14px;border-radius:16px;border:2px dashed var(--t-rule2);padding:20px 16px">
               <div style="font:800 15px/1.2 'Archivo',sans-serif;margin-bottom:8px">No projects yet</div>
               <div style="font:400 12.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">A project holds the client, the hourly rate and the colour your entries carry. Add the one you're working on right now.</div>
             </div>
           </sc-if>
         </div>
-        <button class="btn btn-primary" onClick="{{ openProject }}" style="border-radius:0;border:0;border-top:2px solid var(--t-ink);justify-content:flex-start;font:800 14px/1 'Archivo',sans-serif;letter-spacing:.06em;padding:15px 16px">+ NEW PROJECT</button>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px max(20px, env(safe-area-inset-bottom, 20px));background:linear-gradient(to top, var(--t-bg) 60%, transparent);display:flex;justify-content:center;pointer-events:none">
+          <button class="btn btn-primary" onClick="{{ openProject }}" style="pointer-events:auto;border-radius:999px;border:0;justify-content:center;font:800 13px/1 'Archivo',sans-serif;letter-spacing:.08em;padding:15px 24px;box-shadow:0 8px 24px rgba(0,0,0,0.22)">+ NEW PROJECT</button>
+        </div>
       </div>
     </sc-if>
 
@@ -387,121 +537,128 @@
               <span style="display:block;font:600 10.5px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted);margin-top:6px">{{ rangeSub }}</span>
             </span>
             <span style="display:flex;gap:8px">
-              <button onClick="{{ rangePrev }}" aria-label="Previous range" title="Previous range" style="width:32px;height:32px;border:2px solid var(--t-rule);background:transparent;cursor:pointer;font:700 14px/1 'Archivo',sans-serif">‹</button>
-              <button onClick="{{ rangeNext }}" aria-label="Next range" title="Next range" style="width:32px;height:32px;border:2px solid var(--t-rule);background:transparent;cursor:pointer;font:700 14px/1 'Archivo',sans-serif">›</button>
+              <button class="btn btn-secondary btn-icon" onClick="{{ rangePrev }}" aria-label="Previous range" title="Previous range" style="width:32px;height:32px;border-radius:10px;padding:0;justify-content:center">‹</button>
+              <button class="btn btn-secondary btn-icon" onClick="{{ rangeNext }}" aria-label="Next range" title="Next range" style="width:32px;height:32px;border-radius:10px;padding:0;justify-content:center">›</button>
             </span>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr)">
+          <div style="margin:16px 16px 12px;background:rgba(120,120,120,0.08);border-radius:12px;padding:4px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px">
             <sc-for list="{{ presets }}" as="p" hint-placeholder-count="3">
-              <button onClick="{{ p.pick }}" style="padding:11px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ p.bg }};color:{{ p.fg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase">{{ p.label }}</button>
+              <button onClick="{{ p.pick }}" style="padding:10px 0;border:0;border-radius:10px;background:{{ p.bg }};color:{{ p.fg }};cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;box-shadow:{{ p.shadow }};transition:all 0.2s cubic-bezier(0.16,1,0.3,1)">{{ p.label }}</button>
             </sc-for>
           </div>
-          <div style="display:flex;border-top:1px solid var(--t-rule)">
-            <button onClick="{{ openCalFrom }}" style="flex:1;text-align:left;padding:12px 14px 14px;border:0;border-right:2px solid var(--t-rule);background:{{ fromFieldBg }};cursor:pointer">
-              <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:7px">Starts</span>
-              <span style="display:block;font:700 15.5px/1.1 'Archivo',sans-serif;color:var(--t-ink)">{{ fromPretty }}</span>
+          <div style="margin:0 16px 12px;border-radius:14px;border:1px solid var(--t-rule2);background:var(--t-field);display:flex;gap:4px;padding:4px">
+            <button onClick="{{ openCalFrom }}" style="flex:1;text-align:center;padding:10px 4px;border:0;border-radius:10px;background:{{ fromFieldBg }};cursor:pointer;transition:background 0.15s ease">
+              <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:5px">Starts</span>
+              <span style="display:block;font:700 13px/1.1 'Archivo',sans-serif;color:var(--t-ink)">{{ fromPretty }}</span>
             </button>
-            <button onClick="{{ openCalTo }}" style="flex:1;text-align:left;padding:12px 14px 14px;border:0;border-right:2px solid var(--t-rule);background:{{ toFieldBg }};cursor:pointer">
-              <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:7px">Ends</span>
-              <span style="display:block;font:700 15.5px/1.1 'Archivo',sans-serif;color:var(--t-ink)">{{ toPretty }}</span>
+            <button onClick="{{ openCalTo }}" style="flex:1;text-align:center;padding:10px 4px;border:0;border-radius:10px;background:{{ toFieldBg }};cursor:pointer;transition:background 0.15s ease">
+              <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:5px">Ends</span>
+              <span style="display:block;font:700 13px/1.1 'Archivo',sans-serif;color:var(--t-ink)">{{ toPretty }}</span>
             </button>
-            <button onClick="{{ openScope }}" style="flex:1.2;min-width:0;text-align:left;padding:12px 14px 14px;border:0;background:var(--t-field);cursor:pointer">
-              <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:7px">Scope ▾</span>
-              <span style="display:block;font:700 13.5px/1.15 'Archivo',sans-serif;color:var(--t-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ scopeLabel }}</span>
+            <button onClick="{{ openScope }}" style="flex:1.2;min-width:0;text-align:center;padding:10px 4px;border:0;border-radius:10px;background:transparent;cursor:pointer">
+              <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:5px">Scope ▾</span>
+              <span style="display:block;font:700 13px/1.1 'Archivo',sans-serif;color:var(--t-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ scopeLabel }}</span>
             </button>
           </div>
         </div>
 
-        <div style="flex:1;overflow-y:auto">
-          <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="flex:1;overflow-y:auto;padding-bottom:12px">
+          <!-- Sleek Metric Tiles Grid -->
+          <div style="margin:14px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);box-shadow:0 6px 20px rgba(0,0,0,0.06);display:grid;grid-template-columns:1fr 1fr;overflow:hidden">
             <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="6">
-              <div style="padding:16px;border-right:1px solid var(--t-rule);border-bottom:1px solid var(--t-rule)">
-                <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">{{ t.label }}</div>
-                <div style="font:800 22px/1 'Archivo',sans-serif;letter-spacing:-.03em;margin-top:6px;font-variant-numeric:tabular-nums;color:{{ t.color }}">{{ t.value }}</div>
+              <div style="padding:16px;border-right:1px solid var(--t-rule2);border-bottom:1px solid var(--t-rule2)">
+                <div style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">{{ t.label }}</div>
+                <div style="font:800 22px/1 'Archivo',sans-serif;letter-spacing:-.03em;margin-top:8px;font-variant-numeric:tabular-nums;color:{{ t.color }}">{{ t.value }}</div>
               </div>
             </sc-for>
           </div>
 
+          <!-- Goal Progress Gauge Card -->
           <sc-if value="{{ showGoals }}" hint-placeholder-val="{{ true }}">
-            <div style="padding:16px;border-bottom:1px solid var(--t-rule)">
-              <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:12px">Goals this cycle</div>
-              <div style="display:flex;justify-content:space-between;font:600 11.5px/1 'Archivo',sans-serif;margin-bottom:5px"><span>Hours</span><span style="font-variant-numeric:tabular-nums">{{ goalHoursLabel }}</span></div>
-              <div style="height:6px;background:var(--t-track);margin-bottom:12px"><div style="height:6px;width:{{ goalHoursPct }};background:var(--t-ink)"></div></div>
+            <div style="margin:0 16px 14px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);padding:16px;box-shadow:0 6px 20px rgba(0,0,0,0.06)">
+              <div style="font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:14px">Cycle Goals</div>
+              <div style="display:flex;justify-content:space-between;font:700 12px/1 'Archivo',sans-serif;margin-bottom:6px"><span>Hours</span><span style="font-variant-numeric:tabular-nums">{{ goalHoursLabel }}</span></div>
+              <div style="height:8px;background:var(--t-track);margin-bottom:14px;border-radius:999px;overflow:hidden"><div style="height:8px;width:{{ goalHoursPct }};background:var(--t-ink);border-radius:999px"></div></div>
               <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
-                <div style="display:flex;justify-content:space-between;font:600 11.5px/1 'Archivo',sans-serif;margin-bottom:5px"><span>Income</span><span style="font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ goalIncomeLabel }}</span></div>
-                <div style="height:6px;background:var(--t-track)"><div style="height:6px;width:{{ goalIncomePct }};background:var(--tempo-accent)"></div></div>
+                <div style="display:flex;justify-content:space-between;font:700 12px/1 'Archivo',sans-serif;margin-bottom:6px"><span>Income</span><span style="font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ goalIncomeLabel }}</span></div>
+                <div style="height:8px;background:var(--t-track);border-radius:999px;overflow:hidden"><div style="height:8px;width:{{ goalIncomePct }};background:var(--tempo-accent);border-radius:999px"></div></div>
               </sc-if>
             </div>
           </sc-if>
 
           <sc-if value="{{ historyLocked }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ openPaywall }}" style="width:100%;text-align:left;border:0;border-bottom:1px solid var(--t-rule);background:var(--tempo-accent-wash);padding:12px 16px;cursor:pointer;font:600 11.5px/1.4 'Archivo',sans-serif;color:var(--tempo-accent-deep)">{{ historyLockedText }} Unlock Pro for full history →</button>
+            <button onClick="{{ openPaywall }}" style="width:calc(100% - 32px);margin:0 16px 14px;box-sizing:border-box;text-align:left;border:1px solid var(--tempo-accent);border-radius:14px;background:var(--tempo-accent-wash);padding:14px 16px;cursor:pointer;font:700 12px/1.4 'Archivo',sans-serif;color:var(--tempo-accent-deep)">{{ historyLockedText }} Unlock Pro for full history →</button>
           </sc-if>
           <sc-if value="{{ noRangeEntries }}" hint-placeholder-val="{{ false }}">
-            <div style="margin:16px;border:2px dashed var(--t-rule);padding:20px 16px">
+            <div style="margin:0 16px 14px;border-radius:16px;border:2px dashed var(--t-rule2);padding:20px 16px">
               <div style="font:800 15px/1.2 'Archivo',sans-serif;margin-bottom:8px">Nothing in this window</div>
               <div style="font:400 12.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">No time matches this range and scope. Widen the dates, or switch the scope back to All work.</div>
             </div>
           </sc-if>
 
-          <div style="padding:16px;border-bottom:1px solid var(--t-rule)">
-            <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:14px">{{ chartCaption }} · {{ rangeSub }}</div>
+          <!-- Modern Analytics Chart Card -->
+          <div style="margin:0 16px 14px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);padding:18px;box-shadow:0 6px 20px rgba(0,0,0,0.06)">
+            <div style="font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);margin-bottom:16px">{{ chartCaption }} · {{ rangeSub }}</div>
             <div style="display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;align-items:end;height:120px">
               <sc-for list="{{ bars }}" as="b" hint-placeholder-count="7">
                 <div style="display:flex;flex-direction:column;justify-content:flex-end;height:120px">
-                  <div style="font:600 9.5px/1 'Archivo',sans-serif;text-align:center;margin-bottom:4px;color:var(--t-muted);font-variant-numeric:tabular-nums">{{ b.value }}</div>
-                  <div style="height:{{ b.h }};background:{{ b.color }}"></div>
+                  <div style="font:700 10px/1 'Archivo',sans-serif;text-align:center;margin-bottom:6px;color:var(--t-muted);font-variant-numeric:tabular-nums">{{ b.value }}</div>
+                  <div style="height:{{ b.h }};background:{{ b.color }};border-radius:6px 6px 0 0"></div>
                 </div>
               </sc-for>
             </div>
-            <div style="display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;border-top:2px solid var(--t-ink);padding-top:6px;margin-top:4px">
+            <div style="display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;border-top:1px solid var(--t-rule2);padding-top:8px;margin-top:6px">
               <sc-for list="{{ bars }}" as="b" hint-placeholder-count="7">
-                <div style="text-align:center;font:700 10px/1 'Archivo',sans-serif;color:var(--t-muted)">{{ b.label }}</div>
+                <div style="text-align:center;font:700 10.5px/1 'Archivo',sans-serif;color:var(--t-muted)">{{ b.label }}</div>
               </sc-for>
             </div>
           </div>
 
           <sc-if value="{{ showFieldDoor }}" hint-placeholder-val="{{ false }}">
-            <div style="margin:16px;border:2px solid var(--t-ink);padding:14px;position:relative">
-              <button onClick="{{ fieldDismiss }}" aria-label="Dismiss" style="position:absolute;top:8px;right:8px;border:0;background:transparent;cursor:pointer;font:700 12px/1 'Archivo',sans-serif;color:var(--t-faint);padding:4px 6px">✕</button>
+            <div style="margin:0 16px 14px;border-radius:16px;border:2px solid var(--t-rule2);background:var(--t-field);padding:16px;position:relative">
+              <button onClick="{{ fieldDismiss }}" aria-label="Dismiss" style="position:absolute;top:10px;right:10px;border:0;background:transparent;cursor:pointer;font:700 12px/1 'Archivo',sans-serif;color:var(--t-faint);padding:4px 6px">✕</button>
               <div style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent)">Coming to Pro</div>
               <div style="font:800 15px/1.25 'Archivo',sans-serif;margin:8px 0 6px">Automatic site visits &amp; mileage</div>
               <div style="font:400 12px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin-bottom:12px">Arrive at a client site, leave — Tempo proposes the visit, travel time and miles. No timers, no surveillance, fully on your device.</div>
-              <button onClick="{{ fieldNotify }}" style="padding:11px 14px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">NOTIFY ME WHEN IT LAUNCHES</button>
+              <button onClick="{{ fieldNotify }}" style="padding:11px 14px;border:0;border-radius:12px;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">NOTIFY ME WHEN IT LAUNCHES</button>
             </div>
           </sc-if>
-          <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);padding:16px 16px 10px">By project — tap for detail</div>
-          <sc-for list="{{ reportRows }}" as="r" hint-placeholder-count="3">
-            <button onClick="{{ r.open }}" style="width:100%;padding:12px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
-              <span style="display:flex;align-items:center;gap:9px">
-                <span style="width:8px;height:8px;background:{{ r.color }};flex:none"></span>
-                <span style="flex:1;font:600 13.5px/1.2 'Archivo',sans-serif">{{ r.name }}</span>
-                <span style="font:600 12.5px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums">{{ r.hours }}</span>
-                <span style="font:700 12.5px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep);width:54px;text-align:right">{{ r.money }}</span>
-                <span style="font:700 14px/1 'Archivo',sans-serif;color:var(--t-muted)">›</span>
-              </span>
-              <span style="display:block;height:4px;background:var(--t-track);margin-top:9px">
-                <span style="display:block;height:4px;width:{{ r.barW }};background:{{ r.color }}"></span>
-              </span>
-              <span style="display:block;font:400 10.5px/1 'Archivo',sans-serif;color:var(--t-muted);margin-top:5px">{{ r.share }} of tracked time</span>
-            </button>
-          </sc-for>
+
+          <!-- Project Breakdown Card Container -->
+          <div style="font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted);padding:8px 20px 8px">By project — tap for detail</div>
+          <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.06)">
+            <sc-for list="{{ reportRows }}" as="r" hint-placeholder-count="3">
+              <button onClick="{{ r.open }}" style="width:100%;padding:14px 16px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+                <span style="display:flex;align-items:center;gap:10px">
+                  <span style="width:10px;height:10px;border-radius:999px;background:{{ r.color }};flex:none"></span>
+                  <span style="flex:1;font:700 14px/1.2 'Archivo',sans-serif">{{ r.name }}</span>
+                  <span style="font:700 13px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:var(--t-ink)">{{ r.hours }}</span>
+                  <span style="font:800 13px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep);width:60px;text-align:right">{{ r.money }}</span>
+                  <span style="font:700 14px/1 'Archivo',sans-serif;color:var(--t-muted)">›</span>
+                </span>
+                <span style="display:block;height:6px;background:var(--t-track);margin-top:10px;border-radius:999px;overflow:hidden">
+                  <span style="display:block;height:6px;width:{{ r.barW }};background:{{ r.color }};border-radius:999px"></span>
+                </span>
+                <span style="display:block;font:400 11px/1 'Archivo',sans-serif;color:var(--t-muted);margin-top:6px">{{ r.share }} of tracked time</span>
+              </button>
+            </sc-for>
+          </div>
         </div>
 
-        <div style="border-top:2px solid var(--t-ink);flex:none">
-          <div style="display:flex">
-            <button onClick="{{ openDoc }}" style="flex:1;padding:14px 16px;border:0;border-right:2px solid var(--t-ink);background:var(--t-ink);color:var(--t-bg);cursor:pointer;text-align:left;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.05em">TIME REPORT</button>
-            <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
-              <button onClick="{{ openInvoice }}" style="flex:1;padding:14px 16px;border:0;border-right:2px solid var(--t-ink);background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.05em">{{ invoiceBtnLabel }}</button>
-            </sc-if>
-            <button onClick="{{ toggleReportMore }}" aria-label="More export options" style="width:46px;padding:14px 0;border:0;background:transparent;cursor:pointer;font:700 13px/1 'Archivo',sans-serif;color:var(--t-muted)">{{ reportMoreCaret }}</button>
-          </div>
+        <div style="padding:10px 16px max(10px, env(safe-area-inset-bottom, 10px));border-top:1px solid var(--t-rule2);flex:none;background:var(--t-bg)">
           <sc-if value="{{ reportMoreOpen }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;border-top:1px solid var(--t-rule)">
-              <button onClick="{{ exportCsv }}" style="flex:1;padding:12px 16px;border:0;border-right:2px solid var(--t-ink);background:transparent;cursor:pointer;text-align:left;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">CSV</button>
-              <button onClick="{{ emailReport }}" style="flex:1;padding:12px 16px;border:0;background:transparent;cursor:pointer;text-align:left;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">EMAIL SUMMARY</button>
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <button onClick="{{ exportCsv }}" style="flex:1;padding:10px;border:1px solid var(--t-rule2);border-radius:12px;background:var(--t-field);cursor:pointer;text-align:center;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.06em;color:var(--t-ink)">CSV DATA</button>
+              <button onClick="{{ emailReport }}" style="flex:1;padding:10px;border:1px solid var(--t-rule2);border-radius:12px;background:var(--t-field);cursor:pointer;text-align:center;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.06em;color:var(--t-ink)">EMAIL SUMMARY</button>
             </div>
           </sc-if>
+          <div style="display:flex;gap:8px">
+            <button onClick="{{ openDoc }}" style="flex:1;padding:12px 14px;border:0;border-radius:14px;background:var(--t-ink);color:var(--t-onink);cursor:pointer;text-align:center;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.06em;box-shadow:0 4px 12px rgba(0,0,0,0.1)">TIME REPORT</button>
+            <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ openInvoice }}" style="flex:1;padding:12px 14px;border:0;border-radius:14px;background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:center;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.06em;box-shadow:0 4px 12px rgba(236,48,19,0.2)">{{ invoiceBtnLabel }}</button>
+            </sc-if>
+            <button onClick="{{ toggleReportMore }}" aria-label="More export options" style="width:40px;padding:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);cursor:pointer;font:700 13px/1 'Archivo',sans-serif;color:var(--t-ink)">{{ reportMoreCaret }}</button>
+          </div>
         </div>
       </div>
     </sc-if>
@@ -704,68 +861,68 @@
 
     <!-- TIME REPORT PREVIEW -->
     <sc-if value="{{ sheetDocOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:17;background:var(--t-ink);display:flex;flex-direction:column">
-        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-bg);flex:none">
+      <div style="position:absolute;inset:0;z-index:17;background:var(--t-bg);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;border-bottom:2px solid var(--t-ink);flex:none">
           <span>
-            <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-faint)">Time report — no prices unless you show them</span>
-            <span style="display:block;font:800 18px/1 'Archivo',sans-serif;letter-spacing:-.02em;margin-top:6px;color:var(--t-bg)">{{ rangeTitle }}</span>
+            <span style="display:block;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent)">Time report</span>
+            <span style="display:block;font:800 18px/1 'Archivo',sans-serif;letter-spacing:-.02em;margin-top:6px;color:var(--t-ink)">{{ rangeTitle }}</span>
           </span>
-          <button onClick="{{ closeDoc }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-faint)">CLOSE</button>
+          <button onClick="{{ closeDoc }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CLOSE</button>
         </div>
-        <div style="flex:1;overflow:auto;padding:16px;display:flex;justify-content:center;align-items:flex-start">
-          <div style="width:816px;height:1056px;background:#fff;flex:none;transform:scale(0.43);transform-origin:top center;box-shadow:0 12px 32px rgba(0,0,0,.4)">
+        <div style="flex:1;overflow:auto;padding:20px;display:flex;justify-content:center;align-items:flex-start;background:var(--t-bar)">
+          <div style="width:816px;height:1056px;background:#fff;flex:none;transform:scale(0.44);transform-origin:top center;box-shadow:0 20px 50px rgba(0,0,0,.35);border-radius:8px;overflow:hidden">
             <iframe srcDoc="{{ docSrc }}" title="Time report preview" style="width:816px;height:1056px;border:0;background:#fff"></iframe>
           </div>
         </div>
-        <div style="display:flex;border-top:2px solid var(--t-bg);flex:none">
-          <button onClick="{{ printDoc }}" style="flex:1;padding:14px 16px;border:0;border-right:2px solid var(--t-bg);background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:left;font:800 13px/1 'Archivo',sans-serif;letter-spacing:.06em">PRINT / SAVE AS PDF</button>
-          <button onClick="{{ downloadDoc }}" style="width:100px;padding:17px 12px;border:0;border-right:2px solid var(--t-bg);background:transparent;color:var(--t-bg);cursor:pointer;text-align:left;font:700 12px/1 'Archivo',sans-serif;letter-spacing:.06em">HTML</button>
-          <button onClick="{{ exportCsv }}" style="width:74px;padding:17px 12px;border:0;background:transparent;color:var(--t-bg);cursor:pointer;text-align:left;font:700 12px/1 'Archivo',sans-serif;letter-spacing:.06em">CSV</button>
+        <div style="display:flex;gap:8px;padding:12px 16px;border-top:2px solid var(--t-ink);background:var(--t-bg);flex:none">
+          <button onClick="{{ printDoc }}" style="flex:1;padding:14px 18px;border:0;border-radius:14px;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 13.5px/1 'Archivo',sans-serif;letter-spacing:.06em;box-shadow:0 6px 20px rgba(0,0,0,0.18)">PRINT / SAVE AS PDF</button>
+          <button onClick="{{ downloadDoc }}" style="padding:14px 16px;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);color:var(--t-ink);cursor:pointer;font:700 12px/1 'Archivo',sans-serif;letter-spacing:.06em">HTML</button>
+          <button onClick="{{ exportCsv }}" style="padding:14px 16px;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);color:var(--t-ink);cursor:pointer;font:700 12px/1 'Archivo',sans-serif;letter-spacing:.06em">CSV</button>
         </div>
       </div>
     </sc-if>
 
     <!-- TRACK PROJECT PICKER -->
     <sc-if value="{{ trackPickerOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:13;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim)">
+      <div style="position:absolute;inset:0;z-index:13;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
         <div onClick="{{ closeTrackPicker }}" style="flex:1"></div>
-        <div style="background:var(--t-bg);border-top:2px solid var(--t-ink);max-height:80%;display:flex;flex-direction:column">
-          <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:2px solid var(--t-ink);flex:none">
-            <input value="{{ projQuery }}" onInput="{{ onProjQuery }}" placeholder="Search projects or clients…" style="flex:1;border:0;background:transparent;font:600 14px/1.2 'Archivo',sans-serif;color:var(--t-ink);outline:none">
-            <button onClick="{{ closeTrackPicker }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CLOSE</button>
+        <div style="background:var(--t-bg);border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid var(--t-rule2);padding:10px 0 20px;max-height:80%;display:flex;flex-direction:column;box-shadow:0 -16px 50px rgba(0,0,0,0.4)">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 16px 14px;border-bottom:1px solid var(--t-rule2);flex:none">
+            <input value="{{ projQuery }}" onInput="{{ onProjQuery }}" placeholder="Search projects or clients…" style="flex:1;border:0;background:transparent;font:600 15px/1.2 'Archivo',sans-serif;color:var(--t-ink);outline:none">
+            <button class="btn btn-ghost" onClick="{{ closeTrackPicker }}" style="border:0;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;padding:6px 10px;border-radius:999px">CLOSE</button>
           </div>
           <div style="flex:1;overflow-y:auto">
             <sc-for list="{{ trackProjects }}" as="p" hint-placeholder-count="3">
-              <button onClick="{{ p.pick }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:13px 16px;border:0;border-bottom:1px solid var(--t-rule);background:{{ p.bg }};cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
-                <span style="width:9px;height:9px;background:{{ p.color }};flex:none"></span>
+              <button onClick="{{ p.pick }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:13px 16px;border:0;border-bottom:1px solid var(--t-rule2);background:{{ p.bg }};cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+                <span style="width:10px;height:10px;border-radius:999px;background:{{ p.color }};flex:none"></span>
                 <span style="flex:1;min-width:0">
-                  <span style="display:block;font:600 13.5px/1.3 'Archivo',sans-serif">{{ p.name }}</span>
-                  <span style="display:block;font:400 11px/1.3 'Archivo',sans-serif;color:var(--t-muted)">{{ p.client }}</span>
+                  <span style="display:block;font:700 14px/1.3 'Archivo',sans-serif">{{ p.name }}</span>
+                  <span style="display:block;font:500 11px/1.3 'Archivo',sans-serif;color:var(--t-muted)">{{ p.client }}</span>
                 </span>
                 <span style="font:700 11px/1 'Archivo',sans-serif;color:var(--tempo-accent)">{{ p.check }}</span>
               </button>
             </sc-for>
           </div>
-          <button onClick="{{ newProjectFromTrack }}" style="padding:15px 16px;border:0;border-top:2px solid var(--t-ink);background:transparent;cursor:pointer;text-align:left;font:700 12px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--tempo-accent-deep);flex:none">+ NEW PROJECT</button>
+          <button onClick="{{ newProjectFromTrack }}" style="padding:15px 16px;border:0;border-top:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--tempo-accent-deep);flex:none">+ NEW PROJECT</button>
         </div>
       </div>
     </sc-if>
 
     <!-- SCOPE PICKER -->
     <sc-if value="{{ scopeOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:12;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim)">
+      <div style="position:absolute;inset:0;z-index:12;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
         <div onClick="{{ closeScope }}" style="flex:1"></div>
-        <div style="background:var(--t-bg);border-top:2px solid var(--t-ink);max-height:80%;overflow-y:auto">
-          <div style="display:flex;align-items:baseline;justify-content:space-between;padding:16px 16px 12px;border-bottom:2px solid var(--t-ink)">
+        <div style="background:var(--t-bg);border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid var(--t-rule2);padding:10px 0 20px;max-height:80%;overflow-y:auto;box-shadow:0 -16px 50px rgba(0,0,0,0.4)">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;padding:10px 16px 12px;border-bottom:1px solid var(--t-rule2)">
             <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.01em">Report on</span>
-            <button onClick="{{ closeScope }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CLOSE</button>
+            <button class="btn btn-ghost" onClick="{{ closeScope }}" style="border:0;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;padding:6px 10px;border-radius:999px">CLOSE</button>
           </div>
           <sc-for list="{{ scopeOpts }}" as="o" hint-placeholder-count="5">
-            <button onClick="{{ o.pick }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:13px 16px;border:0;border-bottom:1px solid var(--t-rule);background:{{ o.bg }};cursor:pointer;text-align:left">
-              <span style="width:8px;height:8px;background:{{ o.color }};flex:none"></span>
+            <button onClick="{{ o.pick }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:13px 16px;border:0;border-bottom:1px solid var(--t-rule2);background:{{ o.bg }};cursor:pointer;text-align:left">
+              <span style="width:10px;height:10px;border-radius:999px;background:{{ o.color }};flex:none"></span>
               <span style="flex:1;min-width:0">
-                <span style="display:block;font:600 13.5px/1.3 'Archivo',sans-serif">{{ o.label }}</span>
-                <span style="display:block;font:400 11px/1.3 'Archivo',sans-serif;color:var(--t-muted)">{{ o.hint }}</span>
+                <span style="display:block;font:700 14px/1.3 'Archivo',sans-serif">{{ o.label }}</span>
+                <span style="display:block;font:500 11px/1.3 'Archivo',sans-serif;color:var(--t-muted)">{{ o.hint }}</span>
               </span>
               <span style="font:700 11px/1 'Archivo',sans-serif;color:var(--tempo-accent)">{{ o.check }}</span>
             </button>
@@ -776,32 +933,32 @@
 
     <!-- CALENDAR -->
     <sc-if value="{{ calOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:14;display:flex;flex-direction:column;justify-content:center;padding:20px;background:var(--t-scrim)">
+      <div style="position:absolute;inset:0;z-index:14;display:flex;flex-direction:column;justify-content:center;padding:20px;background:var(--t-scrim);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
         <div onClick="{{ closeCal }}" style="position:absolute;inset:0"></div>
-        <div style="position:relative;background:var(--t-bg);border:2px solid var(--t-ink);box-shadow:0 12px 32px rgba(45,43,43,.28)">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 14px 12px;border-bottom:2px solid var(--t-ink)">
+        <div style="position:relative;background:var(--t-bg);border:1px solid var(--t-rule2);border-radius:24px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.2)">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 14px;border-bottom:1px solid var(--t-rule2)">
             <span>
-              <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--tempo-accent)">{{ calFieldLabel }}</span>
-              <span style="display:block;font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em;margin-top:6px">{{ calTitle }}</span>
+              <span style="display:block;font:800 11px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--tempo-accent)">{{ calFieldLabel }}</span>
+              <span style="display:block;font:800 20px/1 'Archivo',sans-serif;letter-spacing:-.02em;margin-top:6px;color:var(--t-ink)">{{ calTitle }}</span>
             </span>
             <span style="display:flex;gap:8px">
-              <button onClick="{{ calPrev }}" aria-label="Previous month" title="Previous month" style="width:30px;height:30px;border:2px solid var(--t-rule);background:transparent;cursor:pointer;font:700 14px/1 'Archivo',sans-serif">‹</button>
-              <button onClick="{{ calNext }}" aria-label="Next month" title="Next month" style="width:30px;height:30px;border:2px solid var(--t-rule);background:transparent;cursor:pointer;font:700 14px/1 'Archivo',sans-serif">›</button>
+              <button onClick="{{ calPrev }}" aria-label="Previous month" title="Previous month" style="width:36px;height:36px;border:1px solid var(--t-rule2);border-radius:12px;background:var(--t-field);cursor:pointer;font:700 14px/1 'Archivo',sans-serif;display:flex;align-items:center;justify-content:center;color:var(--t-ink)">‹</button>
+              <button onClick="{{ calNext }}" aria-label="Next month" title="Next month" style="width:36px;height:36px;border:1px solid var(--t-rule2);border-radius:12px;background:var(--t-field);cursor:pointer;font:700 14px/1 'Archivo',sans-serif;display:flex;align-items:center;justify-content:center;color:var(--t-ink)">›</button>
             </span>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--t-rule)">
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);padding:10px 10px 4px">
             <sc-for list="{{ calWeekdays }}" as="w" hint-placeholder-count="7">
-              <div style="padding:8px 0;text-align:center;font:700 9.5px/1 'Archivo',sans-serif;color:var(--t-muted)">{{ w.label }}</div>
+              <div style="text-align:center;font:800 10.5px/1 'Archivo',sans-serif;color:var(--t-muted)">{{ w.label }}</div>
             </sc-for>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(7,1fr)">
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 10px 12px">
             <sc-for list="{{ calCells }}" as="c" hint-placeholder-count="35">
-              <button onClick="{{ c.pick }}" style="height:40px;border:0;border-right:1px solid var(--t-track);border-bottom:1px solid var(--t-track);background:{{ c.bg }};color:{{ c.fg }};cursor:pointer;font:{{ c.font }};font-variant-numeric:tabular-nums">{{ c.label }}</button>
+              <button onClick="{{ c.pick }}" style="height:40px;border:0;border-radius:12px;background:{{ c.bg }};color:{{ c.fg }};cursor:pointer;font:{{ c.font }};font-variant-numeric:tabular-nums;transition:background 0.15s ease">{{ c.label }}</button>
             </sc-for>
           </div>
-          <div style="display:flex;border-top:2px solid var(--t-ink)">
-            <button onClick="{{ calToday }}" style="flex:1;padding:13px 14px;border:0;border-right:2px solid var(--t-ink);background:transparent;cursor:pointer;text-align:left;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">TODAY</button>
-            <button onClick="{{ closeCal }}" style="flex:1;padding:13px 14px;border:0;background:var(--t-ink);color:var(--t-bg);cursor:pointer;text-align:left;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">DONE</button>
+          <div style="display:flex;gap:12px;padding:12px 20px 20px">
+            <button onClick="{{ calToday }}" style="flex:1;padding:14px;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);color:var(--t-ink);cursor:pointer;text-align:center;font:800 12.5px/1 'Archivo',sans-serif;letter-spacing:.06em">TODAY</button>
+            <button onClick="{{ closeCal }}" style="flex:1;padding:14px;border:0;border-radius:14px;background:var(--t-ink);color:var(--t-onink);cursor:pointer;text-align:center;font:800 12.5px/1 'Archivo',sans-serif;letter-spacing:.06em;box-shadow:0 4px 12px rgba(0,0,0,0.1)">DONE</button>
           </div>
         </div>
       </div>
@@ -810,35 +967,37 @@
     <!-- SETTINGS -->
     <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <div style="display:flex;align-items:center;gap:12px;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:2px solid var(--t-ink)">
+        <div style="display:flex;align-items:center;gap:12px;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:1px solid var(--t-rule2)">
           <sc-if value="{{ paneOpen }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ closePane }}" aria-label="Back to settings" style="border:0;background:transparent;cursor:pointer;padding:0;font:700 16px/1 'Archivo',sans-serif">‹</button>
+            <button onClick="{{ closePane }}" aria-label="Back to settings" style="border:0;background:transparent;cursor:pointer;padding:0;font:700 16px/1 'Archivo',sans-serif;color:var(--t-ink)">‹</button>
           </sc-if>
           <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em">{{ paneTitle }}</span>
         </div>
         <div style="flex:1;overflow-y:auto">
 
           <sc-if value="{{ paneMenu }}" hint-placeholder-val="{{ true }}">
-            <div>
-              <sc-for list="{{ settingsMenu }}" as="m" hint-placeholder-count="5">
-                <button onClick="{{ m.open }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:15px 16px;border:0;border-bottom:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
-                  <span style="flex:1">
-                    <span style="display:block;font:700 14px/1.2 'Archivo',sans-serif">{{ m.label }}</span>
-                    <span style="display:block;font:400 11.5px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:3px">{{ m.hint }}</span>
-                  </span>
-                  <span style="font:700 15px/1 'Archivo',sans-serif;color:var(--t-muted)">›</span>
-                </button>
-              </sc-for>
-              <div style="padding:18px 16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Tempo keeps everything on this device. No account, no sync, no seats.</div>
+            <div style="padding-top:14px">
+              <div style="margin:0 16px 14px;border-radius:20px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,0.08)">
+                <sc-for list="{{ settingsMenu }}" as="m" hint-placeholder-count="5">
+                  <button onClick="{{ m.open }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:16px 20px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif;transition:background 0.15s ease">
+                    <span style="flex:1">
+                      <span style="display:block;font:800 14px/1.2 'Archivo',sans-serif;color:var(--t-ink)">{{ m.label }}</span>
+                      <span style="display:block;font:500 11.5px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:6px">{{ m.hint }}</span>
+                    </span>
+                    <span style="font:700 16px/1 'Archivo',sans-serif;color:var(--t-muted)">›</span>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="padding:4px 20px 20px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Tempo keeps everything on this device. No account, no sync, no seats.</div>
             </div>
           </sc-if>
 
           <sc-if value="{{ panePro }}" hint-placeholder-val="{{ false }}">
             <div>
-              <div style="padding:18px 16px 16px;border-bottom:2px solid var(--t-ink)">
+              <div style="padding:20px 20px 16px;border-bottom:1px solid var(--t-rule2)">
                 <div style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--tempo-accent)">Tempo Pro</div>
-                <div style="font:800 20px/1.15 'Archivo',sans-serif;letter-spacing:-.02em;margin:12px 0 8px">Track for free. Pay for getting paid.</div>
-                <div style="font:400 12.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Everything you need to record your hours is free and stays free. Pro is the billing half — invoices, payment tracking and unlimited history.</div>
+                <div style="font:800 24px/1.15 'Archivo',sans-serif;letter-spacing:-.02em;margin:12px 0 10px;color:var(--t-ink)">Track for free. Pay for getting paid.</div>
+                <div style="font:500 13px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Everything you need to record your hours is free and stays free. Pro is the billing half — invoices, payment tracking and unlimited history.</div>
               </div>
               <sc-for list="{{ proFeatures }}" as="f" hint-placeholder-count="8">
                 <div style="padding:14px 16px 16px;border-bottom:1px solid var(--t-rule)">
@@ -850,25 +1009,25 @@
                     <span style="flex:none;align-self:flex-start;padding:4px 7px;background:{{ f.badgeBg }};color:{{ f.badgeColor }};font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.1em">{{ f.badge }}</span>
                   </div>
 
-                  <div style="margin-top:11px;border:2px solid var(--t-rule);background:var(--t-bg);overflow:hidden">
+                  <div style="margin-top:14px;border-radius:12px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
                     <sc-if value="{{ f.isInvoice }}" hint-placeholder-val="{{ true }}">
                       <span style="display:block">
-                        <span style="display:flex;justify-content:space-between;align-items:baseline;padding:9px 11px;border-bottom:2px solid var(--t-ink)">
-                          <span style="font:800 13px/1 'Archivo',sans-serif">{{ proSample.no1 }}</span>
+                        <span style="display:flex;justify-content:space-between;align-items:baseline;padding:12px 14px;border-bottom:1px solid var(--t-rule2);background:var(--t-bg)">
+                          <span style="font:800 13px/1 'Archivo',sans-serif;color:var(--t-ink)">{{ proSample.no1 }}</span>
                           <span style="font:700 9px/1 'Archivo',sans-serif;letter-spacing:.12em;color:var(--t-muted)">INVOICE</span>
                         </span>
-                        <span style="display:flex;justify-content:space-between;padding:7px 11px;font:500 10.5px/1 'Archivo',sans-serif;color:var(--t-muted);border-bottom:1px solid var(--t-rule)"><span>{{ proSample.p1 }}</span><span>{{ proSample.rate }}</span></span>
-                        <span style="display:flex;justify-content:space-between;padding:7px 11px;font:500 10.5px/1 'Archivo',sans-serif;color:var(--t-muted);border-bottom:1px solid var(--t-rule)"><span>{{ proSample.p2 }}</span><span>{{ proSample.rate }}</span></span>
-                        <span style="display:flex;justify-content:space-between;padding:9px 11px;font:800 12.5px/1 'Archivo',sans-serif"><span>Total due</span><span style="color:var(--tempo-accent-deep)">{{ proSample.total }}</span></span>
+                        <span style="display:flex;justify-content:space-between;padding:10px 14px;font:500 11px/1 'Archivo',sans-serif;color:var(--t-muted);border-bottom:1px solid var(--t-rule2)"><span>{{ proSample.p1 }}</span><span>{{ proSample.rate }}</span></span>
+                        <span style="display:flex;justify-content:space-between;padding:10px 14px;font:500 11px/1 'Archivo',sans-serif;color:var(--t-muted);border-bottom:1px solid var(--t-rule2)"><span>{{ proSample.p2 }}</span><span>{{ proSample.rate }}</span></span>
+                        <span style="display:flex;justify-content:space-between;padding:12px 14px;font:800 12.5px/1 'Archivo',sans-serif;color:var(--t-ink)"><span>Total due</span><span style="color:var(--tempo-accent-deep)">{{ proSample.total }}</span></span>
                       </span>
                     </sc-if>
 
                     <sc-if value="{{ f.isSplit }}" hint-placeholder-val="{{ false }}">
-                      <span style="display:block;padding:10px 11px">
-                        <span style="display:block;font:600 10px/1.3 'Archivo',sans-serif;color:var(--t-muted);margin-bottom:8px">{{ proSample.client }} — two bills, one week</span>
-                        <span style="display:flex;gap:6px;flex-wrap:wrap">
-                          <span style="padding:6px 8px;background:var(--t-ink);color:var(--t-bg);font:800 9.5px/1 'Archivo',sans-serif">{{ proSample.no1 }} · {{ proSample.p1 }}</span>
-                          <span style="padding:6px 8px;border:2px solid var(--t-rule);font:800 9.5px/1 'Archivo',sans-serif;color:var(--t-muted)">{{ proSample.no2 }} · {{ proSample.p2 }}</span>
+                      <span style="display:block;padding:12px 14px">
+                        <span style="display:block;font:600 11px/1.3 'Archivo',sans-serif;color:var(--t-muted);margin-bottom:10px">{{ proSample.client }} — two bills, one week</span>
+                        <span style="display:flex;gap:8px;flex-wrap:wrap">
+                          <span style="padding:6px 10px;border-radius:8px;background:var(--t-ink);color:var(--t-onink);font:800 10px/1 'Archivo',sans-serif">{{ proSample.no1 }} · {{ proSample.p1 }}</span>
+                          <span style="padding:6px 10px;border-radius:8px;border:1px solid var(--t-rule2);background:var(--t-bg);font:800 10px/1 'Archivo',sans-serif;color:var(--t-ink)">{{ proSample.no2 }} · {{ proSample.p2 }}</span>
                         </span>
                       </span>
                     </sc-if>
@@ -962,107 +1121,126 @@
           </sc-if>
 
           <sc-if value="{{ paneAppearance }}" hint-placeholder-val="{{ false }}">
-            <div>
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--t-rule)">
-                <sc-for list="{{ themeOpts }}" as="t" hint-placeholder-count="3">
-                  <button onClick="{{ t.pick }}" style="padding:15px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ t.bg }};color:{{ t.fg }};cursor:pointer;font:700 12px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ t.label }}</button>
-                </sc-for>
+            <div style="padding-top:14px">
+              <div style="padding:0 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">App Theme</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--t-rule2)">
+                  <sc-for list="{{ themeOpts }}" as="t" hint-placeholder-count="3">
+                    <button onClick="{{ t.pick }}" style="padding:16px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ t.bg }};color:{{ t.fg }};cursor:pointer;font:700 12px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ t.label }}</button>
+                  </sc-for>
+                </div>
+                <div style="padding:14px 16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">{{ themeExplain }} Printed invoices and reports stay on white paper either way.</div>
               </div>
-              <div style="padding:14px 16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">{{ themeExplain }} Printed invoices and reports stay on white paper either way.</div>
             </div>
           </sc-if>
 
           <sc-if value="{{ paneTracking }}" hint-placeholder-val="{{ false }}">
-            <div>
-              <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:16px 16px 10px">You use Tempo for</div>
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--t-rule);border-bottom:1px solid var(--t-rule)">
-                <sc-for list="{{ modeOpts }}" as="mo" hint-placeholder-count="3">
-                  <button onClick="{{ mo.pick }}" style="padding:13px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ mo.bg }};color:{{ mo.fg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ mo.label }}</button>
-                </sc-for>
-              </div>
-              <div style="padding:12px 16px;border-bottom:2px solid var(--t-rule);font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Timesheet and Personal hide every dollar sign and all invoicing. Switching is safe — nothing is deleted.</div>
-              <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="3">
-                <button onClick="{{ t.toggle }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:13px 16px;border:0;border-bottom:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
-                  <span style="flex:1">
-                    <span style="display:block;font:600 13.5px/1.3 'Archivo',sans-serif">{{ t.label }}</span>
-                    <span style="display:block;font:400 11.5px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:2px">{{ t.hint }}</span>
-                  </span>
-                  <span style="width:46px;height:24px;border:2px solid var(--t-ink);background:{{ t.trackBg }};flex:none;display:flex;align-items:center;padding:2px;justify-content:{{ t.justify }}">
-                    <span style="width:16px;height:16px;background:{{ t.knobBg }};display:block"></span>
-                  </span>
-                </button>
-              </sc-for>
+            <div style="padding-top:14px">
 
-              <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:20px 16px 10px;border-top:2px solid var(--t-rule)">Types of work</div>
-              <sc-for list="{{ workTypes }}" as="w" hint-placeholder-count="5">
-                <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid var(--t-rule)">
-                  <span style="flex:1;min-width:0">
-                    <span style="display:block;font:600 13px/1.2 'Archivo',sans-serif">{{ w.label }}</span>
-                    <span style="display:block;font:400 10.5px/1.3 'Archivo',sans-serif;color:var(--t-muted);margin-top:3px">{{ w.usage }}</span>
-                  </span>
-                  <sc-if value="{{ w.custom }}" hint-placeholder-val="{{ false }}">
-                    <button onClick="{{ w.remove }}" aria-label="Remove work type" style="padding:7px 10px;border:2px solid var(--t-rule);background:transparent;color:var(--tempo-accent-deep);cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.06em">REMOVE</button>
-                  </sc-if>
-                  <sc-if value="{{ w.builtIn }}" hint-placeholder-val="{{ true }}">
-                    <span style="font:400 10px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--t-faint)">BUILT IN</span>
-                  </sc-if>
+              <div style="padding:0 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">You use Tempo for</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--t-rule2)">
+                  <sc-for list="{{ modeOpts }}" as="mo" hint-placeholder-count="3">
+                    <button onClick="{{ mo.pick }}" style="padding:16px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ mo.bg }};color:{{ mo.fg }};cursor:pointer;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ mo.label }}</button>
+                  </sc-for>
                 </div>
-              </sc-for>
-              <div style="padding:11px 16px;border-top:1px solid var(--t-rule);font:400 11px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Add new types from the “+ TYPE” chip when logging time. Removing one clears it from past entries — undo is offered.</div>
+                <div style="padding:14px 16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Timesheet and Personal hide every dollar sign and all invoicing. Switching is safe — nothing is deleted.</div>
+              </div>
 
-              <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:20px 16px 10px;border-top:2px solid var(--t-rule)">Daily break</div>
-              <label style="display:block;padding:11px 14px;border-top:1px solid var(--t-rule);background:var(--t-field)">
-                <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:7px">Minutes per worked day (0 = none)</span>
-                <input class="input" value="{{ breakMinsVal }}" onInput="{{ onBreakMins }}" inputmode="decimal" placeholder="30" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:700 15.5px/1.1 'Archivo',sans-serif">
-              </label>
-              <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--t-rule)">
-                <sc-for list="{{ breakOpts }}" as="b" hint-placeholder-count="2">
-                  <button onClick="{{ b.pick }}" style="padding:13px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ b.bg }};color:{{ b.fg }};cursor:pointer;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ b.label }}</button>
+              <div style="padding:10px 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Behaviors</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.toggle }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:16px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
+                    <span style="flex:1">
+                      <span style="display:block;font:700 14px/1.3 'Archivo',sans-serif;color:var(--t-ink)">{{ t.label }}</span>
+                      <span style="display:block;font:400 11.5px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:4px">{{ t.hint }}</span>
+                    </span>
+                    <span style="width:48px;height:26px;border-radius:999px;background:{{ t.trackBg }};border:2px solid var(--t-rule2);flex:none;display:flex;align-items:center;padding:2px;box-sizing:border-box;justify-content:{{ t.justify }};transition:all 0.2s ease">
+                      <span style="width:18px;height:18px;border-radius:999px;background:{{ t.knobBg }};display:block;box-shadow:0 2px 4px rgba(0,0,0,0.15)"></span>
+                    </span>
+                  </button>
                 </sc-for>
               </div>
-              <div style="padding:12px 16px;border-top:1px solid var(--t-rule);font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">{{ breakExplain }}</div>
-              <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:20px 16px 10px;border-top:2px solid var(--t-rule)">Contracted hours per cycle</div>
-              <label style="display:block;padding:11px 14px;border-top:1px solid var(--t-rule);background:var(--t-field)">
-                <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:7px">Hours (0 = no cap)</span>
-                <input class="input" value="{{ contractHours }}" onInput="{{ onContractHours }}" inputmode="decimal" placeholder="40" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:700 15.5px/1.1 'Archivo',sans-serif">
-              </label>
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--t-rule)">
-                <sc-for list="{{ otOpts }}" as="o" hint-placeholder-count="3">
-                  <button onClick="{{ o.pick }}" style="padding:13px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ o.bg }};color:{{ o.fg }};cursor:pointer;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ o.label }}</button>
-                </sc-for>
-              </div>
-              <div style="padding:12px 16px;border-top:1px solid var(--t-rule);font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">{{ otExplain }}</div>
 
-              <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:20px 16px 10px;border-top:2px solid var(--t-rule)">Round logged time to</div>
-              <div style="display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--t-rule);border-bottom:1px solid var(--t-rule)">
-                <sc-for list="{{ roundOpts }}" as="r" hint-placeholder-count="4">
-                  <button onClick="{{ r.pick }}" style="padding:13px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ r.bg }};color:{{ r.fg }};cursor:pointer;font:700 11.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ r.label }}</button>
+              <div style="padding:10px 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Types of work</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <sc-for list="{{ workTypes }}" as="w" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--t-rule2)">
+                    <span style="flex:1;min-width:0">
+                      <span style="display:block;font:700 13px/1.2 'Archivo',sans-serif;color:var(--t-ink)">{{ w.label }}</span>
+                      <span style="display:block;font:500 10.5px/1.3 'Archivo',sans-serif;color:var(--t-muted);margin-top:4px">{{ w.usage }}</span>
+                    </span>
+                    <sc-if value="{{ w.custom }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ w.remove }}" aria-label="Remove work type" style="padding:8px 12px;border-radius:8px;border:1px solid var(--t-rule2);background:var(--t-bg);color:var(--tempo-accent-deep);cursor:pointer;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.06em">REMOVE</button>
+                    </sc-if>
+                    <sc-if value="{{ w.builtIn }}" hint-placeholder-val="{{ true }}">
+                      <span style="padding:6px 10px;border-radius:6px;background:var(--t-rule);font:800 9px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">BUILT IN</span>
+                    </sc-if>
+                  </div>
                 </sc-for>
+                <div style="padding:14px 16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Add new types from the “+ TYPE” chip when logging time. Removing one clears it from past entries — undo is offered.</div>
+              </div>
+
+              <div style="padding:10px 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Daily break</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <label style="display:block;padding:16px;border-bottom:1px solid var(--t-rule2)">
+                  <span style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted);margin-bottom:8px">Minutes per worked day (0 = none)</span>
+                  <input class="input" value="{{ breakMinsVal }}" onInput="{{ onBreakMins }}" inputmode="decimal" placeholder="30" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:800 17px/1.1 'Archivo',sans-serif;color:var(--t-ink)">
+                </label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--t-rule2)">
+                  <sc-for list="{{ breakOpts }}" as="b" hint-placeholder-count="2">
+                    <button onClick="{{ b.pick }}" style="padding:16px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ b.bg }};color:{{ b.fg }};cursor:pointer;font:700 12.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ b.label }}</button>
+                  </sc-for>
+                </div>
+                <div style="padding:14px 16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">{{ breakExplain }}</div>
+              </div>
+
+              <div style="padding:10px 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Contracted hours per cycle</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <label style="display:block;padding:16px;border-bottom:1px solid var(--t-rule2)">
+                  <span style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted);margin-bottom:8px">Hours (0 = no cap)</span>
+                  <input class="input" value="{{ contractHours }}" onInput="{{ onContractHours }}" inputmode="decimal" placeholder="40" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:800 17px/1.1 'Archivo',sans-serif;color:var(--t-ink)">
+                </label>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--t-rule2)">
+                  <sc-for list="{{ otOpts }}" as="o" hint-placeholder-count="3">
+                    <button onClick="{{ o.pick }}" style="padding:16px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ o.bg }};color:{{ o.fg }};cursor:pointer;font:700 12.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ o.label }}</button>
+                  </sc-for>
+                </div>
+                <div style="padding:14px 16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">{{ otExplain }}</div>
+              </div>
+
+              <div style="padding:10px 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Round logged time to</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <div style="display:grid;grid-template-columns:repeat(4,1fr)">
+                  <sc-for list="{{ roundOpts }}" as="r" hint-placeholder-count="4">
+                    <button onClick="{{ r.pick }}" style="padding:16px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ r.bg }};color:{{ r.fg }};cursor:pointer;font:700 12.5px/1 'Archivo',sans-serif;letter-spacing:.06em">{{ r.label }}</button>
+                  </sc-for>
+                </div>
               </div>
             </div>
           </sc-if>
 
           <sc-if value="{{ paneCycle }}" hint-placeholder-val="{{ false }}">
-            <div>
-              <div style="padding:16px">
-                <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted)">Your week starts on</div>
-                <div style="font:400 12px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin-top:6px">Sets the billing cycle used by Day and Reports — currently <strong style="color:var(--t-ink)">{{ cycleLabel }}</strong>.</div>
-              </div>
-              <div style="display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--t-rule);border-bottom:1px solid var(--t-rule)">
-                <sc-for list="{{ weekStartOpts }}" as="w" hint-placeholder-count="7">
-                  <button onClick="{{ w.pick }}" style="padding:14px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ w.bg }};color:{{ w.fg }};cursor:pointer;font:700 12px/1 'Archivo',sans-serif">{{ w.label }}</button>
-                </sc-for>
+            <div style="padding-top:14px">
+              <div style="padding:0 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Your week starts on</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--t-rule2)">
+                  <sc-for list="{{ weekStartOpts }}" as="w" hint-placeholder-count="7">
+                    <button onClick="{{ w.pick }}" style="padding:16px 0;border:0;border-right:1px solid var(--t-rule2);background:{{ w.bg }};color:{{ w.fg }};cursor:pointer;font:700 12px/1 'Archivo',sans-serif">{{ w.label }}</button>
+                  </sc-for>
+                </div>
+                <div style="padding:14px 16px;font:400 12px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Sets the billing cycle used by Day and Reports — currently <strong style="color:var(--t-ink)">{{ cycleLabel }}</strong>.</div>
               </div>
             </div>
           </sc-if>
 
           <sc-if value="{{ paneInvoicing }}" hint-placeholder-val="{{ false }}">
-            <div>
+            <div style="padding-top:14px">
               <sc-if value="{{ invoiceLocked }}" hint-placeholder-val="{{ false }}">
-                <div style="margin:16px;border:2px solid var(--tempo-accent);padding:16px">
+                <div style="margin:0 16px 16px;border:2px solid var(--tempo-accent);border-radius:16px;background:var(--tempo-accent-wash);padding:20px 18px">
                   <div style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent)">Tempo Pro</div>
-                  <div style="font:800 17px/1.2 'Archivo',sans-serif;margin:10px 0 8px">Invoicing is locked</div>
-                  <div style="font:400 12px/1.5 'Archivo',sans-serif;color:var(--t-muted);margin-bottom:14px">Tracking, reports and CSV stay free. Unlock Pro to raise invoices, split them per project and print your logo.</div>
+                  <div style="font:800 18px/1.2 'Archivo',sans-serif;margin:10px 0 8px;color:var(--tempo-accent-deep)">Invoicing is locked</div>
+                  <div style="font:500 12.5px/1.5 'Archivo',sans-serif;color:var(--tempo-accent-deep);margin-bottom:16px;opacity:0.8">Tracking, reports and CSV stay free. Unlock Pro to raise invoices, split them per project and print your logo.</div>
                   <button onClick="{{ unlockPro }}" style="padding:12px 14px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.06em">UNLOCK PRO</button>
                 </div>
               </sc-if>
@@ -1133,39 +1311,48 @@
           </sc-if>
 
           <sc-if value="{{ paneGoals }}" hint-placeholder-val="{{ false }}">
-            <div>
-              <div style="display:flex;border-bottom:1px solid var(--t-rule)">
-                <label style="flex:1;padding:11px 14px;border-right:2px solid var(--t-rule);background:var(--t-field)">
-                  <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:7px">Hours per cycle</span>
-                  <input class="input" value="{{ goalHours }}" onInput="{{ onGoalHours }}" inputmode="decimal" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:700 15.5px/1.1 'Archivo',sans-serif">
-                </label>
-                <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
-                  <label style="flex:1;padding:11px 14px;background:var(--t-field)">
-                    <span style="display:block;font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:7px">Income per cycle $</span>
-                    <input class="input" value="{{ goalIncome }}" onInput="{{ onGoalIncome }}" inputmode="decimal" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:700 15.5px/1.1 'Archivo',sans-serif">
+            <div style="padding-top:14px">
+              <div style="padding:0 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Goal Setting</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <div style="display:flex;border-bottom:1px solid var(--t-rule2)">
+                  <label style="flex:1;padding:16px;border-right:1px solid var(--t-rule2)">
+                    <span style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted);margin-bottom:8px">Hours per cycle</span>
+                    <input class="input" value="{{ goalHours }}" onInput="{{ onGoalHours }}" inputmode="decimal" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:800 17px/1.1 'Archivo',sans-serif;color:var(--t-ink)">
                   </label>
-                </sc-if>
+                  <sc-if value="{{ showBillingUI }}" hint-placeholder-val="{{ true }}">
+                    <label style="flex:1;padding:16px">
+                      <span style="display:block;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted);margin-bottom:8px">Income per cycle $</span>
+                      <input class="input" value="{{ goalIncome }}" onInput="{{ onGoalIncome }}" inputmode="decimal" style="width:100%;box-sizing:border-box;border:0;background:transparent;padding:0;font:800 17px/1.1 'Archivo',sans-serif;color:var(--t-ink)">
+                    </label>
+                  </sc-if>
+                </div>
+                <div style="padding:14px 16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Progress against these shows at the top of Reports. Set either to 0 to hide it.</div>
               </div>
-              <div style="padding:16px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Progress against these shows at the top of Reports. Set either to 0 to hide it.</div>
             </div>
           </sc-if>
 
           <sc-if value="{{ paneData }}" hint-placeholder-val="{{ false }}">
-            <div>
-              <button onClick="{{ openProject }}" style="width:100%;padding:13px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:600 13.5px/1 'Archivo',sans-serif">Add a project</button>
-              <button onClick="{{ exportCsv }}" style="width:100%;padding:13px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:600 13.5px/1 'Archivo',sans-serif">Export the current range as CSV</button>
-              <button onClick="{{ backupJson }}" style="width:100%;padding:13px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:600 13.5px/1 'Archivo',sans-serif">Download a full backup (JSON)</button>
-              <label style="display:block;width:100%;padding:13px 16px;border-top:1px solid var(--t-rule);cursor:pointer;font:600 13.5px/1 'Archivo',sans-serif;box-sizing:border-box">
-                Restore from a backup file
-                <input type="file" accept="application/json" onChange="{{ restoreJson }}" style="display:none">
-              </label>
-              <label style="display:block;width:100%;padding:13px 16px;border-top:1px solid var(--t-rule);cursor:pointer;font:600 13.5px/1 'Archivo',sans-serif;box-sizing:border-box">
-                Import entries from CSV
-                <span style="display:block;font:400 11px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:3px">Toggl, Clockify, Harvest or any export with dates &amp; durations</span>
-                <input type="file" accept=".csv,text/csv" onChange="{{ importCsv }}" style="display:none">
-              </label>
-              <button onClick="{{ resetSample }}" style="width:100%;padding:13px 16px;border:0;border-top:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:600 13.5px/1 'Archivo',sans-serif">Reload the sample week</button>
-              <button onClick="{{ clearAll }}" style="width:100%;padding:13px 16px;border:0;border-top:1px solid var(--t-rule);border-bottom:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font:700 13.5px/1 'Archivo',sans-serif;color:var(--tempo-accent-deep)">Erase all entries and projects</button>
+            <div style="padding-top:14px">
+              <div style="padding:0 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Data Management</div>
+              <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
+                <button onClick="{{ openProject }}" style="width:100%;padding:16px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font:600 13.5px/1 'Archivo',sans-serif">Add a project</button>
+                <button onClick="{{ exportCsv }}" style="width:100%;padding:16px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font:600 13.5px/1 'Archivo',sans-serif">Export the current range as CSV</button>
+                <button onClick="{{ backupJson }}" style="width:100%;padding:16px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font:600 13.5px/1 'Archivo',sans-serif">Download a full backup (JSON)</button>
+
+                <label style="display:block;width:100%;padding:16px;border-bottom:1px solid var(--t-rule2);cursor:pointer;font:600 13.5px/1 'Archivo',sans-serif;box-sizing:border-box">
+                  Restore from a backup file
+                  <input type="file" accept="application/json" onChange="{{ restoreJson }}" style="display:none">
+                </label>
+
+                <label style="display:block;width:100%;padding:16px;border-bottom:1px solid var(--t-rule2);cursor:pointer;font:600 13.5px/1 'Archivo',sans-serif;box-sizing:border-box">
+                  Import entries from CSV
+                  <span style="display:block;font:400 11px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:4px">Toggl, Clockify, Harvest or any export with dates &amp; durations</span>
+                  <input type="file" accept=".csv,text/csv" onChange="{{ importCsv }}" style="display:none">
+                </label>
+
+                <button onClick="{{ resetSample }}" style="width:100%;padding:16px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font:600 13.5px/1 'Archivo',sans-serif">Reload the sample week</button>
+                <button onClick="{{ clearAll }}" style="width:100%;padding:16px;border:0;background:var(--tempo-accent-wash);cursor:pointer;text-align:left;font:700 13.5px/1 'Archivo',sans-serif;color:var(--tempo-accent-deep)">Erase all entries and projects</button>
+              </div>
             </div>
           </sc-if>
 
@@ -1324,6 +1511,31 @@
       </div>
     </sc-if>
 
+    <!-- RECENT TASKS DRAWER SHEET -->
+    <sc-if value="{{ recentPickerOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:15;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+        <div onClick="{{ closeRecentPicker }}" style="flex:1"></div>
+        <div style="background:var(--t-bg);border-top:2px solid var(--t-ink);border-top-left-radius:22px;border-top-right-radius:22px;padding:22px 20px 24px;box-shadow:0 -12px 40px rgba(0,0,0,0.3)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <span style="font:800 16px/1 'Archivo',sans-serif;letter-spacing:-.01em">Recent Tasks</span>
+            <button onClick="{{ closeRecentPicker }}" style="border:0;background:transparent;cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;color:var(--t-muted)">CLOSE</button>
+          </div>
+          <div style="max-height:300px;overflow-y:auto;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field)">
+            <sc-for list="{{ recent }}" as="r" hint-placeholder-count="3">
+              <div onClick="{{ r.load }}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--t-rule2);cursor:pointer">
+                <span style="width:10px;height:10px;border-radius:999px;background:{{ r.color }};flex:none"></span>
+                <span style="flex:1;min-width:0">
+                  <span style="display:block;font:700 14px/1.3 'Archivo',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.desc }}</span>
+                  <span style="display:block;font:400 11.5px/1.3 'Archivo',sans-serif;color:var(--t-muted);margin-top:2px">{{ r.meta }}</span>
+                </span>
+                <button onClick="{{ r.restart }}" aria-label="Start timer for this task" style="border:0;background:var(--tempo-accent-wash);color:var(--tempo-accent-deep);font:800 11px/1 'Archivo',sans-serif;letter-spacing:.08em;padding:8px 13px;border-radius:999px;cursor:pointer;flex:none">START →</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- SEARCH -->
     <sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;z-index:14;background:var(--t-bg);display:flex;flex-direction:column">
@@ -1407,7 +1619,7 @@
     </sc-if>
 
     <!-- TAB BAR -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);border-top:2px solid var(--t-ink);background:var(--t-bg)">
+    <div class="tempo-tab-dock" style="display:grid;grid-template-columns:repeat(5,1fr);border-top:2px solid var(--t-ink);background:var(--t-bg)">
       <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
         <button onClick="{{ t.go }}" aria-label="{{ t.label }}" style="border:0;border-top:3px solid {{ t.bar }};background:transparent;color:{{ t.fg }};padding:8px 0 7px;cursor:pointer;font:{{ t.font }};letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;gap:5px">
           <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" style="display:block;color:{{ t.iconColor }}"><path d="{{ t.iconPath }}"></path></svg>
@@ -1607,6 +1819,16 @@ const TAGS = ['Design', 'Build', 'Calls', 'Admin', 'Research'];
 const STORE_KEY = 'tempo.v1';
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+function triggerHaptic(type) {
+  try {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
+      window.Capacitor.Plugins.Haptics.impact({ style: type === 'heavy' ? 'HEAVY' : 'MEDIUM' });
+    } else if (navigator && navigator.vibrate) {
+      navigator.vibrate(type === 'heavy' ? [25] : [12]);
+    }
+  } catch (e) {}
+}
 
 function dayStart(off) {
   const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + (off || 0)); return d;
@@ -1945,6 +2167,58 @@ class Component extends DCLogic {
     this.setState({ sheet: kind, projPickerOpen: false, projQuery: '', descSuggest: false, form: Object.assign(base, patch || {}) });
   }
 
+  openEntryOptions(entry) {
+    this.setState({ optionsEntry: entry, optionsOpen: true });
+    if ('vibrate' in navigator) navigator.vibrate(50);
+  }
+
+  closeEntryOptions() {
+    this.setState({ optionsOpen: false, optionsEntry: null });
+  }
+
+  dupEntry() {
+    const e = this.state.optionsEntry;
+    if (!e) return;
+    this.closeEntryOptions();
+
+    // Duplicate opens the entry sheet with start/end set to NOW, but copies description, project, etc.
+    const now = Date.now();
+    this.openSheet('entry', {
+      desc: e.desc,
+      projId: e.projId,
+      billable: e.billable,
+      parallel: !!e.parallel,
+      tag: e.tag || '',
+      note: e.note || '',
+      start: fmtClock(now),
+      end: fmtClock(now),
+      dateMs: dayStart(this.state.dayOff).getTime()
+    });
+  }
+
+  editEntryOptions() {
+    const e = this.state.optionsEntry;
+    if (!e) return;
+    this.closeEntryOptions();
+    this.openSheet('entry', {
+      desc: e.desc, start: fmtClock(e.start), end: fmtClock(e.end),
+      projId: e.projId, billable: e.billable, parallel: !!e.parallel, tag: e.tag || '', note: e.note || '', editId: e.id, dateMs: dayStart(this.state.dayOff).getTime()
+    });
+  }
+
+  delEntryOptions() {
+    const e = this.state.optionsEntry;
+    if (!e) return;
+    this.closeEntryOptions();
+    if (confirm('Delete this entry?')) {
+      const snap = JSON.stringify(this.state.entries);
+      this.setState({ entries: this.state.entries.filter(x => x.id !== e.id) });
+      this.toast('Entry deleted', snap);
+      this.saveEntries();
+    }
+  }
+
+
   // CSV import: auto-map headers from Toggl/Clockify/Harvest/generic exports,
   // build a preview (nothing written until the user confirms).
   buildImport(text, fileName) {
@@ -2053,8 +2327,15 @@ class Component extends DCLogic {
         recent.push({
           desc: e.desc, color: p ? p.color : '#7d7979',
           meta: (p ? this.projLabel(p) : '') + ' · ' + fmtHM(this.mins(e)),
-          restart: () => {
-            this.setState({ task: e.desc, lastProj: e.projId, billable: e.billable, timer: { start: Date.now() }, now: Date.now() });
+          load: () => {
+            triggerHaptic('medium');
+            this.setState({ task: e.desc, lastProj: e.projId, billable: e.billable, recentPickerOpen: false });
+            this.toast('Loaded: ' + e.desc);
+          },
+          restart: (evt) => {
+            if (evt && evt.stopPropagation) evt.stopPropagation();
+            triggerHaptic('heavy');
+            this.setState({ task: e.desc, lastProj: e.projId, billable: e.billable, timer: { start: Date.now() }, now: Date.now(), recentPickerOpen: false });
             this.toast('Timer started — ' + e.desc);
           }
         });
@@ -2081,7 +2362,8 @@ class Component extends DCLogic {
       week.push({
         label: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dd.getDay()], hours: m ? fmtHM(m) : '—',
         pct: Math.min(100, (m / 540) * 100) + '%',
-        bg: active ? 'var(--t-sel)' : 'transparent',
+        bg: active ? 'var(--t-bg)' : 'transparent',
+        shadow: active ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
         fg: 'var(--t-ink)',
         hoursFg: m ? 'var(--tempo-accent-deep)' : 'var(--t-faint)',
         underline: active ? 'var(--t-ink)' : (m ? 'rgba(236,48,19,.35)' : 'transparent'),
@@ -2143,23 +2425,32 @@ class Component extends DCLogic {
     list.forEach(e => {
       if (prevEnd && e.start - prevEnd >= 10 * MS) {
         const a = prevEnd, b = e.start;
+        const gapMins = Math.round((b - a) / MS);
+        const gapHeight = Math.min(Math.max(48, gapMins * 1.5), 150);
         dayRows.push({
           isGap: true, isEntry: false, time: fmtShort(a),
-          title: Math.round((b - a) / MS) + '-min gap — tap to fill',
+          title: gapMins + '-min gap — tap to fill',
+          heightPx: gapHeight,
           click: () => this.openSheet('entry', { start: fmtClock(a), end: fmtClock(b), dateMs: dayStart(s.dayOff).getTime() })
         });
       }
       const p = this.proj(e.projId);
       const money = this.money(e);
       const clashes = e.parallel ? [] : list.filter(o => o.id !== e.id && !o.parallel && o.start < e.end && e.start < o.end);
+      const durMins = this.mins(e);
+      const heightPx = Math.min(Math.max(64, durMins * 1.5), 300);
       dayRows.push({
         isGap: false, isEntry: true, time: fmtShort(e.start), title: e.desc,
-        clash: clashes.length > 0,
+        clash: clashes.length > 0, heightPx,
         clashWith: clashes.length ? (clashes.length > 1 ? clashes.length + ' ENTRIES' : clashes[0].desc.toUpperCase()) : '',
-        color: p ? p.color : '#7d7979', dur: fmtHM(this.mins(e)),
+        color: p ? p.color : '#7d7979', dur: fmtHM(durMins),
         sub: (p ? this.projLabel(p) : '') + (e.tag ? ' · ' + e.tag : '') + (money && showMoney ? ' · $' + money.toFixed(2) : e.billable ? '' : ' · non-billable') + ' · ' + fmtClock(e.start) + ' – ' + fmtClock(e.end),
         note: e.note || '', hasNote: !!e.note,
         invoiced: !!e.invoiced, invoicedNo: e.invoiced || '',
+        contextMenu: (ev) => { ev.preventDefault(); this.openEntryOptions(e); },
+        ptrDown: (ev) => { this._longHoldTimer = setTimeout(() => this.openEntryOptions(e), 500); },
+        ptrUp: () => clearTimeout(this._longHoldTimer),
+        ptrCancel: () => clearTimeout(this._longHoldTimer),
         click: () => this.openSheet('entry', {
           desc: e.desc, start: fmtClock(e.start), end: fmtClock(e.end),
           projId: e.projId, billable: e.billable, parallel: !!e.parallel, tag: e.tag || '', note: e.note || '', editId: e.id, dateMs: dayStart(s.dayOff).getTime()
@@ -2170,6 +2461,7 @@ class Component extends DCLogic {
     dayRows.push({
       isGap: true, isEntry: false, time: prevEnd ? fmtShort(prevEnd) : '',
       title: list.length ? '+ add what came next' : '+ add time for this day',
+      heightPx: 56,
       click: () => this.openSheet('entry', Object.assign({ dateMs: dayStart(s.dayOff).getTime() }, prevEnd ? { start: fmtClock(prevEnd) } : {}))
     });
 
@@ -2289,7 +2581,7 @@ class Component extends DCLogic {
       const lead = (first.getDay() - set.weekStartDay + 7) % 7;
       const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
       const todayT = dayStart(0).getTime();
-      for (let i = 0; i < lead; i++) calCells.push({ label: '', bg: '#eae7e7', fg: '#eae7e7', font: "500 13px/1 'Archivo',sans-serif", pick: () => {} });
+      for (let i = 0; i < lead; i++) calCells.push({ label: '', bg: 'transparent', fg: 'transparent', font: "500 13px/1 'Archivo',sans-serif", pick: () => {} });
       for (let dnum = 1; dnum <= daysInMonth; dnum++) {
         const t = new Date(first.getFullYear(), first.getMonth(), dnum).getTime();
         const isStart = calEntry ? t === entryDate : t === rs;
@@ -2297,9 +2589,9 @@ class Component extends DCLogic {
         const inRange = calEntry ? false : (t > rs && t < re);
         calCells.push({
           label: String(dnum),
-          bg: isStart || isEnd ? 'var(--tempo-accent)' : inRange ? 'var(--tempo-accent-tint)' : 'transparent',
+          bg: isStart || isEnd ? 'var(--tempo-accent)' : inRange ? 'var(--tempo-accent-wash)' : t === todayT ? 'var(--t-field)' : 'transparent',
           fg: isStart || isEnd ? '#ffffff' : t === todayT ? 'var(--tempo-accent-deep)' : 'var(--t-ink)',
-          font: isStart || isEnd || t === todayT ? "800 13.5px/1 'Archivo',sans-serif" : "500 13.5px/1 'Archivo',sans-serif",
+          font: isStart || isEnd || t === todayT ? "800 14px/1 'Archivo',sans-serif" : "600 14px/1 'Archivo',sans-serif",
           pick: () => {
             if (calEntry) this.setState(st => ({ form: Object.assign({}, st.form, { dateMs: t }), cal: { field: null, month: null } }));
             else {
@@ -2310,7 +2602,7 @@ class Component extends DCLogic {
           }
         });
       }
-      while (calCells.length % 7 !== 0) calCells.push({ label: '', bg: '#eae7e7', fg: '#eae7e7', font: "500 13px/1 'Archivo',sans-serif", pick: () => {} });
+      while (calCells.length % 7 !== 0) calCells.push({ label: '', bg: 'transparent', fg: 'transparent', font: "500 13px/1 'Archivo',sans-serif", pick: () => {} });
     })();
     const wmins = weekEntries.reduce((a, e) => a + this.mins(e), 0);
     const wbill = weekEntries.filter(e => e.billable).reduce((a, e) => a + this.mins(e), 0);
@@ -2451,7 +2743,10 @@ class Component extends DCLogic {
       const on = s.tab === k;
       return {
         label,
-        go: () => this.setState({ tab: k, pane: null }),
+        go: () => {
+          triggerHaptic('light');
+          this.setState({ tab: k, pane: null });
+        },
         bar: on ? 'var(--tempo-accent)' : 'transparent',
         fg: on ? 'var(--t-ink)' : 'var(--t-muted)',
         iconColor: on ? 'var(--tempo-accent)' : 'var(--t-muted)',
@@ -2477,6 +2772,10 @@ class Component extends DCLogic {
       : dayStart(s.dayOff).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
 
     return {
+      recentPickerOpen: !!s.recentPickerOpen,
+      toggleRecentPicker: () => this.setState({ recentPickerOpen: !s.recentPickerOpen }),
+      closeRecentPicker: () => this.setState({ recentPickerOpen: false }),
+      hasRecent: recent.length > 0,
       paneOpen: !!s.pane,
       paneMenu: !s.pane,
       paneTracking: s.pane === 'tracking',
@@ -2496,9 +2795,11 @@ class Component extends DCLogic {
         ['data', 'Data', 'Backup, restore, CSV, erase']]
       ).map(m => ({ label: m[1], hint: m[2], open: () => this.setState({ pane: m[0] }) })),
       isTrack: s.tab === 'track', isDay: s.tab === 'day', isProjects: s.tab === 'projects', isReports: s.tab === 'reports', isSettings: s.tab === 'settings',
-      bandBg: s.timer ? 'var(--tempo-accent)' : 'var(--t-bg)',
+      timerStateLabel: s.timer ? '● RUNNING' : 'STOPPED',
+      clockClass: s.timer ? 'tempo-timer-active' : '',
+      bandBg: s.timer ? 'linear-gradient(135deg, var(--tempo-accent) 0%, var(--tempo-accent-deep) 100%)' : 'var(--t-bg)',
       bandFg: s.timer ? '#ffffff' : 'var(--t-ink)',
-      bandRule: s.timer ? 'rgba(255,255,255,.65)' : 'var(--t-ink)',
+      bandRule: s.timer ? 'rgba(255,255,255,.65)' : 'var(--t-rule2)',
       dayStrip: fmtHM(tmins) + ' TRACKED' + (showMoney && tmoney ? '  \u00b7  $' + Math.round(tmoney) : ''),
       toggles: [
         { label: 'Show earnings', hint: 'Money totals across the app', on: set.showEarnings, key: 'showEarnings' },
@@ -2532,7 +2833,8 @@ class Component extends DCLogic {
       sparkTotal: fmtHM(weekMinsTotal),
       dateLabel: new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }),
       todaySummary: 'Today ' + fmtHM(tmins) + (showMoney && tmoney ? '  ·  $' + Math.round(tmoney) : ''),
-      timerStateLabel: s.timer ? 'Running' : 'Stopped',
+      timerStateLabel: s.timer ? '● RUNNING' : 'STOPPED',
+      clockClass: s.timer ? 'tempo-timer-active' : '',
       clock: s.timer ? fmtHMS((s.now - s.timer.start) / 1000) : '0:00:00',
       clockColor: s.timer ? 'var(--tempo-accent)' : 'var(--t-faint)',
       taskText: s.task,
@@ -2565,6 +2867,7 @@ class Component extends DCLogic {
       bigBtnBg: s.timer ? 'var(--t-ink)' : 'var(--tempo-accent)',
       bigBtnFg: s.timer ? 'var(--t-onink)' : '#ffffff',
       toggleTimer: () => {
+        triggerHaptic(s.timer ? 'heavy' : 'medium');
         if (s.timer) {
           let mins = (Date.now() - s.timer.start) / MS;
           if (set.rounding) mins = Math.max(set.rounding, Math.round(mins / set.rounding) * set.rounding);
@@ -2651,8 +2954,9 @@ class Component extends DCLogic {
         { label: 'Last 7 days', key: 'rolling', run: () => { const b = dayStart(0).getTime(); setRange(b - 6 * DAY, b, 'rolling'); } }
       ].map(p => ({
         label: p.label,
-        bg: s.report.preset === p.key ? 'var(--t-ink)' : 'transparent',
-        fg: s.report.preset === p.key ? 'var(--t-bg)' : 'var(--t-muted)',
+        bg: s.report.preset === p.key ? 'var(--t-field)' : 'transparent',
+        fg: s.report.preset === p.key ? 'var(--t-ink)' : 'var(--t-muted)',
+        shadow: s.report.preset === p.key ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
         pick: p.run
       })),
       exportCsv: this._exportCsv = (evOrName) => {
