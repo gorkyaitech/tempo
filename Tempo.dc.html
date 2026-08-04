@@ -349,6 +349,12 @@
     scroll-padding:72px 0 max(96px, var(--tempo-safe-bottom));
     box-shadow:0 -18px 55px rgba(0,0,0,.42);
   }
+  .tempo-form-sheet--planning>div:first-child{flex:0 0 6px !important}
+  .tempo-form-sheet--planning .tempo-form-sheet__panel{
+    height:calc(100% - 6px) !important;
+    max-height:calc(100% - 6px) !important;
+  }
+  .tempo-calendar-overlay{z-index:70 !important}
   .tempo-form-sheet__header{
     position:sticky;
     top:-18px;
@@ -439,6 +445,9 @@
   /* Every app-level overlay owns the full foreground above navigation. */
   .app-frame>div[style*="inset"][style*="z-index"]{
     z-index:40 !important;
+  }
+  .app-frame>div.tempo-calendar-overlay[style*="inset"][style*="z-index"]{
+    z-index:70 !important;
   }
   .app-frame>div.tempo-form-sheet[style*="inset"]{
     z-index:50 !important;
@@ -1367,7 +1376,7 @@
 
     <!-- CALENDAR -->
     <sc-if value="{{ calOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:14;display:flex;flex-direction:column;justify-content:center;padding:20px;background:var(--t-scrim);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
+      <div class="tempo-calendar-overlay" style="position:absolute;inset:0;z-index:70;display:flex;flex-direction:column;justify-content:center;padding:20px;background:var(--t-scrim);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
         <div onClick="{{ closeCal }}" style="position:absolute;inset:0"></div>
         <div style="position:relative;background:var(--t-bg);border:1px solid var(--t-rule2);border-radius:24px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.2)">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 14px;border-bottom:1px solid var(--t-rule2)">
