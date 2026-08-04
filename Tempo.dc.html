@@ -33,12 +33,19 @@
   (function () {
     let largestViewportHeight = 0;
     let lastViewportWidth = 0;
+    let focusCorrectionTimer = 0;
 
     function keepFocusedControlVisible() {
       const active = document.activeElement;
       if (!active || !active.closest) return;
       const panel = active.closest('.tempo-form-sheet__panel');
       if (!panel) return;
+
+      // iOS may pan the layout viewport even though the document is fixed.
+      // Reset that pan and move only the panel's scroll position instead.
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
 
       const viewport = window.visualViewport;
       const viewportTop = viewport ? viewport.offsetTop : 0;
@@ -47,8 +54,11 @@
       const topGuard = viewportTop + 72;
       const bottomGuard = viewportBottom - 20;
 
-      if (rect.top < topGuard) panel.scrollTop += rect.top - topGuard - 12;
-      else if (rect.bottom > bottomGuard) panel.scrollTop += rect.bottom - bottomGuard + 16;
+      // WKWebView also pans focused controls. Ignore the small deltas produced
+      // while its keyboard accessory bar settles so the two scroll systems do
+      // not push the whole sheet above the Dynamic Island.
+      if (rect.top < topGuard - 32) panel.scrollTop += rect.top - topGuard;
+      else if (rect.bottom > bottomGuard + 32) panel.scrollTop += rect.bottom - bottomGuard + 12;
     }
 
     function syncVisualViewport() {
@@ -66,7 +76,12 @@
       document.documentElement.style.setProperty('--tempo-visual-top', Math.round(top) + 'px');
       document.body && document.body.classList.toggle('tempo-keyboard-open', keyboardOpen);
 
-      if (keyboardOpen) requestAnimationFrame(keepFocusedControlVisible);
+      // Let iOS finish its automatic focus pan before correcting the panel's
+      // own scroll position.
+      if (keyboardOpen) {
+        clearTimeout(focusCorrectionTimer);
+        focusCorrectionTimer = setTimeout(keepFocusedControlVisible, 80);
+      }
     }
 
     addEventListener('DOMContentLoaded', syncVisualViewport);
@@ -81,7 +96,18 @@
     }
     document.addEventListener('focusin', function (event) {
       if (event.target.closest && event.target.closest('.tempo-form-sheet__panel')) {
-        setTimeout(syncVisualViewport, 220);
+        // Put the new control into the panel's scrollport immediately. iOS
+        // otherwise pans the entire WKWebView when moving between fields that
+        // are far apart (for example Description -> Note).
+        keepFocusedControlVisible();
+        [80, 220, 480].forEach(function (delay) {
+          setTimeout(function () {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            syncVisualViewport();
+          }, delay);
+        });
       }
     });
   }());
@@ -162,6 +188,9 @@
      reserved for keyboard overlays only; it must never shorten the app shell. */
   @media (max-width:520px){
     html,body,#dc-root,#dc-root>.sc-host{height:100%;min-height:100%;background:var(--t-bg)}
+    /* Prevent iOS from panning the document when an input receives focus.
+       The form panel is the only thing that should scroll above the keyboard. */
+    body{position:fixed;inset:0;width:100%;height:100%;}
     .app-shell{position:fixed;inset:0;width:100%;height:auto;min-height:0;background:var(--t-bg)}
     .app-frame{width:100%;max-width:none;height:100%;min-height:0;border:0;border-radius:0}
     .tempo-tab-dock{margin:6px 10px 6px !important}
@@ -324,6 +353,7 @@
     background:var(--t-bg);
     border-bottom:1px solid var(--t-rule2)
   }
+  .tempo-form-sheet__keyboard-header{display:none}
   .tempo-form-sheet__panel input,
   .tempo-form-sheet__panel textarea{
     scroll-margin-block:72px 112px;
@@ -335,8 +365,12 @@
     box-shadow:0 -10px 0 var(--t-bg),0 7px 0 var(--t-bg);
   }
   body.tempo-keyboard-open .tempo-form-sheet__panel{
+    position:fixed !important;
+    inset:calc(var(--tempo-visual-top,0px) + var(--tempo-safe-top) + 52px) 0 auto 0 !important;
+    margin-inline:auto;
+    max-width:440px;
     width:100%;
-    height:100%;
+    height:calc(var(--tempo-visual-height,100dvh) - var(--tempo-safe-top) - 52px);
     max-height:100% !important;
     padding:12px 16px 16px !important;
     border-radius:0 !important;
@@ -345,18 +379,31 @@
   }
   body.tempo-keyboard-open .tempo-form-sheet{
     position:fixed !important;
-    inset:auto 0 auto 0 !important;
-    top:var(--tempo-visual-top,0px) !important;
+    inset:0 !important;
     height:var(--tempo-visual-height,100dvh) !important;
     max-width:440px;
     margin-inline:auto;
-    padding-top:env(safe-area-inset-top,0px) !important;
+    padding-top:0 !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
   }
   body.tempo-keyboard-open .tempo-form-sheet>div:first-child{display:none}
-  body.tempo-keyboard-open .tempo-form-sheet__header{
-    top:-12px;
-    margin:-12px -16px 12px !important;
-    padding:12px 16px 10px
+  body.tempo-keyboard-open .tempo-form-sheet__header{display:none !important}
+  body.tempo-keyboard-open .tempo-form-sheet__keyboard-header{
+    display:flex;
+    position:fixed !important;
+    top:calc(var(--tempo-visual-top,0px) + var(--tempo-safe-top));
+    left:50%;
+    transform:translateX(-50%);
+    width:min(100%,440px);
+    height:52px;
+    z-index:52;
+    align-items:center;
+    justify-content:space-between;
+    box-sizing:border-box;
+    padding:0 16px;
+    background:var(--t-bg);
+    border-bottom:1px solid var(--t-rule2)
   }
   body.tempo-keyboard-open .tempo-form-sheet__submit{
     position:relative;
@@ -2152,6 +2199,10 @@
     <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
       <div class="tempo-form-sheet {{ sheetModeClass }}" style="position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
         <div onClick="{{ closeSheet }}" style="flex:1"></div>
+        <div class="tempo-form-sheet__keyboard-header">
+          <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.01em">{{ sheetTitle }}</span>
+          <button class="btn btn-ghost" onClick="{{ closeSheet }}" style="font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;padding:6px 8px">CLOSE</button>
+        </div>
         <div class="tempo-form-sheet__panel" style="background:var(--t-bg);border-top:1px solid var(--t-rule2);padding:18px 16px max(28px, env(safe-area-inset-bottom, 28px));max-height:calc(100% - max(42px, env(safe-area-inset-top, 0px)));overflow-y:auto">
           <div class="tempo-form-sheet__header" style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
             <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.01em">{{ sheetTitle }}</span>

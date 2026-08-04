@@ -13,7 +13,8 @@
       "launchAutoHide": true
     },
     "StatusBar": {
-      "style": "DARK"
+      "style": "DARK",
+      "overlaysWebView": false
     }
   }
 }
