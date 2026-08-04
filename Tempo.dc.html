@@ -2068,7 +2068,10 @@
             </div>
           </sc-for>
           <sc-if value="{{ clashBothTracked }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ keepClashParallel }}" style="width:100%;padding:14px 12px;border:0;border-radius:13px;background:var(--t-ink);color:var(--t-onink);cursor:pointer;font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.07em">KEEP BOTH · THEY HAPPENED SIMULTANEOUSLY</button>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <button onClick="{{ unscheduleOtherClash }}" style="width:100%;padding:14px 12px;border:1px solid #4f9cff;border-radius:13px;background:transparent;color:#4f9cff;cursor:pointer;font:800 10.5px/1.2 'Archivo',sans-serif;letter-spacing:.06em">KEEP SELECTED · UNSCHEDULE OTHER</button>
+              <button onClick="{{ keepClashParallel }}" style="width:100%;padding:14px 12px;border:0;border-radius:13px;background:var(--t-ink);color:var(--t-onink);cursor:pointer;font:800 10.5px/1.2 'Archivo',sans-serif;letter-spacing:.06em">KEEP BOTH · THEY HAPPENED SIMULTANEOUSLY</button>
+            </div>
           </sc-if>
         </div>
       </div>
@@ -3189,7 +3192,9 @@ class Component extends DCLogic {
         const timeClashes = e.parallel || e.end <= e.start ? [] : realList.filter(o =>
           o.id !== e.id && !o.parallel && o.end > o.start && o.start < e.end && e.start < o.end
         );
-        const linkedPlans = e.planned ? [] : s.entries.filter(o => o.planned && o.displacedBy === e.id);
+        const linkedPlans = e.planned ? [] : s.entries.filter(o =>
+          o.planned && o.displacedBy === e.id && o.backlogReason === 'displaced'
+        );
         const clashes = linkedPlans.concat(timeClashes.filter(o => !linkedPlans.some(c => c.id === o.id)));
 
         dayRows.push({
@@ -3685,6 +3690,7 @@ class Component extends DCLogic {
         planState: 'backlog',
         backlogReason: destination === 'gap' ? 'completed-later' : 'deferred',
         displacedAt: Date.now(),
+        displacedBy: null,
         originalStart: e.originalStart || e.start,
         originalEnd: e.originalEnd || e.end
       }) : e);
@@ -3748,9 +3754,28 @@ class Component extends DCLogic {
       clashItems,
       clashBothTracked,
       clashHelp: clashEntries.some(e => e.planned)
-        ? 'Selection only changes your focus; it never removes the other item. Keep the tracked work, then reschedule, complete, or unschedule the plan.'
-        : 'Both items are tracked. Adjust one time, or keep both only if they truly happened simultaneously.',
+        ? 'Opening or selecting does not resolve the warning. Keep the tracked work, then reschedule, complete, or unschedule the plan.'
+        : 'Opening or selecting does not resolve the warning. Keep the selected work and unschedule the other, edit a time, or confirm both happened together.',
       closeClash: () => this.setState({ clash: null }),
+      unscheduleOtherClash: () => {
+        if (!clashBothTracked || !clashEntries[1]) return;
+        const other = clashEntries[1];
+        this.setState({
+          entries: s.entries.map(e => e.id === other.id ? Object.assign({}, e, {
+            planned: true,
+            planState: 'backlog',
+            backlogReason: 'deferred',
+            displacedBy: null,
+            displacedAt: Date.now(),
+            originalStart: e.originalStart || e.start,
+            originalEnd: e.originalEnd || e.end,
+            invoiced: null
+          }) : e),
+          clash: null,
+          planInbox: true
+        });
+        this.toast('Selected work kept · other item is now unscheduled');
+      },
       keepClashParallel: () => {
         const ids = new Set(clashEntries.map(e => e.id));
         this.setState({ entries: s.entries.map(e => ids.has(e.id) ? Object.assign({}, e, { parallel: true }) : e), clash: null });
