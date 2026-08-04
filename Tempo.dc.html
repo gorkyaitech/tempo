@@ -742,29 +742,6 @@
               <button onClick="{{ toggleBillable }}" style="flex:none;white-space:nowrap;padding:10px 12px;border:1px solid {{ bandRule }};border-radius:12px;background:{{ billBg }};color:{{ billFg }};cursor:pointer;font:700 10.5px/1 'Archivo',sans-serif;letter-spacing:.08em">{{ billLabel }}</button>
             </sc-if>
 
-    <!-- ENTRY OPTIONS -->
-    <sc-if value="{{ optionsOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;z-index:45;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
-        <div onClick="{{ closeEntryOptions }}" style="flex:1"></div>
-        <div style="background:var(--t-bg);border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid var(--t-rule2);padding:20px 18px max(24px, env(safe-area-inset-bottom, 24px));box-shadow:0 -16px 50px rgba(0,0,0,0.4)">
-          <div style="font:800 13px/1 'Archivo',sans-serif;color:var(--t-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;padding:0 4px">Quick Actions</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <button onClick="{{ dupEntry }}" style="display:flex;align-items:center;padding:16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);cursor:pointer;text-align:left;font:700 15px/1 'Archivo',sans-serif;color:var(--t-ink)">
-              Duplicate Entry
-            </button>
-            <button onClick="{{ editEntryOptions }}" style="display:flex;align-items:center;padding:16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);cursor:pointer;text-align:left;font:700 15px/1 'Archivo',sans-serif;color:var(--t-ink)">
-              Edit Entry
-            </button>
-            <button onClick="{{ delEntryOptions }}" style="display:flex;align-items:center;padding:16px;border-radius:16px;border:1px solid var(--tempo-accent-wash);background:var(--tempo-accent-wash);cursor:pointer;text-align:left;font:700 15px/1 'Archivo',sans-serif;color:var(--tempo-accent-deep)">
-              Delete Entry
-            </button>
-            <button onClick="{{ closeEntryOptions }}" style="display:flex;align-items:center;padding:16px;border-radius:16px;border:0;background:var(--t-ink);color:var(--t-onink);cursor:pointer;text-align:left;font:700 15px/1 'Archivo',sans-serif;margin-top:8px">
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    </sc-if>
           </div>
         </div>
 
@@ -2189,6 +2166,22 @@
       </div>
     </sc-if>
 
+    <!-- ENTRY OPTIONS — global so long-press works from every tab -->
+    <sc-if value="{{ optionsOpen }}" hint-placeholder-val="{{ false }}">
+      <div class="tempo-entry-options" style="position:absolute;inset:0 0 calc(76px + var(--tempo-safe-bottom)) 0;z-index:45;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
+        <div onClick="{{ closeEntryOptions }}" style="flex:1"></div>
+        <div style="background:var(--t-bg);border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid var(--t-rule2);padding:18px;box-shadow:0 -16px 50px rgba(0,0,0,0.4)">
+          <div style="font:800 13px/1 'Archivo',sans-serif;color:var(--t-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;padding:0 4px">Quick Actions</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button onClick="{{ dupEntry }}" style="display:flex;align-items:center;padding:14px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);cursor:pointer;text-align:left;font:700 14px/1 'Archivo',sans-serif;color:var(--t-ink)">Duplicate Entry</button>
+            <button onClick="{{ editEntryOptions }}" style="display:flex;align-items:center;padding:14px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);cursor:pointer;text-align:left;font:700 14px/1 'Archivo',sans-serif;color:var(--t-ink)">Edit Entry</button>
+            <button onClick="{{ delEntryOptions }}" style="display:flex;align-items:center;padding:14px 16px;border-radius:16px;border:1px solid var(--tempo-accent-wash);background:var(--tempo-accent-wash);cursor:pointer;text-align:left;font:700 14px/1 'Archivo',sans-serif;color:var(--tempo-accent-deep)">Delete Entry</button>
+            <button onClick="{{ closeEntryOptions }}" style="display:flex;align-items:center;padding:14px 16px;border-radius:16px;border:0;background:var(--t-ink);color:var(--t-onink);cursor:pointer;text-align:left;font:700 14px/1 'Archivo',sans-serif;margin-top:4px">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- PRO PAYWALL -->
     <sc-if value="{{ paywallOpen }}" hint-placeholder-val="{{ false }}">
       <div class="tempo-paywall" style="position:absolute;inset:0;z-index:18;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim)">
@@ -2710,6 +2703,7 @@ class Component extends DCLogic {
   }
   escape() {
     const s = this.state;
+    if (s.optionsOpen) return this.closeEntryOptions();
     if (s.clash) return this.setState({ clash: null });
     if (s.planGap) return this.setState({ planGap: null });
     if (s.planInbox) return this.setState({ planInbox: false });
@@ -2864,6 +2858,7 @@ class Component extends DCLogic {
   }
 
   openEntryOptions(entry) {
+    this._longPressOpened = true;
     this.setState({ optionsEntry: entry, optionsOpen: true });
     if ('vibrate' in navigator) navigator.vibrate(50);
   }
@@ -3206,12 +3201,21 @@ class Component extends DCLogic {
           note: e.note || '', hasNote: !!e.note,
           invoiced: !!e.invoiced, invoicedNo: e.invoiced || '',
           contextMenu: (ev) => { ev.preventDefault(); this.openEntryOptions(e); },
-          ptrDown: (ev) => { this._longHoldTimer = setTimeout(() => this.openEntryOptions(e), 500); },
-          ptrUp: () => clearTimeout(this._longHoldTimer),
+          ptrDown: () => {
+            this._longPressOpened = false;
+            clearTimeout(this._longPressReset);
+            this._longHoldTimer = setTimeout(() => this.openEntryOptions(e), 500);
+          },
+          ptrUp: () => {
+            clearTimeout(this._longHoldTimer);
+            if (this._longPressOpened) this._longPressReset = setTimeout(() => { this._longPressOpened = false; }, 350);
+          },
           ptrCancel: () => clearTimeout(this._longHoldTimer),
-          click: () => clashes.length
-            ? this.setState({ clash: [e.id, clashes[0].id] })
-            : this.openEntryEditor(e),
+          click: () => {
+            if (this._longPressOpened) { this._longPressOpened = false; return; }
+            if (clashes.length) this.setState({ clash: [e.id, clashes[0].id] });
+            else this.openEntryEditor(e);
+          },
           id: e.id
         });
       }
@@ -3725,9 +3729,14 @@ class Component extends DCLogic {
     const clashBothTracked = clashEntries.length === 2 && clashEntries.every(e => !e.planned);
 
     return {
-      showDock: !(s.sheet || s.clash || s.optionsOpen || s.trackPicker || s.scopeOpen || s.cal.field || s.planInbox || s.planGap ||
+      showDock: !(s.sheet || s.clash || s.trackPicker || s.scopeOpen || s.cal.field || s.planInbox || s.planGap ||
         s.invoice.open || s.detail || s.preview || s.docPreview || s.issued || s.paywall ||
         s.search.open || s.recovery || s.finish || s.importPrev || s.recentPickerOpen || !s.onboarded),
+      optionsOpen: !!s.optionsOpen,
+      closeEntryOptions: () => this.closeEntryOptions(),
+      dupEntry: () => this.dupEntry(),
+      editEntryOptions: () => this.editEntryOptions(),
+      delEntryOptions: () => this.delEntryOptions(),
       recentPickerOpen: !!s.recentPickerOpen,
       toggleRecentPicker: () => this.setState({ recentPickerOpen: !s.recentPickerOpen }),
       closeRecentPicker: () => this.setState({ recentPickerOpen: false }),
