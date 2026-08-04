@@ -915,6 +915,10 @@
         <div class="tempo-page-header" style="display:flex;align-items:center;justify-content:space-between;height:56px;box-sizing:border-box;padding:0 16px;flex:none;border-bottom:1px solid var(--t-rule2)">
           <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.02em">Projects</span>
         </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px;border-bottom:1px solid var(--t-rule2);font:600 11.5px/1.3 'Archivo',sans-serif;color:var(--t-muted)">
+          <span>{{ projectSummary }}</span>
+          <span style="font-size:10.5px">Tap a project to edit</span>
+        </div>
         <div style="flex:1;overflow-y:auto;padding:12px 0">
           <sc-for list="{{ projectRows }}" as="p" hint-placeholder-count="3">
             <sc-if value="{{ p.groupHead }}" hint-placeholder-val="{{ true }}">
@@ -1130,6 +1134,21 @@
             <div style="padding:12px 16px;border-right:1px solid var(--t-rule);border-bottom:1px solid var(--t-rule)"><div style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">Period</div><div style="font:600 13px/1.3 'Archivo',sans-serif;margin-top:6px">{{ invPeriod }}</div></div>
             <div style="padding:12px 16px;border-bottom:1px solid var(--t-rule)"><div style="font:700 9.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">Due</div><div style="font:600 13px/1.3 'Archivo',sans-serif;margin-top:6px">{{ invDue }}</div></div>
           </div>
+
+          <sc-if value="{{ invoiceNeedsSetup }}" hint-placeholder-val="{{ false }}">
+            <div style="margin:14px 16px 0;padding:14px;border:1px solid var(--tempo-accent);border-radius:14px;background:var(--tempo-accent-wash)">
+              <div style="font:800 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--tempo-accent-deep)">Before you issue this invoice</div>
+              <div style="font:500 12px/1.45 'Archivo',sans-serif;color:var(--t-muted);margin-top:7px">{{ invoiceSetupText }}</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:11px">
+                <sc-if value="{{ invoiceMissingBusiness }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ invoiceGoSettings }}" style="padding:10px 12px;border:0;border-radius:10px;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.06em">ADD BUSINESS DETAILS</button>
+                </sc-if>
+                <sc-if value="{{ invoiceNeedsClient }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ invoiceChooseScope }}" style="padding:10px 12px;border:1px solid var(--tempo-accent);border-radius:10px;background:transparent;color:var(--tempo-accent-deep);cursor:pointer;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.06em">CHOOSE CLIENT OR PROJECT</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
 
           <sc-if value="{{ splitAvailable }}" hint-placeholder-val="{{ false }}">
             <div style="border-bottom:1px solid var(--t-rule)">
@@ -1434,7 +1453,7 @@
                   </button>
                 </sc-for>
               </div>
-              <div style="padding:4px 20px 20px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Tempo keeps everything on this device. No account, no sync, no seats.</div>
+              <div style="padding:4px 20px 20px;font:400 11.5px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Tempo keeps everything on this device. No account, no sync, no seats. Download a backup before changing or replacing phones.</div>
             </div>
           </sc-if>
 
@@ -1444,6 +1463,19 @@
                 <div style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--tempo-accent)">Tempo Pro</div>
                 <div style="font:800 24px/1.15 'Archivo',sans-serif;letter-spacing:-.02em;margin:12px 0 10px;color:var(--t-ink)">Track for free. Pay for getting paid.</div>
                 <div style="font:500 13px/1.5 'Archivo',sans-serif;color:var(--t-muted)">Everything you need to record today and the past stays free. Pro adds future planning, invoices, payment tracking and unlimited history.</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+                  <div style="padding:11px;border:1px solid var(--t-rule2);border-radius:12px;background:var(--t-field)">
+                    <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;color:var(--t-muted)">FREE</span>
+                    <span style="display:block;font:600 11px/1.4 'Archivo',sans-serif;margin-top:6px">Track today and the past, reports, CSV and backup</span>
+                  </div>
+                  <div style="padding:11px;border:1px solid var(--tempo-accent);border-radius:12px;background:var(--tempo-accent-wash)">
+                    <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;color:var(--tempo-accent-deep)">PRO</span>
+                    <span style="display:block;font:600 11px/1.4 'Archivo',sans-serif;margin-top:6px">Plan ahead, invoice clients and track payment</span>
+                  </div>
+                </div>
+                <sc-if value="{{ proInactive }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ unlockPro }}" style="width:100%;margin-top:12px;padding:14px 16px;border:0;border-radius:12px;background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:center;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.08em">UNLOCK PRO</button>
+                </sc-if>
               </div>
               <sc-for list="{{ proFeatures }}" as="f" hint-placeholder-count="8">
                 <div style="padding:14px 16px 16px;border-bottom:1px solid var(--t-rule)">
@@ -1569,7 +1601,7 @@
                   <button onClick="{{ downgradePro }}" style="padding:8px 11px;border:2px solid var(--t-rule);background:transparent;color:var(--t-muted);cursor:pointer;font:700 10px/1 'Archivo',sans-serif;letter-spacing:.08em">TURN OFF</button>
                 </div>
               </sc-if>
-              <div style="padding:16px;font:400 11px/1.5 'Archivo',sans-serif;color:var(--t-muted)">No account required — Pro is stored on this device with the rest of your data.</div>
+              <div style="padding:16px;font:400 11px/1.5 'Archivo',sans-serif;color:var(--t-muted)">No account required. Free keeps every entry on this device; reports and search show the latest 30 days. Pro unlocks your complete on-device history.</div>
             </div>
           </sc-if>
 
@@ -2163,7 +2195,7 @@
         </div>
         <sc-if value="{{ obStep1 }}" hint-placeholder-val="{{ true }}">
           <div class="tempo-onboarding__choices" style="display:flex;flex-direction:column;border-top:2px solid var(--t-ink)">
-            <sc-for list="{{ obModes }}" as="om" hint-placeholder-count="4">
+            <sc-for list="{{ obModes }}" as="om" hint-placeholder-count="3">
               <button onClick="{{ om.pick }}" style="padding:14px 20px;border:0;border-bottom:1px solid var(--t-rule);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
                 <span style="display:block;font:800 14px/1.2 'Archivo',sans-serif">{{ om.label }}</span>
                 <span style="display:block;font:400 11.5px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:3px">{{ om.desc }}</span>
@@ -2213,7 +2245,7 @@
               <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Your logo on printed invoices and reports</span>
               <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Invoiced-hours tracking, so nothing bills twice</span>
               <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Sent / paid / overdue tracking and what you're owed</span>
-              <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Full history — free keeps the last 30 days</span>
+              <span style="display:flex;gap:10px;font:500 12.5px/1.4 'Archivo',sans-serif"><span style="color:var(--tempo-accent);font-weight:800">—</span>Full reports and search history — free keeps every entry but shows the latest 30 days</span>
             </div>
           </div>
           <div class="tempo-paywall-actions" style="display:flex;border-top:2px solid var(--t-ink)">
@@ -3540,6 +3572,14 @@ class Component extends DCLogic {
     const splitAuto = s.invoice.split == null ? multiProjectClient : !!s.invoice.split;
     const splitOn = splitAuto && batch.length > 0;
     const cur = splitOn ? (batch[Math.min(s.invoice.idx, batch.length - 1)] || batch[0]) : null;
+    const invoiceMissingBusiness = !String(set.bizName || '').trim();
+    const invoiceNeedsClient = (!splitOn && inv.client === 'All clients')
+      || (splitOn && batch.some(b => !b.client || b.client === 'All clients'));
+    const invoiceNeedsSetup = invoiceMissingBusiness || invoiceNeedsClient;
+    const invoiceSetupText = [
+      invoiceMissingBusiness ? 'Add the business name that should appear in the From field.' : '',
+      invoiceNeedsClient ? 'Choose one client or project instead of invoicing “All clients.”' : ''
+    ].filter(Boolean).join(' ');
     const reportRows = s.projects.map(p => {
       const pe = weekEntries.filter(e => e.projId === p.id);
       if (!pe.length) return null;
@@ -3986,10 +4026,12 @@ class Component extends DCLogic {
       dayEarned: s.dayOff > 0 ? '$0' : showMoney ? '$' + Math.round(weekMode ? wkMoney : dmoney) : '—',
 
       projectRows,
+      projectSummary: this.liveProjects().length + (this.liveProjects().length === 1 ? ' active project' : ' active projects')
+        + (s.projects.filter(p => p.archived).length ? ' · ' + s.projects.filter(p => p.archived).length + ' archived' : ''),
       openProject: () => this.setState({ sheet: 'project', proj: { name: '', client: '', color: SWATCHES[s.projects.length % SWATCHES.length], rate: '', est: '', archived: false, editId: null } }),
 
       historyLocked: hiddenOld > 0,
-      historyLockedText: hiddenOld + (hiddenOld === 1 ? ' entry is' : ' entries are') + ' older than 30 days and hidden on the free plan.',
+      historyLockedText: hiddenOld + (hiddenOld === 1 ? ' entry is' : ' entries are') + ' older than 30 days. They remain on this device but are hidden from free reports and search.',
       tiles, bars, reportRows,
       scopeLabel: s.scope.type === 'all' ? 'All work' : s.scope.value && s.scope.type === 'project' ? (this.proj(s.scope.value) || {}).name || 'All work' : s.scope.value,
       scopeOpen: !!s.scopeOpen,
@@ -4272,8 +4314,7 @@ class Component extends DCLogic {
       obStep2: !!s.obModeDone,
       obModes: [
         { m: 'billing', label: 'I bill clients', desc: 'Rates, invoices, money totals — the full kit' },
-        { m: 'timesheet', label: 'I submit timesheets', desc: 'Hours only — no money anywhere in the app' },
-        { m: 'billing', label: 'Both', desc: 'Billing features on; track everything' },
+        { m: 'timesheet', label: 'I track work for an employer', desc: 'Timesheets and hours — no money anywhere in the app' },
         { m: 'personal', label: 'Just a personal record', desc: 'Simple hours for yourself, nothing else' }
       ].map(o => ({
         label: o.label, desc: o.desc,
@@ -4389,7 +4430,7 @@ class Component extends DCLogic {
         ['No double billing', 'Invoiced hours are stamped with the invoice number and skipped next cycle — reopen them any time.', true, 'stamp'],
         ['Your logo', 'Printed at the top of invoices and time reports.', true, 'logo'],
         ['Breakdown charts', 'Bars above the invoice table showing the client where their hours actually went.', true, 'chart'],
-        ['Full history', 'Report across all time. Free keeps the last 30 days.', true, 'history'],
+        ['Full history', 'Report and search across all time. Free keeps every entry on this device but shows the latest 30 days.', true, 'history'],
         ['Tracking', 'The timer, gaps, overlaps, tags and notes.', false, 'timer'],
         ['Day and week views', 'The timeline, week strip and daily totals on your own billing cycle.', false, 'day'],
         ['Reports and CSV', 'Scoped reports, printable time reports for an employer, CSV export.', false, 'report'],
@@ -4684,6 +4725,12 @@ class Component extends DCLogic {
       invNumber: splitOn ? cur.no : 'INV-' + String(set.invoiceNo || 1).padStart(4, '0'),
       invFrom: set.bizName || 'Your name — set it in Settings',
       invTo: splitOn ? cur.client : inv.client,
+      invoiceMissingBusiness,
+      invoiceNeedsClient,
+      invoiceNeedsSetup,
+      invoiceSetupText,
+      invoiceGoSettings: () => this.setState({ invoice: Object.assign({}, s.invoice, { open: false }), tab: 'settings', pane: 'invoicing' }),
+      invoiceChooseScope: () => this.setState({ invoice: Object.assign({}, s.invoice, { open: false }), scopeOpen: true }),
       invPeriod: fmtDay(rs) + ' – ' + fmtDay(re),
       invIssued: new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }),
       invDue: new Date(Date.now() + (set.terms || 0) * DAY).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }),
@@ -4716,6 +4763,8 @@ class Component extends DCLogic {
         pick: () => this.setState({ invoice: Object.assign({}, s.invoice, { idx: i }) })
       })),
       markBatch: () => {
+        if (invoiceMissingBusiness) { this.toast('Add your business details before issuing an invoice'); return; }
+        if (invoiceNeedsClient) { this.toast('Add a client to every invoiced project before issuing'); return; }
         if (!batch.length) { this.toast('Nothing to invoice'); return; }
         const snap = this.snapshot();
         const stamp = {};
@@ -4725,6 +4774,8 @@ class Component extends DCLogic {
         this.toast(batch.length + ' invoices issued', snap);
       },
       markInvoiced: () => {
+        if (invoiceMissingBusiness) { this.toast('Add your business details before issuing an invoice'); return; }
+        if (invoiceNeedsClient) { this.toast('Choose one client or project before issuing'); return; }
         if (!inv.entries.length) { this.toast('Nothing to invoice'); return; }
         const no = 'INV-' + String(set.invoiceNo || 1).padStart(4, '0');
         const ids = {};
@@ -4860,7 +4911,12 @@ class Component extends DCLogic {
       exportInvoiceCsv: () => this.state && (0, this._exportCsv)(this._invFile),
       previewOpen: !!s.preview,
       previewSrc: this._invHtml || '',
-      openPreview: () => this.setState({ preview: true }),
+      openPreview: () => {
+        if (invoiceMissingBusiness) { this.toast('Add your business details before previewing'); return; }
+        if (invoiceNeedsClient) { this.toast('Choose one client or project before previewing'); return; }
+        if (!inv.entries.length) { this.toast('Nothing to preview'); return; }
+        this.setState({ preview: true });
+      },
       closePreview: () => this.setState({ preview: false }),
       printInvoiceNow: () => {
         const html = this._invHtml || '';
