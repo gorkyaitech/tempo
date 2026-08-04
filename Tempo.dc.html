@@ -2,10 +2,9 @@
 <html>
 <head>
 <meta charset="utf-8">
-<!-- width=340 scales the 390px-authored design up ~15-25% on real phones
-     (device-width / 340), enlarging all text and touch targets uniformly.
-     Desktop browsers ignore the viewport meta entirely. -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- Use the real device viewport so the installed app fills every iPhone
+     without browser-style scaling or an artificial phone canvas. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Tempo</title>
 <meta name="theme-color" content="#0e0d0c" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#eceae9" media="(prefers-color-scheme: light)">
@@ -35,10 +34,28 @@
     let largestViewportHeight = 0;
     let lastViewportWidth = 0;
 
+    function keepFocusedControlVisible() {
+      const active = document.activeElement;
+      if (!active || !active.closest) return;
+      const panel = active.closest('.tempo-form-sheet__panel');
+      if (!panel) return;
+
+      const viewport = window.visualViewport;
+      const viewportTop = viewport ? viewport.offsetTop : 0;
+      const viewportBottom = viewportTop + (viewport ? viewport.height : window.innerHeight);
+      const rect = active.getBoundingClientRect();
+      const topGuard = viewportTop + 72;
+      const bottomGuard = viewportBottom - 20;
+
+      if (rect.top < topGuard) panel.scrollTop += rect.top - topGuard - 12;
+      else if (rect.bottom > bottomGuard) panel.scrollTop += rect.bottom - bottomGuard + 16;
+    }
+
     function syncVisualViewport() {
       const viewport = window.visualViewport;
       const height = viewport ? viewport.height : window.innerHeight;
       const width = viewport ? viewport.width : window.innerWidth;
+      const top = viewport ? viewport.offsetTop : 0;
 
       if (Math.abs(width - lastViewportWidth) > 80) largestViewportHeight = 0;
       lastViewportWidth = width;
@@ -46,14 +63,10 @@
 
       const keyboardOpen = largestViewportHeight - height > 120;
       document.documentElement.style.setProperty('--tempo-visual-height', Math.round(height) + 'px');
+      document.documentElement.style.setProperty('--tempo-visual-top', Math.round(top) + 'px');
       document.body && document.body.classList.toggle('tempo-keyboard-open', keyboardOpen);
 
-      const active = document.activeElement;
-      if (keyboardOpen && active && active.closest && active.closest('.tempo-form-sheet__panel')) {
-        requestAnimationFrame(function () {
-          active.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
-        });
-      }
+      if (keyboardOpen) requestAnimationFrame(keepFocusedControlVisible);
     }
 
     addEventListener('DOMContentLoaded', syncVisualViewport);
@@ -68,7 +81,7 @@
     }
     document.addEventListener('focusin', function (event) {
       if (event.target.closest && event.target.closest('.tempo-form-sheet__panel')) {
-        setTimeout(syncVisualViewport, 180);
+        setTimeout(syncVisualViewport, 220);
       }
     });
   }());
@@ -138,12 +151,21 @@
 
   /* App Shell & Mobile Responsive Frame */
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-  html,body{height:100%;overscroll-behavior:none}
+  html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;background:var(--t-bg)}
   #dc-root,#dc-root>.sc-host{height:100%}
-  .app-shell{height:100vh;height:var(--tempo-visual-height,100dvh);display:flex;justify-content:center;align-items:stretch;background:var(--t-page);overflow:hidden}
-  .app-frame{width:100%;max-width:440px;height:100vh;height:var(--tempo-visual-height,100dvh);display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--t-bg);flex:none;box-sizing:border-box;
+  .app-shell{height:100vh;height:100dvh;display:flex;justify-content:center;align-items:stretch;background:var(--t-page);overflow:hidden}
+  .app-frame{width:100%;max-width:440px;height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--t-bg);flex:none;box-sizing:border-box;
     --tempo-safe-top:env(safe-area-inset-top,0px);--tempo-safe-bottom:env(safe-area-inset-bottom,0px);
     padding-top:var(--tempo-safe-top);padding-bottom:var(--tempo-safe-bottom)}
+
+  /* Installed phone app: own the complete screen. The visual viewport is
+     reserved for keyboard overlays only; it must never shorten the app shell. */
+  @media (max-width:520px){
+    html,body,#dc-root,#dc-root>.sc-host{height:100%;min-height:100%;background:var(--t-bg)}
+    .app-shell{position:fixed;inset:0;width:100%;height:auto;min-height:0;background:var(--t-bg)}
+    .app-frame{width:100%;max-width:none;height:100%;min-height:0;border:0;border-radius:0}
+    .tempo-tab-dock{margin:6px 10px 6px !important}
+  }
 
   /* Make custom template wrappers transparent to flexbox layout */
   sc-if, sc-for {
@@ -290,8 +312,17 @@
     border-top-right-radius:24px;
     box-sizing:border-box;
     overscroll-behavior:contain;
-    scroll-padding:58px 0 max(96px, var(--tempo-safe-bottom));
+    scroll-padding:72px 0 max(96px, var(--tempo-safe-bottom));
     box-shadow:0 -18px 55px rgba(0,0,0,.42);
+  }
+  .tempo-form-sheet__header{
+    position:sticky;
+    top:-18px;
+    z-index:7;
+    margin:-18px -16px 14px !important;
+    padding:18px 16px 12px;
+    background:var(--t-bg);
+    border-bottom:1px solid var(--t-rule2)
   }
   .tempo-form-sheet__panel input,
   .tempo-form-sheet__panel textarea{
@@ -304,9 +335,33 @@
     box-shadow:0 -10px 0 var(--t-bg),0 7px 0 var(--t-bg);
   }
   body.tempo-keyboard-open .tempo-form-sheet__panel{
-    max-height:calc(100% - max(12px, var(--tempo-safe-top))) !important;
-    padding-bottom:16px !important;
-    scroll-behavior:smooth;
+    width:100%;
+    height:100%;
+    max-height:100% !important;
+    padding:12px 16px 16px !important;
+    border-radius:0 !important;
+    scroll-padding:68px 0 24px;
+    scroll-behavior:auto;
+  }
+  body.tempo-keyboard-open .tempo-form-sheet{
+    position:fixed !important;
+    inset:auto 0 auto 0 !important;
+    top:var(--tempo-visual-top,0px) !important;
+    height:var(--tempo-visual-height,100dvh) !important;
+    max-width:440px;
+    margin-inline:auto;
+    padding-top:env(safe-area-inset-top,0px) !important;
+  }
+  body.tempo-keyboard-open .tempo-form-sheet>div:first-child{display:none}
+  body.tempo-keyboard-open .tempo-form-sheet__header{
+    top:-12px;
+    margin:-12px -16px 12px !important;
+    padding:12px 16px 10px
+  }
+  body.tempo-keyboard-open .tempo-form-sheet__submit{
+    position:relative;
+    bottom:auto;
+    box-shadow:none
   }
   .tempo-planned-badge{
     display:inline-flex;
@@ -2098,7 +2153,7 @@
       <div class="tempo-form-sheet {{ sheetModeClass }}" style="position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:flex-end;background:var(--t-scrim);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
         <div onClick="{{ closeSheet }}" style="flex:1"></div>
         <div class="tempo-form-sheet__panel" style="background:var(--t-bg);border-top:1px solid var(--t-rule2);padding:18px 16px max(28px, env(safe-area-inset-bottom, 28px));max-height:calc(100% - max(42px, env(safe-area-inset-top, 0px)));overflow-y:auto">
-          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+          <div class="tempo-form-sheet__header" style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
             <span style="font:800 17px/1 'Archivo',sans-serif;letter-spacing:-.01em">{{ sheetTitle }}</span>
             <button class="btn btn-ghost" onClick="{{ closeSheet }}" style="font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;padding:6px 8px">CLOSE</button>
           </div>
