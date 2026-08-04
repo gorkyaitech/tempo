@@ -720,8 +720,12 @@
     <sc-if value="{{ isTrack }}" hint-placeholder-val="{{ true }}">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
         <div class="tempo-track-hero" style="background:{{ bandBg }};color:{{ bandFg }};margin:12px 16px 0;padding:18px;flex:none;border:1px solid var(--t-rule2);border-radius:20px;box-shadow:0 10px 28px rgba(0,0,0,.12)">
-          <div style="display:flex;align-items:baseline">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
             <span style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase">{{ timerStateLabel }}</span>
+            <span style="display:block;min-width:0;text-align:right;opacity:.85">
+              <span style="display:block;font:600 10.5px/1.1 'Archivo',sans-serif;letter-spacing:.03em">{{ heroDateLabel }}</span>
+              <span style="display:block;margin-top:4px;font:600 9.5px/1.1 'Archivo',sans-serif;letter-spacing:.03em;font-variant-numeric:tabular-nums">{{ heroDaySummary }}</span>
+            </span>
           </div>
           <div class="{{ clockClass }}" style="font:800 44px/0.92 'Archivo',sans-serif;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:13px 0 10px">{{ clock }}</div>
           <input value="{{ taskText }}" onInput="{{ onTaskInput }}" aria-label="What are you working on?" placeholder="What are you working on?" style="width:100%;box-sizing:border-box;border:0;border-bottom:1px solid {{ bandRule }};background:transparent;border-radius:0;padding:9px 0;font:600 16px/1.3 'Archivo',sans-serif;color:{{ bandFg }};outline:none">
@@ -758,11 +762,6 @@
       </div>
     </sc-if>
           </div>
-        </div>
-
-        <div style="display:flex;align-items:center;justify-content:space-between;height:44px;box-sizing:border-box;margin:10px 16px 0;padding:0 14px;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);font:600 11px/1 'Archivo',sans-serif;color:var(--t-muted);letter-spacing:.04em;flex:none">
-          <span>{{ dateLabel }}</span>
-          <span style="font-variant-numeric:tabular-nums">{{ dayStrip }}</span>
         </div>
 
         <div style="flex:1;overflow-y:auto">
@@ -3612,7 +3611,8 @@ class Component extends DCLogic {
       bandFg: s.timer ? '#ffffff' : 'var(--t-ink)',
       bandRule: s.timer ? 'rgba(255,255,255,.65)' : 'var(--t-rule2)',
       activeProjColor: this.currentProj() ? this.currentProj().color : '#ec3013',
-      dayStrip: fmtHM(tmins) + ' TRACKED' + (showMoney && tmoney ? '  \u00b7  $' + Math.round(tmoney) : ''),
+      heroDateLabel: new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }),
+      heroDaySummary: fmtHM(tmins) + ' tracked' + (showMoney && tmoney ? '  \u00b7  $' + Math.round(tmoney) : ''),
       toggles: [
         { label: 'Show earnings', hint: 'Money totals across the app', on: set.showEarnings, key: 'showEarnings' },
         { label: 'New entries are billable', hint: 'Default for the timer and the add sheet', on: set.defaultBillable, key: 'defaultBillable' },
@@ -3651,7 +3651,6 @@ class Component extends DCLogic {
       spark,
       showSpark: weekMinsTotal > 0,
       sparkTotal: fmtHM(weekMinsTotal),
-      dateLabel: new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }),
       timerStateLabel: s.timer ? '● RUNNING' : 'STOPPED',
       clockClass: s.timer ? 'tempo-timer-active' : '',
       clock: s.timer ? fmtHMS((s.now - s.timer.start) / 1000) : '0:00:00',
