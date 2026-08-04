@@ -132,7 +132,7 @@
     --t-ink:#1a1817;--t-muted:#524f4e;--t-faint:#888381;--t-onink:rgba(246,245,244,.95);
     --t-rule:rgba(26,24,23,.38);--t-rule2:rgba(26,24,23,.22);--t-track:rgba(26,24,23,.12);--t-scrim:rgba(26,24,23,.55);
     --t-dock-bg:rgba(252,251,250,.88);--t-dock-shadow:0 16px 40px rgba(0,0,0,.15);--t-dock-inset:inset 0 1px 0 rgba(255,255,255,.6);
-    --tempo-radius-card:16px;--tempo-radius-control:12px;--tempo-radius-pill:999px;
+    --tempo-radius-card:16px;--tempo-radius-control:12px;--tempo-radius-pill:999px;--tempo-stack-gap:10px;
     --tempo-control-height:44px;
     background:var(--t-page);color:var(--t-ink);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
   body[data-theme="dark"]{
@@ -485,10 +485,10 @@
     font-weight:800 !important
   }
   .tempo-report-controls{border-bottom:0 !important}
-  .tempo-report-presets{margin:10px 16px !important}
+  .tempo-report-presets{margin:var(--tempo-stack-gap) 16px !important}
   .tempo-report-range{margin:0 16px !important}
-  .tempo-report-scroll{padding:10px 0 6px !important}
-  .tempo-report-card{margin:0 16px 10px !important}
+  .tempo-report-scroll{padding:var(--tempo-stack-gap) 0 6px !important}
+  .tempo-report-card{margin:0 16px var(--tempo-stack-gap) !important}
   .tempo-report-footer{
     padding:8px 16px 0 !important;
     border-top:1px solid var(--t-rule2) !important
@@ -496,7 +496,7 @@
   .tempo-day__tools .btn{width:40px !important;height:40px !important;padding:0 !important;background:var(--t-field)}
   .tempo-day__tools .tempo-day__view-toggle{width:auto !important;padding:0 12px !important}
   .tempo-day__week{
-    margin:10px 16px;
+    margin:var(--tempo-stack-gap) 16px 0;
     border:1px solid var(--t-rule2) !important;
     border-radius:var(--tempo-radius-card);
     overflow:hidden;
@@ -505,7 +505,7 @@
   .tempo-day{min-height:0}
   .tempo-day__timeline{
     min-height:0;
-    margin:0 16px;
+    margin:var(--tempo-stack-gap) 16px 0;
     border:1px solid var(--t-rule2);
     border-radius:var(--tempo-radius-card);
     overflow-x:hidden !important;
@@ -537,12 +537,17 @@
   }
   .tempo-day__summary{
     flex:none;
-    margin:10px 16px;
+    margin:var(--tempo-stack-gap) 16px 0;
     padding:13px 14px !important;
     border:1px solid var(--t-rule2) !important;
     border-radius:14px;
     background:var(--t-field)
   }
+  .tempo-track-hero,.tempo-track-stack{margin-top:var(--tempo-stack-gap) !important}
+  .tempo-project-list{padding:var(--tempo-stack-gap) 0 !important}
+  .tempo-project-card{margin-bottom:var(--tempo-stack-gap) !important}
+  .tempo-settings-pane{padding-top:var(--tempo-stack-gap) !important}
+  .tempo-settings-pane > div[style*="border-radius"]{margin-bottom:var(--tempo-stack-gap) !important}
   .tempo-form-sheet .input{width:100%;border-color:var(--t-rule2)}
   .tempo-form-sheet .btn-primary{border-radius:14px;justify-content:center !important;box-shadow:0 6px 18px rgba(0,0,0,.16)}
   .tempo-form-sheet .btn-secondary{border-radius:var(--tempo-radius-control)}
@@ -764,10 +769,10 @@
 
         <div style="flex:1;overflow-y:auto">
           <sc-if value="{{ longRun }}" hint-placeholder-val="{{ false }}">
-            <div style="margin:14px 16px 0;border:2px solid var(--tempo-accent);background:var(--tempo-accent-wash);padding:11px 12px;font:600 12px/1.4 'Archivo',sans-serif;color:var(--t-ink)">{{ longRunText }}</div>
+            <div class="tempo-track-stack" style="margin:14px 16px 0;border:2px solid var(--tempo-accent);background:var(--tempo-accent-wash);padding:11px 12px;font:600 12px/1.4 'Archivo',sans-serif;color:var(--t-ink)">{{ longRunText }}</div>
           </sc-if>
           <sc-if value="{{ idleNudge }}" hint-placeholder-val="{{ false }}">
-            <div style="margin:10px 16px 0;border:1px solid var(--t-rule2);border-radius:16px;background:var(--t-field);padding:14px 16px;font:500 12px/1.45 'Archivo',sans-serif;color:var(--t-muted);box-shadow:0 5px 16px rgba(0,0,0,.05)">Nothing tracked today yet. Start a timer, or log time you already did.</div>
+            <div class="tempo-track-stack" style="margin:10px 16px 0;border:1px solid var(--t-rule2);border-radius:16px;background:var(--t-field);padding:14px 16px;font:500 12px/1.45 'Archivo',sans-serif;color:var(--t-muted);box-shadow:0 5px 16px rgba(0,0,0,.05)">Nothing tracked today yet. Start a timer, or log time you already did.</div>
           </sc-if>
           <sc-if value="{{ showReconstruct }}" hint-placeholder-val="{{ false }}">
             <button class="tempo-reconstruct-card" onClick="{{ reconstructGo }}" style="display:block;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:2px solid var(--tempo-accent);background:var(--tempo-accent-wash);padding:12px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
@@ -777,14 +782,14 @@
             </button>
           </sc-if>
           <sc-if value="{{ showRecoveryBand }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ openRecovery }}" style="display:flex;align-items:center;gap:10px;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);padding:12px 14px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif;box-shadow:0 5px 16px rgba(0,0,0,.05)">
+            <button class="tempo-track-stack" onClick="{{ openRecovery }}" style="display:flex;align-items:center;gap:10px;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);padding:12px 14px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif;box-shadow:0 5px 16px rgba(0,0,0,.05)">
               <span style="width:8px;height:8px;background:var(--tempo-accent);flex:none"></span>
               <span style="flex:1;font:700 12.5px/1.3 'Archivo',sans-serif">{{ recoveryBandText }}</span>
               <span style="font:800 11px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--tempo-accent-deep);flex:none">REVIEW →</span>
             </button>
           </sc-if>
           <sc-if value="{{ showFinishBand }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ openFinish }}" aria-label="Review and close today" style="display:flex;align-items:center;gap:10px;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);color:var(--t-ink);padding:11px 14px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif;box-shadow:0 5px 16px rgba(0,0,0,.05)">
+            <button class="tempo-track-stack" onClick="{{ openFinish }}" aria-label="Review and close today" style="display:flex;align-items:center;gap:10px;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);color:var(--t-ink);padding:11px 14px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif;box-shadow:0 5px 16px rgba(0,0,0,.05)">
               <span style="width:8px;height:8px;border-radius:999px;background:var(--tempo-accent);flex:none"></span>
               <span style="flex:1;min-width:0">
                 <span style="display:block;font:750 12.5px/1.2 'Archivo',sans-serif">Finish today</span>
@@ -794,7 +799,7 @@
             </button>
           </sc-if>
           <sc-if value="{{ showClosedBand }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ openFinish }}" style="display:block;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);padding:11px 14px;cursor:pointer;text-align:left;font:600 12px/1.4 'Archivo',sans-serif;color:var(--t-muted);box-shadow:0 5px 16px rgba(0,0,0,.05)">{{ closedBandText }}</button>
+            <button class="tempo-track-stack" onClick="{{ openFinish }}" style="display:block;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);padding:11px 14px;cursor:pointer;text-align:left;font:600 12px/1.4 'Archivo',sans-serif;color:var(--t-muted);box-shadow:0 5px 16px rgba(0,0,0,.05)">{{ closedBandText }}</button>
           </sc-if>
           <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:14px 16px 8px">Recent — tap to restart</div>
           <sc-if value="{{ noRecent }}" hint-placeholder-val="{{ false }}">
@@ -932,12 +937,12 @@
           <span>{{ projectSummary }}</span>
           <span style="font-size:10.5px">Tap a project to edit</span>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:12px 0">
+        <div class="tempo-project-list" style="flex:1;overflow-y:auto;padding:12px 0">
           <sc-for list="{{ projectRows }}" as="p" hint-placeholder-count="3">
             <sc-if value="{{ p.groupHead }}" hint-placeholder-val="{{ true }}">
               <div style="padding:10px 20px 8px;font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted)">{{ p.groupLabel }}</div>
             </sc-if>
-            <div style="margin:0 16px 12px;border-radius:20px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,0.08)">
+            <div class="tempo-project-card" style="margin:0 16px 12px;border-radius:20px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,0.08)">
               <button onClick="{{ p.edit }}" style="width:100%;text-align:left;border:0;background:transparent;cursor:pointer;padding:18px;opacity:{{ p.rowOpacity }};font-family:'Archivo',sans-serif;transition:background 0.15s ease">
                 <div style="display:flex;align-items:center;gap:10px">
                   <span style="width:10px;height:10px;border-radius:999px;background:{{ p.color }};flex:none"></span>
@@ -1454,7 +1459,7 @@
         <div style="flex:1;overflow-y:auto">
 
           <sc-if value="{{ paneMenu }}" hint-placeholder-val="{{ true }}">
-            <div style="padding-top:14px">
+            <div class="tempo-settings-pane" style="padding-top:14px">
               <div style="margin:0 16px 14px;border-radius:20px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,0.08)">
                 <sc-for list="{{ settingsMenu }}" as="m" hint-placeholder-count="5">
                   <button onClick="{{ m.open }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:16px 20px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif;transition:background 0.15s ease">
@@ -1490,7 +1495,7 @@
                   <button onClick="{{ unlockPro }}" style="width:100%;margin-top:12px;padding:14px 16px;border:0;border-radius:12px;background:var(--tempo-accent);color:#fff;cursor:pointer;text-align:center;font:800 12px/1 'Archivo',sans-serif;letter-spacing:.08em">UNLOCK PRO</button>
                 </sc-if>
               </div>
-              <div style="margin:12px 16px 14px;border:1px solid var(--t-rule2);border-radius:16px;background:var(--t-field);overflow:hidden">
+              <div style="margin:var(--tempo-stack-gap) 16px;border:1px solid var(--t-rule2);border-radius:16px;background:var(--t-field);overflow:hidden">
               <sc-for list="{{ proFeatures }}" as="f" hint-placeholder-count="8">
                 <div style="border-bottom:1px solid var(--t-rule2);background:{{ f.rowBg }}">
                   <button onClick="{{ f.toggle }}" aria-expanded="{{ f.expanded }}" style="width:100%;min-height:50px;display:flex;align-items:center;gap:10px;padding:12px 14px;border:0;background:transparent;color:var(--t-ink);cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
@@ -1637,7 +1642,7 @@
           </sc-if>
 
           <sc-if value="{{ paneAppearance }}" hint-placeholder-val="{{ false }}">
-            <div style="padding-top:14px">
+            <div class="tempo-settings-pane" style="padding-top:14px">
               <div style="padding:0 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">App Theme</div>
               <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--t-rule2)">
@@ -1651,7 +1656,7 @@
           </sc-if>
 
           <sc-if value="{{ paneTracking }}" hint-placeholder-val="{{ false }}">
-            <div style="padding-top:14px">
+            <div class="tempo-settings-pane" style="padding-top:14px">
 
               <div style="padding:0 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">You use Tempo for</div>
               <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
@@ -1752,7 +1757,7 @@
           </sc-if>
 
           <sc-if value="{{ paneCycle }}" hint-placeholder-val="{{ false }}">
-            <div style="padding-top:14px">
+            <div class="tempo-settings-pane" style="padding-top:14px">
               <div style="padding:0 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Your week starts on</div>
               <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
                 <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--t-rule2)">
@@ -1766,7 +1771,7 @@
           </sc-if>
 
           <sc-if value="{{ paneInvoicing }}" hint-placeholder-val="{{ false }}">
-            <div style="padding-top:14px">
+            <div class="tempo-settings-pane" style="padding-top:14px">
               <sc-if value="{{ invoiceLocked }}" hint-placeholder-val="{{ false }}">
                 <div style="margin:0 16px 16px;border:2px solid var(--tempo-accent);border-radius:16px;background:var(--tempo-accent-wash);padding:20px 18px">
                   <div style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--tempo-accent)">Tempo Pro</div>
@@ -1842,7 +1847,7 @@
           </sc-if>
 
           <sc-if value="{{ paneGoals }}" hint-placeholder-val="{{ false }}">
-            <div style="padding-top:14px">
+            <div class="tempo-settings-pane" style="padding-top:14px">
               <div style="padding:0 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Goal Setting</div>
               <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
                 <div style="display:flex;border-bottom:1px solid var(--t-rule2)">
@@ -1863,7 +1868,7 @@
           </sc-if>
 
           <sc-if value="{{ paneData }}" hint-placeholder-val="{{ false }}">
-            <div style="padding-top:14px">
+            <div class="tempo-settings-pane" style="padding-top:14px">
               <div style="padding:0 20px 10px;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t-muted)">Data Management</div>
               <div style="margin:0 16px 16px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);overflow:hidden">
                 <button onClick="{{ openProject }}" style="width:100%;padding:16px;border:0;border-bottom:1px solid var(--t-rule2);background:transparent;cursor:pointer;text-align:left;font:600 13.5px/1 'Archivo',sans-serif">Add a project</button>
