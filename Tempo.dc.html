@@ -2076,7 +2076,7 @@
               <button onClick="{{ c.edit }}" style="width:100%;margin-top:13px;padding:11px 10px;border:1px solid var(--t-rule2);border-radius:11px;background:transparent;color:var(--t-ink);cursor:pointer;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.07em">EDIT TIME</button>
               <sc-if value="{{ c.isPlan }}" hint-placeholder-val="{{ false }}">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-                  <button onClick="{{ c.defer }}" style="padding:11px 8px;border:1px solid #4f9cff;border-radius:11px;background:transparent;color:#4f9cff;cursor:pointer;font:800 9.5px/1.15 'Archivo',sans-serif;letter-spacing:.05em">PLAN LATER</button>
+                  <button onClick="{{ c.postpone }}" style="padding:11px 8px;border:1px solid #4f9cff;border-radius:11px;background:transparent;color:#4f9cff;cursor:pointer;font:800 9.5px/1.15 'Archivo',sans-serif;letter-spacing:.05em">POSTPONE · PICK DATE</button>
                   <button onClick="{{ c.logPast }}" style="padding:11px 8px;border:0;border-radius:11px;background:#007aff;color:#fff;cursor:pointer;font:800 9.5px/1.15 'Archivo',sans-serif;letter-spacing:.04em">DONE · CHOOSE PAST TIME</button>
                 </div>
               </sc-if>
@@ -3655,6 +3655,21 @@ class Component extends DCLogic {
       });
       this.toast(destination === 'gap' ? 'Choose when the planned work was actually done' : 'Plan saved in the inbox for later');
     };
+    const postponeClashPlan = entry => {
+      if (!entry || !entry.planned) return;
+      if (!set.pro) {
+        this.setState({ clash: null, paywall: true, paywallReason: 'planning' });
+        return;
+      }
+      const tomorrow = dayStart(1).getTime();
+      this.setState({ clash: null }, () => this.openSheet('entry', {
+        desc: entry.desc === '(no description)' ? '' : entry.desc,
+        start: fmtClock(entry.start), end: fmtClock(entry.end),
+        projId: entry.projId, billable: entry.billable, parallel: !!entry.parallel,
+        tag: entry.tag || '', note: entry.note || '', editId: entry.id, dateMs: tomorrow
+      }));
+      this.toast('Choose a new date and time for this plan');
+    };
     const clashItems = clashEntries.map((e, index) => {
       const p = this.proj(e.projId);
       return {
@@ -3667,7 +3682,7 @@ class Component extends DCLogic {
         project: p ? this.projLabel(p) : 'No project',
         isPlan: !!e.planned,
         edit: () => this.openEntryEditor(e),
-        defer: () => moveClashPlan(e, 'inbox'),
+        postpone: () => postponeClashPlan(e),
         logPast: () => moveClashPlan(e, 'gap')
       };
     });
