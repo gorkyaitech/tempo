@@ -994,18 +994,18 @@
               <button onClick="{{ p.pick }}" style="padding:10px 0;border:0;border-radius:10px;background:{{ p.bg }};color:{{ p.fg }};cursor:pointer;font:700 11px/1 'Archivo',sans-serif;letter-spacing:.04em;text-transform:uppercase;box-shadow:{{ p.shadow }};transition:all 0.2s cubic-bezier(0.16,1,0.3,1)">{{ p.label }}</button>
             </sc-for>
           </div>
-          <div class="tempo-report-range" style="margin:0 16px 12px;border-radius:14px;border:1px solid var(--t-rule2);background:var(--t-field);display:flex;gap:4px;padding:4px">
-            <button onClick="{{ openCalFrom }}" style="flex:1;text-align:center;padding:10px 4px;border:0;border-radius:10px;background:{{ fromFieldBg }};cursor:pointer;transition:background 0.15s ease">
-              <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:5px">Starts</span>
-              <span style="display:block;font:700 13px/1.1 'Archivo',sans-serif;color:var(--t-ink)">{{ fromPretty }}</span>
+          <div class="tempo-report-range" style="margin:0 16px 12px;display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px">
+            <button onClick="{{ openCalFrom }}" aria-label="Change report start date, {{ fromPretty }}" style="min-width:0;text-align:left;padding:10px 10px;border:1px solid var(--t-rule2);border-radius:12px;background:{{ fromFieldBg }};cursor:pointer;transition:background 0.15s ease,border-color 0.15s ease">
+              <span style="display:block;font:800 8.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">Start date</span>
+              <span style="display:flex;align-items:center;justify-content:space-between;gap:4px;font:750 12.5px/1.1 'Archivo',sans-serif;color:var(--t-ink)"><span>{{ fromPretty }}</span><span aria-hidden="true" style="color:var(--t-muted)">›</span></span>
             </button>
-            <button onClick="{{ openCalTo }}" style="flex:1;text-align:center;padding:10px 4px;border:0;border-radius:10px;background:{{ toFieldBg }};cursor:pointer;transition:background 0.15s ease">
-              <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:5px">Ends</span>
-              <span style="display:block;font:700 13px/1.1 'Archivo',sans-serif;color:var(--t-ink)">{{ toPretty }}</span>
+            <button onClick="{{ openCalTo }}" aria-label="Change report end date, {{ toPretty }}" style="min-width:0;text-align:left;padding:10px 10px;border:1px solid var(--t-rule2);border-radius:12px;background:{{ toFieldBg }};cursor:pointer;transition:background 0.15s ease,border-color 0.15s ease">
+              <span style="display:block;font:800 8.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">End date</span>
+              <span style="display:flex;align-items:center;justify-content:space-between;gap:4px;font:750 12.5px/1.1 'Archivo',sans-serif;color:var(--t-ink)"><span>{{ toPretty }}</span><span aria-hidden="true" style="color:var(--t-muted)">›</span></span>
             </button>
-            <button onClick="{{ openScope }}" style="flex:1.2;min-width:0;text-align:center;padding:10px 4px;border:0;border-radius:10px;background:transparent;cursor:pointer">
-              <span style="display:block;font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:5px">Scope ▾</span>
-              <span style="display:block;font:700 13px/1.1 'Archivo',sans-serif;color:var(--t-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ scopeLabel }}</span>
+            <button onClick="{{ openScope }}" aria-label="Change work scope, {{ scopeLabel }}" style="min-width:0;text-align:left;padding:10px 10px;border:1px solid var(--t-rule2);border-radius:12px;background:var(--t-field);cursor:pointer;transition:background 0.15s ease,border-color 0.15s ease">
+              <span style="display:block;font:800 8.5px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-muted);margin-bottom:6px">Work scope</span>
+              <span style="display:flex;align-items:center;justify-content:space-between;gap:4px;font:750 12.5px/1.1 'Archivo',sans-serif;color:var(--t-ink);white-space:nowrap;overflow:hidden"><span style="overflow:hidden;text-overflow:ellipsis">{{ scopeLabel }}</span><span aria-hidden="true" style="color:var(--t-muted)">›</span></span>
             </button>
           </div>
         </div>
@@ -1035,10 +1035,11 @@
           </sc-if>
 
 
-          <!-- Activity Heatmap -->
+          <!-- Work rhythm -->
           <div class="tempo-report-card" style="margin:0 16px 14px;border-radius:16px;border:1px solid var(--t-rule2);background:var(--t-field);padding:16px;box-shadow:0 6px 20px rgba(0,0,0,0.06)">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-              <span style="font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">Activity Heatmap</span>
+            <div style="margin-bottom:12px">
+              <span style="display:block;font:800 10.5px/1 'Archivo',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t-muted)">Work rhythm · last 16 weeks</span>
+              <span style="display:block;font:500 11px/1.4 'Archivo',sans-serif;color:var(--t-muted);margin-top:7px">Each square is one day. Stronger color means more tracked time.</span>
             </div>
             <div role="img" aria-label="{{ heatmapAria }}" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none">
               <sc-for list="{{ heatmapCols }}" as="col" hint-placeholder-count="16">
@@ -1049,6 +1050,10 @@
                 </div>
               </sc-for>
             </div>
+            <div style="display:flex;justify-content:space-between;margin-top:7px;font:600 9px/1 'Archivo',sans-serif;color:var(--t-faint)"><span>16 weeks ago</span><span>Today</span></div>
+            <sc-if value="{{ heatmapEmpty }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--t-rule2);font:600 10.5px/1.4 'Archivo',sans-serif;color:var(--t-muted)">No tracked days yet. Your work pattern will appear here as you log time.</div>
+            </sc-if>
           </div>
 
           <sc-if value="{{ historyLocked }}" hint-placeholder-val="{{ false }}">
@@ -3955,7 +3960,7 @@ class Component extends DCLogic {
       })),
       resetSample: () => this.setState({ entries: [], projects: [], timer: null }, () => { this.seed(); this.toast('Sample day reloaded'); }),
       clearAll: () => { const snap = this.snapshot(); this.setState({ entries: [], projects: [], timer: null, lastProj: null, task: '' }); this.toast('Everything erased', snap); },
-      tabs, heatmapCols, heatmapAria,
+      tabs, heatmapCols, heatmapAria, heatmapEmpty: heatmapTrackedDays === 0,
       spark,
       showSpark: weekMinsTotal > 0,
       sparkTotal: fmtHM(weekMinsTotal),
