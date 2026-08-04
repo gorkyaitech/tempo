@@ -485,11 +485,14 @@
     overflow:hidden;
     background:var(--t-field)
   }
+  .tempo-day{min-height:0}
   .tempo-day__timeline{
+    min-height:0;
     margin:0 16px;
     border:1px solid var(--t-rule2);
     border-radius:var(--tempo-radius-card);
-    overflow:hidden !important
+    overflow-x:hidden !important;
+    overflow-y:auto !important
   }
   .tempo-day__workbar{
     min-height:44px;
@@ -516,6 +519,7 @@
     white-space:nowrap
   }
   .tempo-day__summary{
+    flex:none;
     margin:10px 16px 0;
     padding:13px 14px !important;
     border:1px solid var(--t-rule2) !important;
