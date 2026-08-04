@@ -2057,9 +2057,12 @@
               </div>
               <button onClick="{{ c.edit }}" style="width:100%;margin-top:13px;padding:11px 10px;border:1px solid var(--t-rule2);border-radius:11px;background:transparent;color:var(--t-ink);cursor:pointer;font:800 10px/1 'Archivo',sans-serif;letter-spacing:.07em">EDIT TIME</button>
               <sc-if value="{{ c.isPlan }}" hint-placeholder-val="{{ false }}">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+                  <button onClick="{{ c.decideLater }}" style="width:100%;padding:11px 8px;border:1px solid var(--t-rule2);border-radius:11px;background:var(--t-field);color:var(--t-ink);cursor:pointer;font:800 9.5px/1.15 'Archivo',sans-serif;letter-spacing:.05em">UNSCHEDULE · DECIDE LATER</button>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                   <button onClick="{{ c.postpone }}" style="padding:11px 8px;border:1px solid #4f9cff;border-radius:11px;background:transparent;color:#4f9cff;cursor:pointer;font:800 9.5px/1.15 'Archivo',sans-serif;letter-spacing:.05em">POSTPONE · PICK DATE</button>
                   <button onClick="{{ c.logPast }}" style="padding:11px 8px;border:0;border-radius:11px;background:#007aff;color:#fff;cursor:pointer;font:800 9.5px/1.15 'Archivo',sans-serif;letter-spacing:.04em">DONE · CHOOSE PAST TIME</button>
+                  </div>
                 </div>
               </sc-if>
             </div>
@@ -3722,6 +3725,7 @@ class Component extends DCLogic {
         canSelect: index > 0,
         select: () => this.setState({ clash: [clashEntries[1].id, clashEntries[0].id] }),
         edit: () => this.openEntryEditor(e),
+        decideLater: () => moveClashPlan(e, 'inbox'),
         postpone: () => postponeClashPlan(e),
         logPast: () => moveClashPlan(e, 'gap')
       };
@@ -3744,7 +3748,7 @@ class Component extends DCLogic {
       clashItems,
       clashBothTracked,
       clashHelp: clashEntries.some(e => e.planned)
-        ? 'Tracked work owns the time that actually happened. Use either card directly, or make the other item selected to change your focus.'
+        ? 'Selection only changes your focus; it never removes the other item. Keep the tracked work, then reschedule, complete, or unschedule the plan.'
         : 'Both items are tracked. Adjust one time, or keep both only if they truly happened simultaneously.',
       closeClash: () => this.setState({ clash: null }),
       keepClashParallel: () => {
@@ -3891,8 +3895,8 @@ class Component extends DCLogic {
           title: e.desc,
           color: p ? p.color : '#7d7979',
           duration: fmtHM((originalEnd - original) / MS),
-          meta: new Date(original).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + fmtClock(original) + ' – ' + fmtClock(originalEnd) + (p ? ' · ' + this.projLabel(p) : ''),
-          reason: e.backlogReason === 'displaced' ? 'Tracked work took this time — kept for later' : e.backlogReason === 'deferred' ? 'Moved here for later — original time preserved' : 'Scheduled time passed — still available to recover',
+          meta: 'Originally ' + new Date(original).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + fmtClock(original) + ' – ' + fmtClock(originalEnd) + (p ? ' · ' + this.projLabel(p) : ''),
+          reason: e.backlogReason === 'displaced' ? 'Unscheduled — tracked work took its time' : e.backlogReason === 'deferred' ? 'Unscheduled — choose a new date when ready' : 'Unscheduled — its planned time passed',
           reschedule: () => {
             if (!set.pro) { this.setState({ planInbox: false, paywall: true, paywallReason: 'planning' }); return; }
             this.setState({ planInbox: false }, () => this.openSheet('entry', {
