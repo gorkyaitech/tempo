@@ -192,7 +192,7 @@
        The form panel is the only thing that should scroll above the keyboard. */
     body{position:fixed;inset:0;width:100%;height:100%;}
     .app-shell{position:fixed;inset:0;width:100%;height:auto;min-height:0;background:var(--t-bg)}
-    .app-frame{width:100%;max-width:none;height:100%;min-height:0;border:0;border-radius:0}
+    .app-frame{width:100%;max-width:none;height:100%;min-height:0;border:0;border-radius:0;padding-bottom:0}
     .tempo-tab-dock{margin:6px 10px 6px !important}
   }
 
@@ -325,6 +325,11 @@
   }
   .tempo-tab-dock button:active {
     transform: scale(0.92) !important;
+  }
+  @media (max-width:520px){
+    /* Reserve the home-indicator inset once, on the dock itself. The frame
+       previously reserved it too, leaving the navigation floating too high. */
+    .tempo-tab-dock{margin:6px 10px max(4px,var(--tempo-safe-bottom)) !important}
   }
 
   /* Form sheets must sit above the persistent dock, not underneath it. */
@@ -809,26 +814,6 @@
           </sc-for>
         </div>
 
-        <sc-if value="{{ showSpark }}" hint-placeholder-val="{{ false }}">
-          <div style="flex:none;border-top:2px solid var(--t-ink);padding:12px 16px 10px">
-            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-              <span style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted)">This week</span>
-              <span style="font:700 11.5px/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums;color:var(--tempo-accent-deep)">{{ sparkTotal }}</span>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:42px">
-              <sc-for list="{{ spark }}" as="d" hint-placeholder-count="7">
-                <button onClick="{{ d.pick }}" aria-label="Open this day" style="height:100%;display:flex;flex-direction:column;justify-content:flex-end;border:0;background:transparent;cursor:pointer;padding:0">
-                  <span style="display:block;width:100%;height:{{ d.h }};background:{{ d.color }}"></span>
-                </button>
-              </sc-for>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;border-top:2px solid var(--t-ink);margin-top:6px;padding-top:6px">
-              <sc-for list="{{ spark }}" as="d" hint-placeholder-count="7">
-                <span style="text-align:center;font:{{ d.labelW }} 9.5px/1 'Archivo',sans-serif;color:{{ d.labelFg }}">{{ d.label }}</span>
-              </sc-for>
-            </div>
-          </div>
-        </sc-if>
         <div style="display:flex;gap:8px;margin:8px 16px 10px">
           <button class="btn" onClick="{{ toggleTimer }}" style="flex:1;justify-content:center;border-radius:14px;border:0;background:{{ bigBtnBg }};color:{{ bigBtnFg }};font:800 14px/1 'Archivo',sans-serif;letter-spacing:.07em;padding:15px 16px;box-shadow:0 6px 16px rgba(0,0,0,.12)">{{ bigBtnLabel }}</button>
           <button class="btn btn-secondary" onClick="{{ openAdd }}" style="width:96px;justify-content:center;border-radius:14px;border:1px solid var(--t-rule2);background:var(--t-field);font:700 12.5px/1 'Archivo',sans-serif;letter-spacing:.05em;padding:15px 12px">+ LOG</button>
@@ -2537,6 +2522,20 @@ class Component extends DCLogic {
     const t = (this.state.settings && this.state.settings.theme) || 'auto';
     document.body.setAttribute('data-theme', t);
     document.documentElement.style.colorScheme = t === 'auto' ? 'light dark' : t;
+    const isDark = t === 'dark' || (t === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const nativeChromeKey = (isDark ? 'dark' : 'light') + ':overlay';
+    if (this._nativeChromeKey !== nativeChromeKey) {
+      this._nativeChromeKey = nativeChromeKey;
+      try {
+        const statusBar = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar;
+        if (statusBar) {
+          statusBar.setOverlaysWebView({ overlay: true });
+          // Capacitor's names describe the background: DARK uses light text,
+          // LIGHT uses dark text.
+          statusBar.setStyle({ style: isDark ? 'DARK' : 'LIGHT' });
+        }
+      } catch (e) {}
+    }
   }
   applyAccent() {
     const map = {
@@ -2615,6 +2614,9 @@ class Component extends DCLogic {
   componentDidMount() {
     this.applyAccent();
     this.applyTheme();
+    this._themeMedia = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+    this._themeListener = () => { this._nativeChromeKey = ''; this.applyTheme(); };
+    if (this._themeMedia && this._themeMedia.addEventListener) this._themeMedia.addEventListener('change', this._themeListener);
     const restored = this.restore();
     setTimeout(() => {
       const lg = this.state.settings.logo;
@@ -2642,6 +2644,7 @@ class Component extends DCLogic {
   componentWillUnmount() {
     clearInterval(this._t); clearTimeout(this._toast); clearTimeout(this._save);
     document.removeEventListener('keydown', this._key);
+    if (this._themeMedia && this._themeMedia.removeEventListener) this._themeMedia.removeEventListener('change', this._themeListener);
   }
   escape() {
     const s = this.state;
