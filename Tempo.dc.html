@@ -784,13 +784,17 @@
             </button>
           </sc-if>
           <sc-if value="{{ showFinishBand }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ openFinish }}" style="display:flex;align-items:center;gap:10px;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:2px solid var(--t-ink);background:var(--t-ink);color:var(--t-onink);padding:12px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif">
-              <span style="flex:1;font:800 12.5px/1.3 'Archivo',sans-serif;letter-spacing:.04em">Finish today — a 30-second review</span>
-              <span style="font:800 11px/1 'Archivo',sans-serif;letter-spacing:.08em;flex:none">CLOSE THE DAY →</span>
+            <button onClick="{{ openFinish }}" aria-label="Review and close today" style="display:flex;align-items:center;gap:10px;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);color:var(--t-ink);padding:11px 14px;cursor:pointer;text-align:left;font-family:'Archivo',sans-serif;box-shadow:0 5px 16px rgba(0,0,0,.05)">
+              <span style="width:8px;height:8px;border-radius:999px;background:var(--tempo-accent);flex:none"></span>
+              <span style="flex:1;min-width:0">
+                <span style="display:block;font:750 12.5px/1.2 'Archivo',sans-serif">Finish today</span>
+                <span style="display:block;margin-top:3px;font:450 10.5px/1.3 'Archivo',sans-serif;color:var(--t-muted)">30-second review before closing</span>
+              </span>
+              <span style="font:800 10px/1 'Archivo',sans-serif;letter-spacing:.08em;color:var(--tempo-accent-deep);flex:none">REVIEW →</span>
             </button>
           </sc-if>
           <sc-if value="{{ showClosedBand }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ openFinish }}" style="display:block;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:2px dashed var(--t-rule);background:transparent;padding:11px 12px;cursor:pointer;text-align:left;font:600 12px/1.4 'Archivo',sans-serif;color:var(--t-muted)">{{ closedBandText }}</button>
+            <button onClick="{{ openFinish }}" style="display:block;width:calc(100% - 32px);box-sizing:border-box;margin:14px 16px 0;border:1px solid var(--t-rule2);border-radius:14px;background:var(--t-field);padding:11px 14px;cursor:pointer;text-align:left;font:600 12px/1.4 'Archivo',sans-serif;color:var(--t-muted);box-shadow:0 5px 16px rgba(0,0,0,.05)">{{ closedBandText }}</button>
           </sc-if>
           <div style="font:700 10px/1 'Archivo',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--t-muted);padding:14px 16px 8px">Recent — tap to restart</div>
           <sc-if value="{{ noRecent }}" hint-placeholder-val="{{ false }}">
