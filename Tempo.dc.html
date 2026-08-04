@@ -853,7 +853,7 @@
         </sc-if>
         <sc-if value="{{ isDayMode }}" hint-placeholder-val="{{ true }}">
         <div class="tempo-day__workbar">
-          <button onClick="{{ openDayAdd }}" aria-label="{{ dayAddAria }}" style="flex:none;padding:0 10px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.06em;white-space:nowrap">{{ dayAddCompactLabel }}</button>
+          <button onClick="{{ openDayAdd }}" aria-label="{{ dayAddAria }}" style="flex:none;min-width:72px;padding:0 16px;border:0;background:var(--tempo-accent);color:#fff;cursor:pointer;font:800 9.5px/1 'Archivo',sans-serif;letter-spacing:.06em;white-space:nowrap">{{ dayAddCompactLabel }}</button>
           <span style="flex:1;min-width:0;font:600 11px/1 'Archivo',sans-serif;color:var(--t-muted);font-variant-numeric:tabular-nums">
             <span style="font:800 9px/1 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--t-faint);margin-right:6px">{{ dayContextLabel }}</span>{{ workdayRange }}
           </span>
